@@ -34,6 +34,10 @@ https://www.bilibili.com/video/BV1vF41197DW
 
 .
 
+### 你可以点击[这里](https://github.com/KUN1007/kungalgame-stickers/releases)下载这些贴纸
+
+.
+
 ## 规范
 
 这个表情包系列尽量遵循以下几点规范
