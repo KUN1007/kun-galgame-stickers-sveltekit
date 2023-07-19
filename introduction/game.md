@@ -118,8 +118,7 @@
 
 #### [鲲galgame表情包[4]](https://t.me/addstickers/KUNgal4)中的游戏
 
-* 星之终途
-* 小白兔电商
+* 哥哥，早上起床之前都要抱紧我哦！
 * 樱之诗
 * Unless Terminalia
 * LOVE REC
