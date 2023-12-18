@@ -28,6 +28,8 @@ https://www.bilibili.com/video/BV1vF41197DW
 
 [鲲galgame表情包[5]](https://t.me/addstickers/KUNgal5)
 
+[鲲galgame表情包[6]](https://t.me/addstickers/KUNgal6)
+
 **仓库中的表情包是比 Telegram 中的贴纸集清晰的**，因为在做成 Telegram 贴纸集的时候对质量做了压缩
 
 .
