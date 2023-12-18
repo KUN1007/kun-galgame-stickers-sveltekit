@@ -125,3 +125,5 @@
 #### [鲲galgame表情包[5]](https://t.me/addstickers/KUNgal6)中的游戏, 正在更新
 
 * Clover Day's
+* 纸上魔法使
+* 星光咖啡馆与死神之蝶
