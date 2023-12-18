@@ -106,7 +106,7 @@
 
 .
 
-#### [鲲galgame表情包[5]](https://t.me/addstickers/KUNgal5)中的游戏，正在更新
+#### [鲲galgame表情包[5]](https://t.me/addstickers/KUNgal5)中的游戏
 
 * 星恋＊ティンクル
 * 恋爱的心与魔法的言语
@@ -116,3 +116,8 @@
 * 不败世界与终焉之花
 * 花咲workspring
 * ふゆから、くるる。
+* 9-nine-九次九日九重色
+* 9-nine-天色天歌天籁音
+* 9-nine-春色春恋春熙风
+* 9-nine-雪色雪花雪之痕
+* 9-nine-新章
