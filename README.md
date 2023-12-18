@@ -1,6 +1,6 @@
 # kun-galgame-stickers
 
-[kun-galgame-stickers](https://github.com/KUN1007/kun-galgame-stickers/blob/main/introduction/title.png)
+![kun-galgame-stickers](https://github.com/KUN1007/kun-galgame-stickers/blob/main/introduction/title.png)
 
 ## 介绍
 
