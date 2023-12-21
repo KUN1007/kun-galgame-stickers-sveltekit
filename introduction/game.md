@@ -127,3 +127,4 @@
 * Clover Day's
 * 纸上魔法使
 * 星光咖啡馆与死神之蝶
+* 天神乱漫 -LUCKY or UNLUCKY!?-
