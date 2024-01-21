@@ -27,7 +27,7 @@
   </nav>
 
   <div class="github">
-    <a href="https://github.com/KUN1007/kungalgame-stickers">
+    <a href="https://github.com/KUN1007/kun-galgame-stickers-sveltekit" target="_blank">
       <Icon icon="line-md:github-loop" />
     </a>
   </div>

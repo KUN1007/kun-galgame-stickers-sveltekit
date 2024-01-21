@@ -11,7 +11,8 @@
   </main>
 
   <footer>
-    <p>2024 KUN Visual Novel</p>
+    <p>2024 KUN Visual Novel | Stickers</p>
+    <p>本网站开源，源码在右上角 GitHub</p>
   </footer>
 </div>
 

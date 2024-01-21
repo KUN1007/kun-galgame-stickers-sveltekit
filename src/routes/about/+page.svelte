@@ -15,7 +15,7 @@
 
   <section class="introduction">
     <h2>介绍</h2>
-    <p>做了一个视频介绍这个仓库啦</p>
+    <p>做了一个视频介绍这个项目啦</p>
     <p>目前，这个网站的表情包数量已经超过 400 张了</p>
 
     <!-- svelte-ignore a11y-media-has-caption -->
@@ -26,7 +26,7 @@
 
     <div>
       <br />
-      <p>本视频同步发布于 Bilibili</p>
+      <p>本视频同步发布于 Bilibili, 喜欢可以来点个赞哦</p>
       <p>
         Bilibili: <a href="https://www.bilibili.com/video/BV1vF41197DW"
           >350多张纯 galgame 表情包，我建了一个 galgame 表情包仓库</a
