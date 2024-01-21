@@ -20,13 +20,15 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    color: var(--kungalgame-font-color-3);
+    background-color: var(--kungalgame-trans-blue-0);
   }
 
   main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding: 5rem;
     width: 100%;
     max-width: 64rem;
     margin: 0 auto;
