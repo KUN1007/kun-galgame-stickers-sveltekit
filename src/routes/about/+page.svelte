@@ -16,15 +16,10 @@
   <section class="introduction">
     <h2>介绍</h2>
     <p>做了一个视频介绍这个仓库啦</p>
+    <p>目前，这个网站的表情包数量已经超过 400 张了</p>
 
     <!-- svelte-ignore a11y-media-has-caption -->
-    <video
-      poster="https://sveltejs.github.io/assets/caminandes-llamigos.jpg"
-      controls
-      loop
-      playsinline
-      width="100%"
-    >
+    <video poster="title.webp" controls loop playsinline width="100%">
       <source src="introduction.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>

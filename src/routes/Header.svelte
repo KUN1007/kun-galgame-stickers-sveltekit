@@ -1,16 +1,21 @@
-<script>
+<script lang="ts">
   import { page } from '$app/stores'
   import Icon from '@iconify/svelte'
   import kun from '$lib/images/favicon.webp'
+  import { goto } from '$app/navigation'
+
+  const handleClickBackHome = () => {
+    goto('/')
+  }
 </script>
 
 <header>
-  <div class="kungalgame">
-    <a href="/">
+  <button class="kungalgame" on:click={handleClickBackHome}>
+    <span>
       <img src={kun} alt="KUN Visual Novel | Stickers" />
-    </a>
+    </span>
     <span>KUN Visual Novel Stickers</span>
-  </div>
+  </button>
 
   <nav>
     <span aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
@@ -45,12 +50,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    a {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    background: none;
+    border: none;
+    cursor: pointer;
 
     img {
       position: relative;
@@ -84,6 +86,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
 
   a {
