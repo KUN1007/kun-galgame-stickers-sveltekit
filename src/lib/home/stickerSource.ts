@@ -2,10 +2,9 @@ import fs from 'fs'
 import path from 'path'
 import type { KUNStickers } from '~/types/stickers'
 
-const readFileName = (folder: string, folderPath: string): KUNStickers[] => {
-  const sid = parseInt(folder.split('KUNgal')[1])
+const readFileName = (folder: string, folderPath: string, sid: number): KUNStickers[] => {
   const files = fs.readdirSync(folderPath)
-  return files.map((file) => {
+  const stickers: KUNStickers[] = files.map((file) => {
     const parts = file.split('-')
     const pid = parseInt(parts[0])
     const loli = parts[1]
@@ -22,25 +21,17 @@ const readFileName = (folder: string, folderPath: string): KUNStickers[] => {
       describe: describe
     }
   })
+
+  stickers.sort((a, b) => a.pid - b.pid)
+  return stickers
 }
 
-const generateArray = (dir: string): KUNStickers[] => {
-  const folders = fs.readdirSync(dir)
-  return folders.flatMap((folder) => {
-    const folderPath = path.join(dir, folder)
-    const stat = fs.statSync(folderPath)
-    if (stat.isDirectory()) {
-      return readFileName(folder, folderPath)
-    }
-    return []
-  })
-}
-
-export const getStickersPath = () => {
-  return `${process.cwd()}/static/stickers`
-}
-
-export const kunStickerPack = () => {
-  const stickersPath = getStickersPath()
-  return generateArray(stickersPath)
+export const getImageArray = (sid: number): KUNStickers[] => {
+  const stickersDir = path.join(process.cwd(), 'static', 'stickers')
+  const folderName = `KUNgal${sid}`
+  const folderPath = path.join(stickersDir, folderName)
+  if (fs.existsSync(folderPath) && fs.statSync(folderPath).isDirectory()) {
+    return readFileName(folderName, folderPath, sid)
+  }
+  return []
 }
