@@ -34,12 +34,14 @@
       width: 77px;
       height: 77px;
       border-radius: 50%;
-      transform: translateX(-7px);
+      transform: translateX(-10px);
     }
 
     span {
       padding: 20px 50px;
+      margin-left: 30px;
       color: var(--kungalgame-blue-4);
+      font-weight: bold;
     }
 
     &:hover {

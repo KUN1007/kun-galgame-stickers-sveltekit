@@ -30,6 +30,7 @@
     display: flex;
     flex-direction: column;
     padding: 5rem;
+    padding-bottom: 1rem;
     width: 100%;
     max-width: 64rem;
     margin: 0 auto;
@@ -47,6 +48,7 @@
   @media (max-width: 700px) {
     main {
       padding: 5rem 1rem;
+      padding-bottom: 1rem;
     }
   }
 </style>

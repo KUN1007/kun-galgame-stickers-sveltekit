@@ -62,6 +62,7 @@
     }
 
     span {
+      white-space: nowrap;
       margin-left: 20px;
       font-size: 20px;
       font-weight: bold;
@@ -69,8 +70,8 @@
   }
 
   nav {
+    width: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
     font-size: 17px;
 
