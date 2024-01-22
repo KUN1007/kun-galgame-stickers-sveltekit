@@ -1,6 +1,34 @@
-<script>
+<script lang="ts">
   import Header from './Header.svelte'
+  import Icon from '@iconify/svelte'
   import '~/styles/index.scss'
+  import { onMount, beforeUpdate } from 'svelte'
+
+  let showButton = false
+
+  const scrollToTop = () => {
+    window.scrollTo(0, 0)
+  }
+
+  const checkRoute = () => {
+    if (window.location.pathname === '/') {
+      showButton = false
+      return
+    }
+    checkHeight()
+  }
+
+  const checkHeight = () => {
+    if (document.body.scrollHeight > window.innerHeight) {
+      showButton = true
+    }
+  }
+
+  onMount(() => checkHeight())
+
+  beforeUpdate(() => {
+    checkRoute()
+  })
 </script>
 
 <div class="app">
@@ -8,6 +36,12 @@
 
   <main>
     <slot />
+
+    {#if showButton}
+      <button class="top" on:click={scrollToTop}>
+        <Icon icon="line-md:arrow-close-up" />
+      </button>
+    {/if}
   </main>
 
   <footer>
@@ -35,6 +69,24 @@
     max-width: 64rem;
     margin: 0 auto;
     box-sizing: border-box;
+  }
+
+  .top {
+    position: fixed;
+    bottom: 2rem;
+    right: 1rem;
+    background: none;
+    border: 1px solid var(--kungalgame-blue-4);
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    color: var(--kungalgame-blue-4);
+    background-color: var(--kungalgame-trans-white-5);
+    backdrop-filter: blur(5px);
   }
 
   footer {

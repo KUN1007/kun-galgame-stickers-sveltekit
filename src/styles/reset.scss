@@ -34,14 +34,21 @@ h6 {
   outline: none;
 }
 
-/* Hide scrollbars (compatible with Firefox 64+) */
-*::-webkit-scrollbar {
-  display: none;
-}
-
-/* Compatibility for Firefox to hide scrollbars */
 * {
-  scrollbar-width: none; /* Firefox 64+ */
+  &::-webkit-scrollbar {
+    background: var(--kungalgame-trans-blue-0);
+    display: inline;
+    width: 7px;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--kungalgame-blue-4);
+    border-radius: 2px;
+  }
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--kungalgame-blue-4) var(--kungalgame-blue-1); /* Firefox 64+ */
 }
 
 /* Ensure that button and select elements inherit the font family */
