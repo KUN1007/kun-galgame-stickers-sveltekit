@@ -1,4 +1,10 @@
-<script>
+<script lang="ts">
+  export let data
+
+  import StickerPack from '~/lib/home/StickerPack.svelte'
+  import type { KUNStickers } from '~/types/stickers'
+
+  const stickerPack1: KUNStickers[] = []
 </script>
 
 <svelte:head>
@@ -7,6 +13,7 @@
 </svelte:head>
 
 <section>
+  <p>{data.stickers}</p>
   <p>
     <span>鲲 Galgame 表情包 [1]</span>
     <img src="stickers/icon/s1.png" alt="鲲 Galgame 表情包 [1]" />
@@ -21,5 +28,5 @@
   <p>鲲 Galgame 表情包 [3]</p>
 </section>
 
-<style>
+<style lang="scss">
 </style>
