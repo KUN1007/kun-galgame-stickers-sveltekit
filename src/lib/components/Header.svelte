@@ -1,36 +1,9 @@
 <script lang="ts">
+  import ThemeMenu from './ThemeMenu.svelte'
+  import LanguageMenu from './LanguageMenu.svelte'
   import { page } from '$app/stores'
   import Icon from '@iconify/svelte'
-  import { goto } from '$app/navigation'
-  import { getColorSchemeContext } from '$lib/contexts/theme'
-  import ThemeMenu from './ThemeMenu.svelte'
-  import { isShowThemeMenu } from '../store/menuStore'
-  import type { ThemeItem } from '~/types/menu'
-
-  const colorSchemeStore = getColorSchemeContext()
-
-  const kunThemeName: ThemeItem[] = [
-    {
-      icon: 'line-md:moon-filled-alt-to-sunny-filled-loop-transition',
-      name: 'light',
-      selected: false
-    },
-    {
-      icon: 'line-md:sunny-outline-to-moon-loop-transition',
-      name: 'dark',
-      selected: false
-    },
-    {
-      icon: 'line-md:computer',
-      name: 'system',
-      selected: false
-    }
-  ]
-
-  kunThemeName.map((item) => ({
-    ...item,
-    selected: item.name === $colorSchemeStore
-  }))
+  import { isShowThemeMenu, isShowLanguageMenu } from '../store/menuStore'
 </script>
 
 <header>
@@ -63,8 +36,15 @@
       {/if}
     </button>
 
-    <button aria-label="KUN Visual Novel Language Switch | 鲲 Galgame 语言切换" class="language">
+    <button
+      aria-label="KUN Visual Novel Language Switch | 鲲 Galgame 语言切换"
+      class="language"
+      on:click={() => isShowLanguageMenu.set(true)}
+    >
       <Icon icon="material-symbols:language" />
+      {#if $isShowLanguageMenu}
+        <LanguageMenu />
+      {/if}
     </button>
   </div>
 

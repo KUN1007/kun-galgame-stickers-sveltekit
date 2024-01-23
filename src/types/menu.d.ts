@@ -3,3 +3,8 @@ export interface ThemeItem {
   name: App.KunTheme
   selected: boolean
 }
+
+export interface LanguageItem {
+  name: App.KunLanguage
+  selected: boolean
+}
