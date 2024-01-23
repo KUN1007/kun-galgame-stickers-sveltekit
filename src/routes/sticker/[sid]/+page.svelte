@@ -92,7 +92,7 @@
     position: absolute;
     color: var(--kungalgame-trans-blue-2);
     text-shadow: 2px 2px 3px var(--kungalgame-trans-blue-1);
-    font-size: 70px;
+    font-size: 60px;
     font-style: italic;
     font-family: serif;
     cursor: pointer;
