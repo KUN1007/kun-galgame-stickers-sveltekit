@@ -1,7 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores'
   import Icon from '@iconify/svelte'
-  import kun from '$lib/images/favicon.webp'
   import { goto } from '$app/navigation'
   import { getColorSchemeContext } from '$lib/contexts/theme'
   import ThemeMenu from './ThemeMenu.svelte'
@@ -37,7 +36,7 @@
 <header>
   <button class="kungalgame" on:click={() => goto('/')}>
     <span>
-      <img src={kun} alt="KUN Visual Novel | Stickers" />
+      <img src="/favicon.webp" alt="KUN Visual Novel | Stickers" />
     </span>
     <span>KUN Visual Novel Stickers</span>
   </button>
