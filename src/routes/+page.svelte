@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from '@iconify/svelte'
   const stickerPacks = [1, 2, 3, 4, 5, 6]
 </script>
 
@@ -11,7 +12,16 @@
   {#each stickerPacks ?? [] as sticker}
     <a class="link" href={`/sticker/${sticker}`}>
       <span>鲲 Galgame 表情包 [{sticker}]</span>
-      <img class="icon" src={`stickers/icon/s${sticker}.webp`} alt="鲲 Galgame 表情包 [1]" />
+      <img src={`stickers/icon/s${sticker}.webp`} alt="鲲 Galgame 表情包 [1]" />
+      <a
+        class="icon"
+        href="https://github.com/KUN1007/kun-galgame-stickers-sveltekit/releases"
+        target="_blank"
+        on:click|stopPropagation
+      >
+        <i>zip</i>
+        <Icon icon="line-md:download-outline" />
+      </a>
     </a>
   {/each}
 </section>
@@ -40,6 +50,25 @@
       margin-left: 30px;
       color: var(--kungalgame-blue-4);
       font-weight: bold;
+    }
+
+    a {
+      padding: 10px;
+      display: flex;
+      color: var(--kungalgame-blue-5);
+      font-size: 25px;
+      border-radius: 5px;
+      border: 1px solid var(--kungalgame-trans-white-9);
+
+      i {
+        display: flex;
+        align-items: center;
+        font-size: 15px;
+      }
+
+      &:hover {
+        border: 1px solid var(--kungalgame-blue-5);
+      }
     }
 
     &:hover {
