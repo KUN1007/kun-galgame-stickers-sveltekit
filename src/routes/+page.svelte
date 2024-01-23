@@ -3,30 +3,25 @@
   const stickerPacks = [1, 2, 3, 4, 5, 6]
 </script>
 
-<svelte:head>
-  <title>鲲 Galgame 表情包</title>
-  <link rel="icon" href="/favicon.webp" type="image/webp" />
-  <meta name="description" content="鲲 Galgame 表情包, Galgame 表情包下载" />
-  <meta property="og:title" content="KUN Visual Novel Stickers" />
-  <meta
-    property="og:description"
-    content="KUN Visual Novel Stickers, Visual Novel Stickers Download"
-  />
-  <meta property="og:image" content="/title.webp" />
-</svelte:head>
-
 <section>
   {#each stickerPacks ?? [] as sticker}
-    <a class="link" href={`/sticker/${sticker}`}>
+    <a
+      aria-label="KUN Visual Novel Sticker Package | 鲲 Galgame 表情包"
+      class="link"
+      href={`/sticker/${sticker}`}
+    >
       <span>鲲 Galgame 表情包 [{sticker}]</span>
-      <img src={`stickers/icon/s${sticker}.webp`} alt="鲲 Galgame 表情包 [1]" />
+      <img
+        src={`stickers/icon/s${sticker}.webp`}
+        alt="KUN Visual Novel Stickers | 鲲 Galgame 表情包"
+      />
       <a
+        aria-label="KUN Visual Novel Sticker Package Download | 鲲 Galgame 贴纸包下载"
         class="icon"
         href="https://github.com/KUN1007/kun-galgame-stickers-sveltekit/releases"
         target="_blank"
         on:click|stopPropagation
       >
-        <i>zip</i>
         <Icon icon="line-md:download-outline" />
       </a>
     </a>
@@ -55,7 +50,7 @@
     span {
       padding: 20px 50px;
       margin-left: 30px;
-      color: var(--kungalgame-blue-4);
+      color: var(--kungalgame-blue-5);
       font-weight: bold;
     }
 
@@ -66,12 +61,6 @@
       font-size: 25px;
       border-radius: 5px;
       border: 1px solid var(--kungalgame-trans-white-9);
-
-      i {
-        display: flex;
-        align-items: center;
-        font-size: 15px;
-      }
 
       &:hover {
         border: 1px solid var(--kungalgame-blue-5);

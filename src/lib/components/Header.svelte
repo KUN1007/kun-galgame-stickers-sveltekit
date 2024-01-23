@@ -34,12 +34,13 @@
 </script>
 
 <header>
-  <button class="kungalgame" on:click={() => goto('/')}>
-    <span>
-      <img src="/favicon.webp" alt="KUN Visual Novel | Stickers" />
-    </span>
+  <span>
+    <img src="/favicon.webp" alt="KUN Visual Novel | Stickers" />
+  </span>
+
+  <a aria-label="KUN Visual Novel Stickers | 鲲 Galgame 表情包" class="kungalgame" href="/">
     <span>KUN Visual Novel Stickers</span>
-  </button>
+  </a>
 
   <nav>
     <span aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
@@ -51,30 +52,45 @@
   </nav>
 
   <div class="function">
-    <button class="mode" on:click={() => isShowThemeMenu.set(true)}>
+    <button
+      aria-label="KUN Visual Novel Light / Dark Mode Switch | 鲲 Galgame 白天 / 黑夜模式切换"
+      class="mode"
+      on:click={() => isShowThemeMenu.set(true)}
+    >
       <Icon icon="line-md:light-dark-loop" />
       {#if $isShowThemeMenu}
         <ThemeMenu />
       {/if}
     </button>
 
-    <button class="language">
+    <button aria-label="KUN Visual Novel Language Switch | 鲲 Galgame 语言切换" class="language">
       <Icon icon="material-symbols:language" />
     </button>
   </div>
 
   <div class="github">
-    <a href="https://github.com/KUN1007/kun-galgame-stickers-sveltekit" target="_blank">
+    <a
+      aria-label="KUN Visual Novel Open Source GitHub Repository | 鲲 Galgame 开源 GitHub 仓库"
+      href="https://github.com/KUN1007/kun-galgame-stickers-sveltekit"
+      target="_blank"
+    >
       <Icon icon="line-md:github-loop" />
     </a>
   </div>
 </header>
 
 <style lang="scss">
+  img {
+    position: relative;
+    height: 50px;
+    width: 50px;
+  }
+
   header {
     width: 100%;
     position: fixed;
     display: flex;
+    align-items: center;
     justify-content: space-between;
     height: 58px;
     box-shadow: 0 2px 4px 0 var(--kungalgame-trans-blue-1);
@@ -91,12 +107,6 @@
     background: none;
     border: none;
     cursor: pointer;
-
-    img {
-      position: relative;
-      height: 50px;
-      width: 50px;
-    }
 
     span {
       white-space: nowrap;
@@ -118,6 +128,16 @@
       display: flex;
       justify-content: center;
       align-items: center;
+
+      a {
+        color: var(--kungalgame-blue-5);
+        font-weight: bold;
+        border-bottom: 2px solid var(--kungalgame-trans-white-9);
+
+        &:hover {
+          border-bottom: 2px solid var(--kungalgame-blue-5);
+        }
+      }
     }
   }
 
@@ -152,16 +172,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-  }
-
-  a {
-    color: var(--kungalgame-blue-5);
-    font-weight: bold;
-    border-bottom: 2px solid var(--kungalgame-trans-white-9);
-
-    &:hover {
-      border-bottom: 2px solid var(--kungalgame-blue-5);
+      color: var(--kungalgame-blue-5);
     }
   }
 

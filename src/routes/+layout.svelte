@@ -35,6 +35,18 @@
   })
 </script>
 
+<svelte:head>
+  <title>鲲 Galgame 表情包</title>
+  <link rel="icon" href="/favicon.webp" type="image/webp" />
+  <meta name="description" content="鲲 Galgame 表情包, Galgame 表情包下载" />
+  <meta property="og:title" content="KUN Visual Novel Stickers" />
+  <meta
+    property="og:description"
+    content="KUN Visual Novel Stickers, Visual Novel Stickers Download"
+  />
+  <meta property="og:image" content="/title.webp" />
+</svelte:head>
+
 <div class="app">
   <Header />
 
@@ -42,7 +54,7 @@
     <slot />
 
     {#if showButton}
-      <button class="top" on:click={scrollToTop}>
+      <button aria-label="Back to Top | 返回顶部" class="top" on:click={scrollToTop}>
         <Icon icon="line-md:arrow-close-up" />
       </button>
     {/if}

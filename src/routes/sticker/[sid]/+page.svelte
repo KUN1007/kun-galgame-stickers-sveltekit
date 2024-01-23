@@ -105,15 +105,15 @@
     margin-top: 10px;
 
     button {
-      border: 1px solid var(--kungalgame-blue-4);
+      border: 1px solid var(--kungalgame-blue-5);
       background-color: var(--kungalgame-trans-white-9);
       padding: 3px 10px;
       border-radius: 5px;
-      color: var(--kungalgame-blue-4);
+      color: var(--kungalgame-blue-5);
       cursor: pointer;
 
       &:hover {
-        background-color: var(--kungalgame-blue-4);
+        background-color: var(--kungalgame-blue-5);
         color: var(--kungalgame-white);
       }
     }
