@@ -3,7 +3,7 @@
 declare global {
   namespace App {
     declare type KunTheme = 'light' | 'dark' | 'system'
-    declare type KunLanguage = 'en' | 'ja' | 'zh'
+    declare type KunLanguage = 'en' | 'zh'
 
     // interface Error {}
     interface Locals {

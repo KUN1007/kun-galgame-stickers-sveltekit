@@ -3,12 +3,14 @@
   import Icon from '@iconify/svelte'
   import '~/styles/index.scss'
   import { onMount, beforeUpdate } from 'svelte'
-  import { setColorSchemeContext } from '~/lib/contexts/theme.js'
+  import { setColorSchemeContext } from '~/lib/contexts/theme'
+  import { setLanguageContext } from '~/lib/contexts/language'
 
   export let data
   let showButton = false
 
   setColorSchemeContext(data.colorScheme)
+  setLanguageContext(data.language)
 
   const scrollToTop = () => {
     window.scrollTo(0, 0)
