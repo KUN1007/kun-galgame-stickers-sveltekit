@@ -1,7 +1,11 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
+  import { createArray } from '~/lib/createArray'
 
   export let data
+
+  // TODO:
+  const imageArray = data.sid === '6' ? createArray(34) : createArray(80)
 
   const downloadImage = async (imagePath: string) => {
     const response = await fetch(imagePath)
@@ -20,30 +24,28 @@
 
 <div class="root">
   <div class="container">
-    {#each stickersArray as sticker (sticker.name)}
+    {#each imageArray as sticker}
       <div class="sticker">
         <div class="image-container">
-          <img src={`/${sticker.src}`} alt={sticker.describe} />
+          <img src={`/stickers/KUNgal${data.sid}/${sticker}.webp`} alt="" />
         </div>
-        <span class="sequence">{`${sticker.sid}-${sticker.pid}`}</span>
+        <span class="sequence">{`${data.sid}-${sticker}`}</span>
 
         <div class="info">
-          <p>游戏名: {sticker.game}</p>
-          <p>少女名: {sticker.loli}</p>
-          <p>简介: {sticker.describe}</p>
+          <p>游戏名: TODO</p>
+          <p>少女名: TODO</p>
+          <p>简介: TODO</p>
         </div>
 
         <div class="btn">
-          <button class="original" on:click={() => goto(`/sticker/${sticker.sid}-${sticker.pid}`)}>
+          <button class="original" on:click={() => goto(`/sticker/${data.sid}-${sticker}`)}>
             原图
           </button>
 
           <button
             class="download"
             on:click={() => {
-              downloadImage(
-                `/kun-galgame-stickers/telegram/KUNgal${sticker.sid}/${sticker.pid}.png`
-              )
+              downloadImage(`/kun-galgame-stickers/telegram/KUNgal${data.sid}/${sticker}.png`)
             }}
           >
             下载
