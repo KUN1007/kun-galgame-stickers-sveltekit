@@ -62,7 +62,7 @@
 
   .sequence {
     position: absolute;
-    color: var(--kungalgame-trans-blue-3);
+    color: var(--kungalgame-trans-blue-2);
     text-shadow: 2px 2px 3px var(--kungalgame-trans-blue-1);
     font-size: 70px;
     font-style: italic;
@@ -77,15 +77,15 @@
     margin-top: 10px;
 
     button {
-      border: 1px solid var(--kungalgame-blue-5);
+      border: 1px solid var(--kungalgame-blue-4);
       background-color: var(--kungalgame-trans-white-9);
       padding: 3px 10px;
       border-radius: 5px;
-      color: var(--kungalgame-blue-5);
+      color: var(--kungalgame-blue-4);
       cursor: pointer;
 
       &:hover {
-        background-color: var(--kungalgame-blue-5);
+        background-color: var(--kungalgame-blue-4);
         color: var(--kungalgame-white);
       }
     }

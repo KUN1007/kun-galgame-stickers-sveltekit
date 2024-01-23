@@ -1,10 +1,14 @@
 <script lang="ts">
-  import Header from './Header.svelte'
+  import Header from '~/lib/components/Header.svelte'
   import Icon from '@iconify/svelte'
   import '~/styles/index.scss'
   import { onMount, beforeUpdate } from 'svelte'
+  import { setColorSchemeContext } from '~/lib/contexts/theme.js'
 
+  export let data
   let showButton = false
+
+  setColorSchemeContext(data.colorScheme)
 
   const scrollToTop = () => {
     window.scrollTo(0, 0)

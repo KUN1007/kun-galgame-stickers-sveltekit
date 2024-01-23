@@ -3,9 +3,16 @@
   import Icon from '@iconify/svelte'
   import kun from '$lib/images/favicon.webp'
   import { goto } from '$app/navigation'
+  import { getColorSchemeContext } from '$lib/contexts/theme'
+
+  const colorSchemeStore = getColorSchemeContext()
 
   const handleClickBackHome = () => {
     goto('/')
+  }
+
+  const toggleTheme = () => {
+    colorSchemeStore.change($colorSchemeStore === 'dark' ? 'light' : 'dark')
   }
 </script>
 
@@ -25,6 +32,15 @@
       <a href="/about">关于</a>
     </span>
   </nav>
+
+  <div class="function">
+    <button class="mode" on:click={toggleTheme}>
+      <Icon icon="line-md:light-dark-loop" />
+    </button>
+    <button class="language">
+      <Icon icon="material-symbols:language" />
+    </button>
+  </div>
 
   <div class="github">
     <a href="https://github.com/KUN1007/kun-galgame-stickers-sveltekit" target="_blank">
@@ -66,6 +82,7 @@
       margin-left: 20px;
       font-size: 20px;
       font-weight: bold;
+      color: var(--kungalgame-font-color-3);
     }
   }
 
@@ -83,11 +100,31 @@
     }
   }
 
+  .function {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    button {
+      background: none;
+      border: none;
+      font-size: 23px;
+      color: var(--kungalgame-blue-5);
+      display: flex;
+      cursor: pointer;
+
+      &:last-child {
+        margin-left: 20px;
+      }
+    }
+  }
+
   .github {
     font-size: 23px;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-left: 20px;
 
     a {
       display: flex;

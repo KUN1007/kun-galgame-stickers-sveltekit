@@ -1,2 +1,13 @@
 @use './color.scss';
 @use './dark.scss';
+
+:root {
+  /* Special */
+  --kungalgame-mask-color-0: #00000077;
+  --shadow: 0 1px 2px hsla(0, 0%, 0%, 0.05), 0 1px 4px hsla(0, 0%, 0%, 0.05),
+    0 2px 8px hsla(0, 0%, 0%, 0.05);
+  --kungalgame-shadow-0: 0px 0px 17px 5px var(--kungalgame-trans-blue-2);
+  --kungalgame-shadow-1: 0px 0px 7px 2px var(--kungalgame-trans-blue-2);
+  --kungalgame-shadow-2: inset 1px 1px 2px var(--kungalgame-trans-blue-2),
+    inset -1px -1px 2px var(--kungalgame-trans-blue-2);
+}

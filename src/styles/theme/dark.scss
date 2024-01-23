@@ -1,4 +1,4 @@
-html.dark {
+html[data-color-scheme='dark'] {
   --kungalgame-font-color-0: #b3b3b3;
   --kungalgame-font-color-1: #c5c5c5;
   --kungalgame-font-color-2: #dddddd;
@@ -6,18 +6,28 @@ html.dark {
 
   --kungalgame-white: #182533;
 
+  --kungalgame-blue-0: #00479e;
+  --kungalgame-blue-1: #b6e3ff;
+  --kungalgame-blue-4: #218bff;
+  --kungalgame-blue-5: #b6e3ff;
+
+  --kungalgame-green-4: #2da44e;
+
+  --kungalgame-red-4: #fa4549;
+  --kungalgame-red-5: #cf222e;
+
+  --kungalgame-purple-4: #a475f9;
+
+  --kungalgame-pink-4: #e85aad;
+
+  /* 
+    transparent color
+    */
   --kungalgame-trans-white-2: #0d2034d9;
   --kungalgame-trans-white-5: #0d20348e;
-
-  --kungalgame-blue-0: #00479e;
-  --kungalgame-blue-5: var(--kungalgame-blue-1);
-
-  --kungalgame-red-0: #52000c;
+  --kungalgame-trans-white-9: #ffffff00;
 
   --kungalgame-trans-blue-0: #09132077;
   --kungalgame-trans-blue-1: #5288c177;
   --kungalgame-trans-blue-2: #0c4cac77;
-
-  --kungalgame-trans-pink-0: #21131a77;
-  --kungalgame-trans-pink-1: #aa608477;
 }
