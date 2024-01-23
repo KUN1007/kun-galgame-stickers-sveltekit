@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from '$app/navigation'
+
   export let data
 
   const stickersArray = data.stickers.stickersArray
@@ -20,7 +22,9 @@
         </div>
 
         <div class="btn">
-          <button class="original">原图</button>
+          <button class="original" on:click={() => goto(`/sticker/${sticker.sid}-${sticker.pid}`)}
+            >原图</button
+          >
           <button class="download">下载</button>
         </div>
       </div>

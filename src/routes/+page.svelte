@@ -1,6 +1,4 @@
 <script lang="ts">
-  import type { KUNStickers } from '~/types/stickers'
-
   const stickerPacks = [1, 2, 3, 4, 5, 6]
 </script>
 
