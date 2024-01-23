@@ -5,7 +5,6 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "json": "node ./scripts/generateJson.js",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest",

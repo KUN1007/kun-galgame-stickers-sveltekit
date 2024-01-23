@@ -3,8 +3,6 @@
 
   export let data
 
-  const stickersArray = data.stickers.stickersArray
-
   const downloadImage = async (imagePath: string) => {
     const response = await fetch(imagePath)
     const blob = await response.blob()
@@ -22,7 +20,7 @@
 
 <div class="root">
   <div class="container">
-    {#each stickersArray ?? [] as sticker (sticker.pid)}
+    {#each stickersArray as sticker (sticker.name)}
       <div class="sticker">
         <div class="image-container">
           <img src={`/${sticker.src}`} alt={sticker.describe} />
