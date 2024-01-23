@@ -4,20 +4,38 @@
   import kun from '$lib/images/favicon.webp'
   import { goto } from '$app/navigation'
   import { getColorSchemeContext } from '$lib/contexts/theme'
+  import ThemeMenu from './ThemeMenu.svelte'
+  import { isShowThemeMenu } from '../store/menuStore'
+  import type { ThemeItem } from '~/types/menu'
 
   const colorSchemeStore = getColorSchemeContext()
 
-  const handleClickBackHome = () => {
-    goto('/')
-  }
+  const kunThemeName: ThemeItem[] = [
+    {
+      icon: 'line-md:moon-filled-alt-to-sunny-filled-loop-transition',
+      name: 'light',
+      selected: false
+    },
+    {
+      icon: 'line-md:sunny-outline-to-moon-loop-transition',
+      name: 'dark',
+      selected: false
+    },
+    {
+      icon: 'line-md:computer',
+      name: 'system',
+      selected: false
+    }
+  ]
 
-  const toggleTheme = () => {
-    colorSchemeStore.change($colorSchemeStore === 'dark' ? 'light' : 'dark')
-  }
+  kunThemeName.map((item) => ({
+    ...item,
+    selected: item.name === $colorSchemeStore
+  }))
 </script>
 
 <header>
-  <button class="kungalgame" on:click={handleClickBackHome}>
+  <button class="kungalgame" on:click={() => goto('/')}>
     <span>
       <img src={kun} alt="KUN Visual Novel | Stickers" />
     </span>
@@ -34,9 +52,13 @@
   </nav>
 
   <div class="function">
-    <button class="mode" on:click={toggleTheme}>
+    <button class="mode" on:click={() => isShowThemeMenu.set(true)}>
       <Icon icon="line-md:light-dark-loop" />
+      {#if $isShowThemeMenu}
+        <ThemeMenu />
+      {/if}
     </button>
+
     <button class="language">
       <Icon icon="material-symbols:language" />
     </button>
@@ -112,6 +134,7 @@
       color: var(--kungalgame-blue-5);
       display: flex;
       cursor: pointer;
+      position: relative;
 
       &:last-child {
         margin-left: 20px;
