@@ -4,6 +4,20 @@
   export let data
 
   const stickersArray = data.stickers.stickersArray
+
+  const downloadImage = async (imagePath: string) => {
+    const response = await fetch(imagePath)
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement('a')
+    a.href = url
+    a.download = imagePath.split('/').pop() || ''
+
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
 </script>
 
 <div class="root">
@@ -22,10 +36,20 @@
         </div>
 
         <div class="btn">
-          <button class="original" on:click={() => goto(`/sticker/${sticker.sid}-${sticker.pid}`)}
-            >原图</button
+          <button class="original" on:click={() => goto(`/sticker/${sticker.sid}-${sticker.pid}`)}>
+            原图
+          </button>
+
+          <button
+            class="download"
+            on:click={() => {
+              downloadImage(
+                `/kun-galgame-stickers/telegram/KUNgal${sticker.sid}/${sticker.pid}.png`
+              )
+            }}
           >
-          <button class="download">下载</button>
+            下载
+          </button>
         </div>
       </div>
     {/each}
