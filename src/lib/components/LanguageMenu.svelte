@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import { getLanguageContext } from '~/lib/contexts/language'
   import { isShowLanguageMenu } from '../store/menuStore'
+  import { t } from '../language'
   import type { LanguageItem } from '~/types/menu'
 
   let menuContainer: HTMLElement
@@ -52,7 +53,7 @@
         class={`item ${item.selected ? 'selected' : ''}`}
         on:click={() => handleChangeLanguage(item.name)}
       >
-        {item.name}
+        {$t(`header.${item.name}`)}
       </button>
     {/each}
   </div>

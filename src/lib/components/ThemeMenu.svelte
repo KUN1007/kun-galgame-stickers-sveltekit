@@ -3,6 +3,7 @@
   import { onMount } from 'svelte'
   import { getColorSchemeContext } from '$lib/contexts/theme'
   import { isShowThemeMenu } from '../store/menuStore'
+  import { t } from '../language'
   import type { ThemeItem } from '~/types/menu'
 
   let menuContainer: HTMLElement
@@ -63,7 +64,7 @@
         {#if item.icon}
           <Icon icon={item.icon} />
         {/if}
-        <span>{item.name}</span>
+        <span>{$t(`header.${item.name}`)}</span>
       </button>
     {/each}
   </div>

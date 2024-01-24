@@ -1,12 +1,7 @@
 import i18n from 'sveltekit-i18n'
-import lang from './lang.json'
 import type { Config } from 'sveltekit-i18n'
 
 export const config: Config = {
-  translations: {
-    en: { lang },
-    zh: { lang }
-  },
   loaders: [
     {
       locale: 'en',

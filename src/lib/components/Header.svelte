@@ -18,10 +18,10 @@
 
   <nav>
     <span aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
-      <a href="/">主页</a>
+      <a href="/">{$t('header.home')}</a>
     </span>
     <span aria-current={$page.url.pathname === '/about' ? 'page' : undefined}>
-      <a href="/about">关于</a>
+      <a href="/about">{$t('header.about')}</a>
     </span>
   </nav>
 

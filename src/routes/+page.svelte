@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from '@iconify/svelte'
+  import { t } from '~/lib/language'
   const stickerPacks = [1, 2, 3, 4, 5, 6]
 </script>
 
@@ -10,7 +11,7 @@
       class="link"
       href={`/sticker/${sticker}`}
     >
-      <span>鲲 Galgame 表情包 [{sticker}]</span>
+      <span>{$t('home.sticker')} [{sticker}]</span>
       <img
         src={`stickers/icon/s${sticker}.webp`}
         alt="KUN Visual Novel Stickers | 鲲 Galgame 表情包"
@@ -70,6 +71,14 @@
     &:hover {
       transition: all 0.2s;
       box-shadow: var(--kungalgame-shadow-1);
+    }
+  }
+
+  @media (max-width: 700px) {
+    .link {
+      span {
+        padding-right: 10px;
+      }
     }
   }
 </style>
