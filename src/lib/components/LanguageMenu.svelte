@@ -5,9 +5,9 @@
   import type { LanguageItem } from '~/types/menu'
 
   let menuContainer: HTMLElement
-  const { lang } = getLanguageContext()
+  const languageStore = getLanguageContext()
 
-  let kunThemeName: LanguageItem[] = [
+  let kunLangName: LanguageItem[] = [
     {
       name: 'en',
       selected: false
@@ -18,19 +18,17 @@
     }
   ]
 
-  kunThemeName = kunThemeName.map((item) => ({
+  kunLangName = kunLangName.map((item) => ({
     ...item,
-    selected: item.name === $lang
+    selected: item.name === $languageStore
   }))
 
   const handleChangeLanguage = (language: App.KunLanguage) => {
     menuContainer.focus()
-    if ($lang !== document.documentElement.getAttribute('lang')) {
-      document.documentElement.setAttribute('lang', language)
-    }
-    kunThemeName = kunThemeName.map((item) => ({
+    languageStore.change(language)
+    kunLangName = kunLangName.map((item) => ({
       ...item,
-      selected: item.name === $lang
+      selected: item.name === language
     }))
   }
 
@@ -49,7 +47,7 @@
   <span class="triangle1"></span>
   <span class="triangle2"></span>
   <div class="kungalgamer">
-    {#each kunThemeName ?? [] as item}
+    {#each kunLangName ?? [] as item}
       <button
         class={`item ${item.selected ? 'selected' : ''}`}
         on:click={() => handleChangeLanguage(item.name)}

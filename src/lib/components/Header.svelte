@@ -4,6 +4,7 @@
   import { page } from '$app/stores'
   import Icon from '@iconify/svelte'
   import { isShowThemeMenu, isShowLanguageMenu } from '../store/menuStore'
+  import { t } from '../language'
 </script>
 
 <header>
@@ -12,7 +13,7 @@
   </span>
 
   <a aria-label="KUN Visual Novel Stickers | 鲲 Galgame 表情包" class="kungalgame" href="/">
-    <span>KUN Visual Novel Stickers</span>
+    <span>{$t('header.title')}</span>
   </a>
 
   <nav>

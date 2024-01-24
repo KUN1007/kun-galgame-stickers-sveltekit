@@ -5,13 +5,14 @@ export const handle: Handle = async ({ event, resolve }) => {
   const { locals, cookies, request } = event
 
   const lang = request.headers.get('accept-language') || 'en'
+  const cookieLanguage = (cookies.get(PUBLIC_KUN_LANGUAGE) as App.KunLanguage) || 'en'
   const kunLanguage = () => {
     if (lang === 'zh') {
       return 'zh'
     }
     return 'en'
   }
-  locals.language = kunLanguage()
+  locals.language = cookieLanguage ? cookieLanguage : kunLanguage()
   cookies.set(PUBLIC_KUN_LANGUAGE, locals.language, {
     path: '/',
     maxAge: 604800,

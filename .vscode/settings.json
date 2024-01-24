@@ -15,5 +15,7 @@
     "VNDB",
     "webp",
     "workspring"
-  ]
+  ],
+  "i18n-ally.localesPaths": ["src/lib/language"],
+  "editor.formatOnSave": true
 }

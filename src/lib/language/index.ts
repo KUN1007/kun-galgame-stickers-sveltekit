@@ -15,6 +15,11 @@ export const config: Config = {
     },
     {
       locale: 'en',
+      key: 'header',
+      loader: async () => (await import('./en/header.json')).default
+    },
+    {
+      locale: 'en',
       key: 'home',
       loader: async () => (await import('./en/home.json')).default
     },
@@ -27,6 +32,11 @@ export const config: Config = {
       locale: 'zh',
       key: 'about',
       loader: async () => (await import('./zh/about.json')).default
+    },
+    {
+      locale: 'zh',
+      key: 'header',
+      loader: async () => (await import('./zh/header.json')).default
     },
     {
       locale: 'zh',

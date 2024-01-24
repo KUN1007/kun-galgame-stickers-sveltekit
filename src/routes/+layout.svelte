@@ -9,7 +9,7 @@
   export let data
   let showButton = false
 
-  setColorSchemeContext(data.colorScheme)
+  setColorSchemeContext(data.theme)
   setLanguageContext(data.language)
 
   const scrollToTop = () => {
