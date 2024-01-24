@@ -14,3 +14,9 @@ export interface KUNStickers {
   // 图片描述
   describe: string
 }
+
+export interface KUNStickerData {
+  pid: number
+  vndb: number
+  describe: string
+}

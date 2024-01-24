@@ -20,7 +20,7 @@
 - ISLAND
 - 鲸神的 Tearstilla
 - 金辉恋曲四重奏
-- 兽娘育成方案
+- 猫神大人与七颗星星
 - 9-nine-九次九日九重色
 - 游魂 -Kiss on my Deity-
 - Clover Day's

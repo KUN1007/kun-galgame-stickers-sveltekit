@@ -1,12 +1,9 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
-  import { createArray } from '~/lib/createArray'
   import { t } from '~/lib/language'
+  import { kunStickers1 } from '~/lib/data/kunSticker1'
 
   export let data
-
-  // TODO:
-  const imageArray = data.sid === '6' ? createArray(34) : createArray(80)
 
   const downloadImage = async (imagePath: string) => {
     const response = await fetch(imagePath)
@@ -25,28 +22,28 @@
 
 <div class="root">
   <div class="container">
-    {#each imageArray as sticker}
+    {#each kunStickers1 as sticker}
       <div class="sticker">
         <div class="image-container">
-          <img src={`/stickers/KUNgal${data.sid}/${sticker}.webp`} alt="" />
+          <img src={`/stickers/KUNgal${data.sid}/${sticker.pid}.webp`} alt="" />
         </div>
-        <span class="sequence">{`${data.sid}-${sticker}`}</span>
+        <span class="sequence">{`${data.sid}-${sticker.pid}`}</span>
 
         <div class="info">
-          <p>{$t('sticker.game')}: TODO</p>
-          <p>{$t('sticker.bsj')}: TODO</p>
-          <p>{$t('sticker.introduction')}: TODO</p>
+          <p>{$t('sticker.game')}: {$t(`game.${data.sid}-${sticker.pid}`)}</p>
+          <p>{$t('sticker.lass')}: {$t(`lass.${data.sid}-${sticker.pid}`)}</p>
+          <!-- <p>{$t('sticker.introduction')}: TODO</p> -->
         </div>
 
         <div class="btn">
-          <button class="original" on:click={() => goto(`/sticker/${data.sid}-${sticker}`)}>
+          <button class="original" on:click={() => goto(`/sticker/${data.sid}-${sticker.pid}`)}>
             {$t('sticker.original')}
           </button>
 
           <button
             class="download"
             on:click={() => {
-              downloadImage(`/kun-galgame-stickers/telegram/KUNgal${data.sid}/${sticker}.png`)
+              downloadImage(`/kun-galgame-stickers/telegram/KUNgal${data.sid}/${sticker.pid}.png`)
             }}
           >
             {$t('sticker.download')}
@@ -89,7 +86,18 @@
     }
   }
 
+  .info {
+    font-size: 13px;
+
+    p {
+      &:first-child {
+        margin-bottom: 5px;
+      }
+    }
+  }
+
   .sequence {
+    user-select: none;
     position: absolute;
     color: var(--kungalgame-trans-blue-2);
     text-shadow: 2px 2px 3px var(--kungalgame-trans-blue-1);
