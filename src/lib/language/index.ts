@@ -20,6 +20,11 @@ export const config: Config = {
     },
     {
       locale: 'en',
+      key: 'seo',
+      loader: async () => (await import('./en/seo.json')).default
+    },
+    {
+      locale: 'en',
       key: 'sticker',
       loader: async () => (await import('./en/sticker.json')).default
     },
@@ -37,6 +42,11 @@ export const config: Config = {
       locale: 'zh',
       key: 'home',
       loader: async () => (await import('./zh/home.json')).default
+    },
+    {
+      locale: 'zh',
+      key: 'seo',
+      loader: async () => (await import('./zh/seo.json')).default
     },
     {
       locale: 'zh',

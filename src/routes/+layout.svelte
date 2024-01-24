@@ -5,6 +5,7 @@
   import { onMount, beforeUpdate } from 'svelte'
   import { setColorSchemeContext } from '~/lib/contexts/theme'
   import { setLanguageContext } from '~/lib/contexts/language'
+  import { t } from '~/lib/language'
 
   export let data
   let showButton = false
@@ -38,14 +39,14 @@
 </script>
 
 <svelte:head>
-  <title>鲲 Galgame 表情包</title>
+  <title>{$t('seo.title')}</title>
   <link rel="icon" href="/favicon.webp" type="image/webp" />
-  <meta name="description" content="鲲 Galgame 表情包, Galgame 表情包下载" />
-  <meta property="og:title" content="KUN Visual Novel Stickers" />
-  <meta
-    property="og:description"
-    content="KUN Visual Novel Stickers, Visual Novel Stickers Download"
-  />
+  <meta name="description" content={$t('seo.description')} />
+
+  <meta property="og:title" content={$t('seo.og')} />
+  <meta property="og:type" content="website" />
+
+  <meta property="og:description" content={$t('seo.og-desc')} />
   <meta property="og:image" content="/title.webp" />
 </svelte:head>
 
@@ -63,8 +64,16 @@
   </main>
 
   <footer>
-    <p>2024 KUN Visual Novel | Stickers</p>
-    <p>本网站开源，源码在右上角 GitHub</p>
+    <p>{$t('home.kun')}</p>
+    <p>
+      {$t('home.open')}
+      <a
+        aria-label="KUN Visual Novel Open Source GitHub Repository | 鲲 Galgame 开源 GitHub 仓库"
+        href="https://github.com/KUN1007/kun-galgame-stickers-sveltekit"
+      >
+        GitHub
+      </a>
+    </p>
   </footer>
 </div>
 
@@ -113,6 +122,16 @@
     justify-content: center;
     align-items: center;
     padding: 12px;
+
+    a {
+      color: var(--kungalgame-blue-5);
+      font-weight: bold;
+      border-bottom: 2px solid var(--kungalgame-trans-white-9);
+
+      &:hover {
+        border-bottom: 2px solid var(--kungalgame-blue-5);
+      }
+    }
   }
 
   @media (max-width: 700px) {

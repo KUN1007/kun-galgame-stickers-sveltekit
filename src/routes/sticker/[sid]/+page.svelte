@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
   import { createArray } from '~/lib/createArray'
+  import { t } from '~/lib/language'
 
   export let data
 
@@ -32,14 +33,14 @@
         <span class="sequence">{`${data.sid}-${sticker}`}</span>
 
         <div class="info">
-          <p>游戏名: TODO</p>
-          <p>少女名: TODO</p>
-          <p>简介: TODO</p>
+          <p>{$t('sticker.game')}: TODO</p>
+          <p>{$t('sticker.bsj')}: TODO</p>
+          <p>{$t('sticker.introduction')}: TODO</p>
         </div>
 
         <div class="btn">
           <button class="original" on:click={() => goto(`/sticker/${data.sid}-${sticker}`)}>
-            原图
+            {$t('sticker.original')}
           </button>
 
           <button
@@ -48,7 +49,7 @@
               downloadImage(`/kun-galgame-stickers/telegram/KUNgal${data.sid}/${sticker}.png`)
             }}
           >
-            下载
+            {$t('sticker.download')}
           </button>
         </div>
       </div>
@@ -105,12 +106,15 @@
     margin-top: 10px;
 
     button {
+      display: flex;
+      justify-content: center;
       border: 1px solid var(--kungalgame-blue-5);
       background-color: var(--kungalgame-trans-white-9);
       padding: 3px 10px;
       border-radius: 5px;
       color: var(--kungalgame-blue-5);
       cursor: pointer;
+      max-width: 68px;
 
       &:hover {
         background-color: var(--kungalgame-blue-5);

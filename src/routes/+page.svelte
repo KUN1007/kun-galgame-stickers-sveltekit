@@ -31,6 +31,7 @@
 
 <style lang="scss">
   .link {
+    height: 63px;
     display: flex;
     align-items: center;
     position: relative;
