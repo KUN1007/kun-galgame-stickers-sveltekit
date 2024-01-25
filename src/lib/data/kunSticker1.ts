@@ -152,6 +152,56 @@ export const kunStickers1: KUNStickerData[] = [
     describe: ''
   },
   {
+    pid: 31,
+    vndb: 19658,
+    describe: ''
+  },
+  {
+    pid: 32,
+    vndb: 19658,
+    describe: ''
+  },
+  {
+    pid: 33,
+    vndb: 0,
+    describe: ''
+  },
+  {
+    pid: 34,
+    vndb: 0,
+    describe: ''
+  },
+  {
+    pid: 35,
+    vndb: 0,
+    describe: ''
+  },
+  {
+    pid: 36,
+    vndb: 0,
+    describe: ''
+  },
+  {
+    pid: 37,
+    vndb: 0,
+    describe: ''
+  },
+  {
+    pid: 38,
+    vndb: 0,
+    describe: ''
+  },
+  {
+    pid: 39,
+    vndb: 0,
+    describe: ''
+  },
+  {
+    pid: 40,
+    vndb: 19658,
+    describe: ''
+  },
+  {
     pid: 41,
     vndb: 0,
     describe: ''

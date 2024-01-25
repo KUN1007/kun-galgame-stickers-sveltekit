@@ -10,8 +10,8 @@ export const config: Config = {
     },
     {
       locale: 'en',
-      key: 'game',
-      loader: async () => (await import('./en/game.json')).default
+      key: 'game1',
+      loader: async () => (await import('./en/game/game1.json')).default
     },
     {
       locale: 'en',
@@ -25,8 +25,8 @@ export const config: Config = {
     },
     {
       locale: 'en',
-      key: 'lass',
-      loader: async () => (await import('./en/lass.json')).default
+      key: 'lass1',
+      loader: async () => (await import('./en/lass/lass1.json')).default
     },
     {
       locale: 'en',
@@ -45,8 +45,8 @@ export const config: Config = {
     },
     {
       locale: 'zh',
-      key: 'game',
-      loader: async () => (await import('./zh/game.json')).default
+      key: 'game1',
+      loader: async () => (await import('./zh/game/game1.json')).default
     },
     {
       locale: 'zh',
@@ -60,8 +60,8 @@ export const config: Config = {
     },
     {
       locale: 'zh',
-      key: 'lass',
-      loader: async () => (await import('./zh/lass.json')).default
+      key: 'lass1',
+      loader: async () => (await import('./zh/lass/lass1.json')).default
     },
     {
       locale: 'zh',

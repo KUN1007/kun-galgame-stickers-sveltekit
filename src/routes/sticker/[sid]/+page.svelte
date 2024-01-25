@@ -31,8 +31,8 @@
         <span class="sequence">{`${data.sid}-${sticker.pid}`}</span>
 
         <div class="info">
-          <p>{$t('sticker.game')}: {$t(`game.${data.sid}-${sticker.pid}`)}</p>
-          <p>{$t('sticker.lass')}: {$t(`lass.${data.sid}-${sticker.pid}`)}</p>
+          <p>{$t('sticker.game')}: {$t(`game${data.sid}.${sticker.pid}`)}</p>
+          <p>{$t('sticker.lass')}: {$t(`lass${data.sid}.${sticker.pid}`)}</p>
           <!-- <p>{$t('sticker.introduction')}: TODO</p> -->
         </div>
 
@@ -69,6 +69,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: relative;
 
     .image-container {
       width: 100%;
@@ -103,6 +104,7 @@
   .sequence {
     user-select: none;
     position: absolute;
+    bottom: 0;
     color: var(--kungalgame-trans-blue-2);
     text-shadow: 2px 2px 3px var(--kungalgame-trans-blue-1);
     font-size: 60px;
