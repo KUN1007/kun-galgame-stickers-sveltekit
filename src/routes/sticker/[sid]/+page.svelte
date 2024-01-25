@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from '@iconify/svelte'
   import { goto } from '$app/navigation'
   import { t } from '~/lib/language'
   import { kunStickers1 } from '~/lib/data/kunSticker1'
@@ -41,12 +42,13 @@
           </button>
 
           <button
+            aria-label={$t('sticker.download')}
             class="download"
             on:click={() => {
               downloadImage(`/kun-galgame-stickers/telegram/KUNgal${data.sid}/${sticker.pid}.png`)
             }}
           >
-            {$t('sticker.download')}
+            <Icon icon="line-md:download-outline" />
           </button>
         </div>
       </div>
@@ -64,6 +66,9 @@
   .sticker {
     padding: 10px;
     box-shadow: var(--kungalgame-shadow-0);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     .image-container {
       width: 100%;
@@ -76,7 +81,6 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        margin-bottom: 10px;
       }
     }
 
@@ -91,7 +95,7 @@
 
     p {
       &:first-child {
-        margin-bottom: 5px;
+        margin: 5px 0;
       }
     }
   }
@@ -116,17 +120,28 @@
     button {
       display: flex;
       justify-content: center;
-      border: 1px solid var(--kungalgame-blue-5);
       background-color: var(--kungalgame-trans-white-9);
-      padding: 3px 10px;
       border-radius: 5px;
       color: var(--kungalgame-blue-5);
       cursor: pointer;
-      max-width: 68px;
 
-      &:hover {
-        background-color: var(--kungalgame-blue-5);
-        color: var(--kungalgame-white);
+      &:nth-child(1) {
+        border: 1px solid var(--kungalgame-blue-5);
+        padding: 3px 10px;
+
+        &:hover {
+          background-color: var(--kungalgame-blue-5);
+          color: var(--kungalgame-white);
+        }
+      }
+
+      &:nth-child(2) {
+        border: 1px solid var(--kungalgame-trans-white-9);
+        font-size: 23px;
+
+        &:hover {
+          border: 1px solid var(--kungalgame-blue-5);
+        }
       }
     }
   }
