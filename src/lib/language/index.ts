@@ -55,6 +55,11 @@ export const config: Config = {
     },
     {
       locale: 'en',
+      key: 'game6',
+      loader: async () => (await import('./en/game/game6.json')).default
+    },
+    {
+      locale: 'en',
       key: 'lass1',
       loader: async () => (await import('./en/lass/lass1.json')).default
     },
@@ -77,6 +82,11 @@ export const config: Config = {
       locale: 'en',
       key: 'lass5',
       loader: async () => (await import('./en/lass/lass5.json')).default
+    },
+    {
+      locale: 'en',
+      key: 'lass6',
+      loader: async () => (await import('./en/lass/lass6.json')).default
     },
 
     /* ---------------- Chinese --------------- */
@@ -133,6 +143,11 @@ export const config: Config = {
     },
     {
       locale: 'zh',
+      key: 'game6',
+      loader: async () => (await import('./zh/game/game6.json')).default
+    },
+    {
+      locale: 'zh',
       key: 'lass1',
       loader: async () => (await import('./zh/lass/lass1.json')).default
     },
@@ -155,6 +170,11 @@ export const config: Config = {
       locale: 'zh',
       key: 'lass5',
       loader: async () => (await import('./zh/lass/lass5.json')).default
+    },
+    {
+      locale: 'zh',
+      key: 'lass6',
+      loader: async () => (await import('./zh/lass/lass6.json')).default
     }
   ]
 }
