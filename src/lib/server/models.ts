@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 import type { KUNStickers } from '~/types/stickers'
 
-const UserSchema = new mongoose.Schema<KUNStickers>(
+const KUNStickerSchema = new mongoose.Schema<KUNStickers>(
   {
     sid: { type: Number, default: 0 },
     pid: { type: Number, default: 0 },
@@ -22,6 +22,6 @@ const UserSchema = new mongoose.Schema<KUNStickers>(
   { timestamps: { createdAt: 'created', updatedAt: 'updated' } }
 )
 
-const UserModel = mongoose.model<KUNStickers>('user', UserSchema)
+const KUNStickerModel = mongoose.model<KUNStickers>('stickers', KUNStickerSchema)
 
-export default UserModel
+export default KUNStickerModel

@@ -2,7 +2,6 @@
   import Icon from '@iconify/svelte'
   import { goto } from '$app/navigation'
   import { t } from '~/lib/language'
-  import { kunStickers1 } from '~/lib/data/kunSticker1'
 
   export let data
 
@@ -23,7 +22,7 @@
 
 <div class="root">
   <div class="container">
-    {#each kunStickers1 as sticker}
+    {#each data.stickersData as sticker}
       <div class="sticker">
         <div class="image-container">
           <img src={`/stickers/KUNgal${data.sid}/${sticker.pid}.webp`} alt="" />
@@ -31,9 +30,11 @@
         <span class="sequence">{`${data.sid}-${sticker.pid}`}</span>
 
         <div class="info">
-          <p>{$t('sticker.game')}: {$t(`game${data.sid}.${sticker.pid}`)}</p>
-          <p>{$t('sticker.lass')}: {$t(`lass${data.sid}.${sticker.pid}`)}</p>
+          <!-- <p>{$t('sticker.game')}: {$t(`game${data.sid}.${sticker.pid}`)}</p>
+          <p>{$t('sticker.lass')}: {$t(`lass${data.sid}.${sticker.pid}`)}</p> -->
           <!-- <p>{$t('sticker.introduction')}: TODO</p> -->
+          <p>{$t('sticker.game')}: {sticker.game}</p>
+          <p>{$t('sticker.lass')}: {sticker.loli}</p>
         </div>
 
         <div class="btn">

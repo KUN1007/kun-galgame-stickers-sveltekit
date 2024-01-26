@@ -3,6 +3,8 @@
   import { getLanguageContext } from '~/lib/contexts/language'
   import { isShowLanguageMenu } from '../store/menuStore'
   import { t } from '../language'
+  import { invalidate } from '$app/navigation'
+  import { page } from '$app/stores'
   import type { LanguageItem } from '~/types/menu'
 
   let menuContainer: HTMLElement
@@ -27,6 +29,12 @@
   const handleChangeLanguage = (language: App.KunLanguage) => {
     menuContainer.focus()
     languageStore.change(language)
+
+    if ($page.route.id === '/sticker/[sid]') {
+      // invalidate page data and refetch data
+      invalidate('kun:sticker')
+    }
+
     kunLangName = kunLangName.map((item) => ({
       ...item,
       selected: item.name === language

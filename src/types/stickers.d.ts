@@ -1,21 +1,30 @@
 export interface KUNStickers {
-  // 贴纸包 ID
+  // Sticker pack ID
   sid: number
-  // 图片 ID
+  // Sticker image ID
   pid: number
-  // 图片源
+  // Sticker image source
   src: string
-  // 游戏名
+  // Visual Novel name
   game_en: string
   game_zh: string
   game_ja: string
-  // 小只可爱软萌妹子名（咳咳咳）
+  // Kawaii loli name
   loli_en: string
   loli_zh: string
   loli_ja: string
-  // VNDB 游戏编号
+  // VNDB VisualNovel vid
   vndb: number
-  // 图片描述
+  // Sticker description
+  describe: string
+}
+
+export interface KUNStickersResponseData {
+  sid: number
+  pid: number
+  game: string
+  loli: string
+  vndb: number
   describe: string
 }
 
