@@ -6,9 +6,13 @@ export interface KUNStickers {
   // 图片源
   src: string
   // 游戏名
-  game: string
+  game_en: string
+  game_zh: string
+  game_ja: string
   // 小只可爱软萌妹子名（咳咳咳）
-  loli: string
+  loli_en: string
+  loli_zh: string
+  loli_ja: string
   // VNDB 游戏编号
   vndb: number
   // 图片描述
