@@ -10,11 +10,6 @@ export const config: Config = {
     },
     {
       locale: 'en',
-      key: 'game1',
-      loader: async () => (await import('./en/game/game1.json')).default
-    },
-    {
-      locale: 'en',
       key: 'header',
       loader: async () => (await import('./en/header.json')).default
     },
@@ -22,11 +17,6 @@ export const config: Config = {
       locale: 'en',
       key: 'home',
       loader: async () => (await import('./en/home.json')).default
-    },
-    {
-      locale: 'en',
-      key: 'lass1',
-      loader: async () => (await import('./en/lass/lass1.json')).default
     },
     {
       locale: 'en',
@@ -39,14 +29,32 @@ export const config: Config = {
       loader: async () => (await import('./en/sticker.json')).default
     },
     {
+      locale: 'en',
+      key: 'game1',
+      loader: async () => (await import('./en/game/game1.json')).default
+    },
+    {
+      locale: 'en',
+      key: 'game2',
+      loader: async () => (await import('./en/game/game2.json')).default
+    },
+    {
+      locale: 'en',
+      key: 'lass1',
+      loader: async () => (await import('./en/lass/lass1.json')).default
+    },
+    {
+      locale: 'en',
+      key: 'lass2',
+      loader: async () => (await import('./en/lass/lass2.json')).default
+    },
+
+    /* ---------------- Chinese --------------- */
+
+    {
       locale: 'zh',
       key: 'about',
       loader: async () => (await import('./zh/about.json')).default
-    },
-    {
-      locale: 'zh',
-      key: 'game1',
-      loader: async () => (await import('./zh/game/game1.json')).default
     },
     {
       locale: 'zh',
@@ -60,11 +68,6 @@ export const config: Config = {
     },
     {
       locale: 'zh',
-      key: 'lass1',
-      loader: async () => (await import('./zh/lass/lass1.json')).default
-    },
-    {
-      locale: 'zh',
       key: 'seo',
       loader: async () => (await import('./zh/seo.json')).default
     },
@@ -72,6 +75,26 @@ export const config: Config = {
       locale: 'zh',
       key: 'sticker',
       loader: async () => (await import('./zh/sticker.json')).default
+    },
+    {
+      locale: 'zh',
+      key: 'game1',
+      loader: async () => (await import('./zh/game/game1.json')).default
+    },
+    {
+      locale: 'zh',
+      key: 'game2',
+      loader: async () => (await import('./zh/game/game2.json')).default
+    },
+    {
+      locale: 'zh',
+      key: 'lass1',
+      loader: async () => (await import('./zh/lass/lass1.json')).default
+    },
+    {
+      locale: 'zh',
+      key: 'lass2',
+      loader: async () => (await import('./zh/lass/lass2.json')).default
     }
   ]
 }
