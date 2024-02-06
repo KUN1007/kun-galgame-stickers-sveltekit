@@ -20,6 +20,11 @@
   }
 </script>
 
+<svelte:head>
+  <title>{$t('sticker.title')}</title>
+  <meta name="description" content={$t('sticker.description')} />
+</svelte:head>
+
 <div class="root">
   <div class="container">
     {#each data.stickersData as sticker}

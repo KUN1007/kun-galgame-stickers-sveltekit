@@ -1,10 +1,11 @@
 <script lang="ts">
   import { locale } from '~/lib/language'
+  import { t } from '~/lib/language'
 </script>
 
 <svelte:head>
-  <title>About</title>
-  <meta name="description" content="About this app" />
+  <title>{$t('about.title')}</title>
+  <meta name="description" content={$t('about.description')} />
 </svelte:head>
 
 {#if $locale === 'en'}

@@ -1,4 +1,5 @@
 import KUNStickerModel from '~/lib/server/models'
+import type { KUNStickersResponseData } from '~/types/stickers'
 
 const findOptions = {
   _id: 0,
@@ -25,4 +26,24 @@ export const findStickersData = async (local: App.KunLanguage, sid: number) => {
     vndb: sticker.vndb,
     describe: sticker.describe
   }))
+}
+
+export const findOneStickerData = async (local: App.KunLanguage, sid: number, pid: number) => {
+  const queryOptions = local === 'en' ? findOptionsEN : findOptionsZH
+
+  const data = await KUNStickerModel.findOne({ sid, pid }, queryOptions)
+
+  if (!data) {
+    return
+  }
+
+  const stickerData: KUNStickersResponseData = {
+    sid: data.sid,
+    pid: data.pid,
+    game: data.game_en || data.game_ja || data.game_zh,
+    loli: data.loli_en || data.loli_ja || data.loli_zh,
+    vndb: data.vndb,
+    describe: data.describe
+  }
+  return stickerData
 }

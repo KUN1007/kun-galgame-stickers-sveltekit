@@ -34,6 +34,9 @@
       // invalidate page data and refetch data
       invalidate('kun:sticker')
     }
+    if ($page.route.id === '/sticker/[sid]-[pid]') {
+      invalidate('kun:details')
+    }
 
     kunLangName = kunLangName.map((item) => ({
       ...item,
