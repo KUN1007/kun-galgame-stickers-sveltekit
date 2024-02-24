@@ -4,14 +4,12 @@
   import '~/styles/index.scss'
   import { onMount, beforeUpdate } from 'svelte'
   import { setColorSchemeContext } from '~/lib/contexts/theme'
-  import { setLanguageContext } from '~/lib/contexts/language'
   import { t } from '~/lib/language'
 
   export let data
   let showButton = false
 
   setColorSchemeContext(data.theme)
-  setLanguageContext(data.language)
 
   const scrollToTop = () => {
     window.scrollTo(0, 0)
@@ -103,7 +101,7 @@
     bottom: 2rem;
     right: 1rem;
     background: none;
-    border: 1px solid var(--kungalgame-blue-4);
+    border: 2px solid var(--kungalgame-blue-4);
     height: 50px;
     width: 50px;
     border-radius: 50%;

@@ -16,6 +16,7 @@ export const config: Config = {
     {
       locale: 'en',
       key: 'home',
+      routes: ['', '/'],
       loader: async () => (await import('./en/home.json')).default
     },
     {
@@ -39,6 +40,7 @@ export const config: Config = {
     {
       locale: 'zh',
       key: 'header',
+      routes: ['', '/'],
       loader: async () => (await import('./zh/header.json')).default
     },
     {
@@ -59,6 +61,16 @@ export const config: Config = {
   ]
 }
 
-export const { t, loading, locales, locale, loadTranslations } = new i18n(config)
+export const {
+  t,
+  loading,
+  locales,
+  locale,
+  addTranslations,
+  loadTranslations,
+  translations,
+  setLocale,
+  setRoute
+} = new i18n(config)
 
 loading.subscribe(($loading) => $loading)

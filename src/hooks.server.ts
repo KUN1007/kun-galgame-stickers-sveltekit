@@ -1,8 +1,10 @@
 import { PUBLIC_KUN_STICKER_THEME, PUBLIC_KUN_LANGUAGE } from '$env/static/public'
+import { locales } from '$lib/language'
 import type { Handle } from '@sveltejs/kit'
 
 export const handle: Handle = async ({ event, resolve }) => {
-  const { locals, cookies, request } = event
+  const { url, locals, cookies, request } = event
+  const { pathname } = url
 
   const lang = request.headers.get('accept-language') || 'en'
   const cookieLanguage = (cookies.get(PUBLIC_KUN_LANGUAGE) as App.KunLanguage) || 'en'
@@ -25,6 +27,16 @@ export const handle: Handle = async ({ event, resolve }) => {
     maxAge: 604800,
     httpOnly: false
   })
+
+  const supportedLocales = locales.get().map((l) => l.toLowerCase())
+  let locale = supportedLocales.find(
+    (l) => l === `${pathname.match(/[^/]+?(?=\/|$)/)}`.toLowerCase()
+  )
+
+  if (!locale) {
+    locale = kunLanguage()
+    return new Response(undefined, { headers: { location: `/${locale}${pathname}` }, status: 301 })
+  }
 
   return await resolve(event, {
     transformPageChunk: ({ html }) => {

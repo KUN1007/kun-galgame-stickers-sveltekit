@@ -1,15 +1,12 @@
-import type { LayoutServerLoad } from './$types'
-import { error } from '@sveltejs/kit'
-import { connectMongodb } from '~/lib/server/db'
+import { loadTranslations, translations } from '$lib/language'
 
-export const load: LayoutServerLoad = async ({ locals }) => {
-  const connection = await connectMongodb()
+export const load = async ({ url, locals }) => {
+  const { pathname } = url
+  const { language } = locals
 
-  if (!connection) {
-    throw error(500, 'Database connection failed')
-  } else {
-    console.log('MongoDB connection successful!')
-  }
+  const route = pathname.replace(new RegExp(`^/${language}`), '')
 
-  return { theme: locals.theme, language: locals.language }
+  await loadTranslations(language, route)
+
+  return { i18n: { route, language }, translations: translations.get() }
 }

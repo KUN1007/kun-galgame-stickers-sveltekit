@@ -22,8 +22,8 @@
       <p>Currently, the number of stickers on this website has exceeded 400!</p>
 
       <!-- svelte-ignore a11y-media-has-caption -->
-      <video poster="title.webp" controls loop playsinline width="100%">
-        <source src="introduction.mp4" type="video/mp4" />
+      <video poster="/title.webp" controls loop playsinline width="100%">
+        <source src="/introduction.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 

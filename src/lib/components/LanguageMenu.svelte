@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { getLanguageContext } from '~/lib/contexts/language'
   import { isShowLanguageMenu } from '../store/menuStore'
-  import { t } from '../language'
+  import { t, locales, locale } from '$lib/language'
   import { invalidate } from '$app/navigation'
   import { page } from '$app/stores'
+  import { goto } from '$app/navigation'
   import type { LanguageItem } from '~/types/menu'
 
   let menuContainer: HTMLElement
-  const languageStore = getLanguageContext()
+  $: ({ route } = $page.data)
 
   let kunLangName: LanguageItem[] = [
     {
@@ -23,12 +23,12 @@
 
   kunLangName = kunLangName.map((item) => ({
     ...item,
-    selected: item.name === $languageStore
+    selected: item.name === $locale
   }))
 
   const handleChangeLanguage = (language: App.KunLanguage) => {
     menuContainer.focus()
-    languageStore.change(language)
+    goto(`/${language}${route}`)
 
     if ($page.route.id === '/sticker/[sid]') {
       // invalidate page data and refetch data
