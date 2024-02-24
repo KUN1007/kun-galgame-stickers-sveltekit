@@ -5,7 +5,7 @@
   import { onMount, beforeUpdate } from 'svelte'
   import { setColorSchemeContext } from '~/lib/contexts/theme'
   import { setLanguageContext } from '~/lib/contexts/language'
-  import { t } from '~/lib/language'
+  import { t, locale } from '~/lib/language'
 
   export let data
   let showButton = false
@@ -74,6 +74,24 @@
         GitHub
       </a>
     </p>
+    {#if $locale === 'zh'}
+      <p>
+        由
+        <a aria-label="KUN Visual Novel Forum | 鲲 Galgame 论坛" href="https://www.kungal.com">
+          鲲 Galgame 论坛
+        </a>
+        提供支持
+      </p>
+    {/if}
+
+    {#if $locale === 'en'}
+      <p>
+        Powered by
+        <a aria-label="KUN Visual Novel Forum | 鲲 Galgame 论坛" href="https://www.kungal.com">
+          KUN Visual Novel Forum
+        </a>
+      </p>
+    {/if}
   </footer>
 </div>
 
@@ -81,7 +99,7 @@
   .app {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100dvh;
     color: var(--kungalgame-font-color-3);
     background-color: var(--kungalgame-trans-blue-0);
   }
