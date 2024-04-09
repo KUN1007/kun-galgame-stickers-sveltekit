@@ -17,20 +17,25 @@ In the future, some SD_CG and CG screenshots from games may be updated as sticke
 
 ### Telegram Sticker Packs
 
-This set of stickers will be updated synchronously in the Telegram sticker collection, with 80 stickers per set. You can also click the links below to add the stickers
+**This set of stickers will be updated synchronously in the Telegram sticker collection**, with 80 stickers per set. You can also click the links below to add the stickers
 
 [Kun Galgame Sticker Pack [1]](https://t.me/addstickers/KUNgal1)
+
 [Kun Galgame Sticker Pack [2]](https://t.me/addstickers/KUNgal2)
+
 [Kun Galgame Sticker Pack [3]](https://t.me/addstickers/KUNgal3)
+
 [Kun Galgame Sticker Pack [4]](https://t.me/addstickers/KUNgal4)
+
 [Kun Galgame Sticker Pack [5]](https://t.me/addstickers/KUNgal5)
+
 [Kun Galgame Sticker Pack [6]](https://t.me/addstickers/KUNgal6)
 
 The stickers in the repository are clearer than those in the Telegram collection because the quality was compressed when making the Telegram sticker collection.
 
 You can click the link below to download these stickers
 
-[Download Link](https://github.com/KUN1007/kungalgame-stickers/releases)
+**[Download Link](https://github.com/KUN1007/kungalgame-stickers/releases)**
 
 ## Standards
 
@@ -52,6 +57,19 @@ Of course, I have played all these games, all of them are moe games
 You can click to see which games were used for the screenshots in the stickers
 
 [Overview of Games in the Sticker Pack](https://github.com/KUN1007/kungalgame-stickers/blob/main/introduction/game.md)
+
+
+## To-Do List
+
+* [ ] Add login functionality for Kun Galgame forum accounts
+
+* [ ] Implement user upload functionality for Kun Galgame forum accounts
+
+* [ ] Clarify API documentation for third-party developers
+
+* [ ] Add Telegram sticker index section
+
+* [ ] Add the SD_CG section, which will host SD_CG content for Galgames.
 
 
 ## FAQ

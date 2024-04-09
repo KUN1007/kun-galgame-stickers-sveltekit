@@ -4,7 +4,7 @@
 
 ## 介绍
 
-鲲 Galgame 是鲲 Galgame 论坛的子网站，它是一个专注于收集表情包的网站，它不遵循鲲 Galgame 论坛的运营理念
+鲲 Galgame 表情包是鲲 Galgame 论坛的子网站，它是一个专注于收集表情包的网站，它不遵循鲲 Galgame 论坛的运营理念
 
 这是各种 galgame 里截的表情包，目的是
 
@@ -57,6 +57,18 @@
 ### [大家可以点击这里查看表情包里面使用了哪些游戏截的图](https://github.com/KUN1007/kungalgame-stickers/blob/main/introduction/game.md)
 
   
+
+## 待办
+
+* [ ] 增加鲲 Galgame 论坛账户登录功能
+
+* [ ] 增加鲲 Galgame 论坛账户用户上传功能
+
+* [ ] 明确 API 文档以便第三方二次开发
+
+* [ ] 增加 Telegram 部分贴纸索引
+
+* [ ] 增加 SD_CG 板块，此板块将存放 Galgame 的 SD_CG
 
 ## FAQ
 
