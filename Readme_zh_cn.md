@@ -102,7 +102,7 @@ A：~~我是单线战士~~
 
   
 
-鲲的 galgame 交流群：726477957
+鲲的 galgame 交流群: 850949010
 
 TG 群：https://t.me/kungalgame
 

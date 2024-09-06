@@ -90,7 +90,8 @@ Q: Why are there only expressions of one person from many games in the entire ga
 
 A: I am a one-route warrior
 
-Tips
+  
+
 If you think we are doing well, feel free to give us a star~
 
 Our Telegram group: https://t.me/kungalgame
