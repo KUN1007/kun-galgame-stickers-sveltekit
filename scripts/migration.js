@@ -40,34 +40,38 @@ async function readAndParseJSON(filePath) {
 
 // Function to migrate data
 async function migrateData() {
-  // const gameFolderPath = path.join(__dirname, 'en/game')
-  // const lassFolderPath = path.join(__dirname, 'en/lass')
+  const gameFolderPathEn = path.join(__dirname, 'en/game')
+  const lassFolderPathEn = path.join(__dirname, 'en/lass')
 
-  const gameFolderPath = path.join(__dirname, 'zh/game')
-  const lassFolderPath = path.join(__dirname, 'zh/lass')
+  const gameFolderPathZh = path.join(__dirname, 'zh/game')
+  const lassFolderPathZh = path.join(__dirname, 'zh/lass')
 
   for (let i = 1; i <= 6; i++) {
-    const gameData = await readAndParseJSON(path.join(gameFolderPath, `game${i}.json`))
-    const lassData = await readAndParseJSON(path.join(lassFolderPath, `lass${i}.json`))
+    const gameDataEn = await readAndParseJSON(path.join(gameFolderPathEn, `game${i}.json`))
+    const lassDataEn = await readAndParseJSON(path.join(lassFolderPathEn, `lass${i}.json`))
+    const gameDataZh = await readAndParseJSON(path.join(gameFolderPathZh, `game${i}.json`))
+    const lassDataZh = await readAndParseJSON(path.join(lassFolderPathZh, `lass${i}.json`))
 
-    for (const pid in gameData) {
-      if (Object.hasOwnProperty.call(gameData, pid)) {
-        // const sticker = new KUNStickerModel({
-        //   sid: i,
-        //   pid: parseInt(pid, 10),
-        //   game_en: gameData[pid],
-        //   loli_en: lassData[pid]
-        // })
-        // await sticker.save()
+    for (const pid in gameDataEn) {
+      // if (Object.hasOwnProperty.call(gameData, pid)) {
+      const sticker = new KUNStickerModel({
+        sid: i,
+        pid: parseInt(pid, 10),
+        game_en: gameDataEn[pid],
+        loli_en: lassDataEn[pid],
+        game_zh: gameDataZh[pid],
+        loli_zh: lassDataZh[pid]
+      })
+      await sticker.save()
 
-        await KUNStickerModel.updateOne(
-          { sid: i, pid },
-          {
-            game_zh: gameData[pid],
-            loli_zh: lassData[pid]
-          }
-        )
-      }
+      // await KUNStickerModel.updateOne(
+      //   { sid: i, pid },
+      //   {
+      //     game_zh: gameData[pid],
+      //     loli_zh: lassData[pid]
+      //   }
+      // )
+      // }
     }
   }
 }
