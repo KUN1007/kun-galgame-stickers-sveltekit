@@ -17,7 +17,7 @@ const findOptionsZH = { ...findOptions, game_zh: 1, loli_zh: 1 }
 export const findStickersData = async (local: App.KunLanguage, sid: number) => {
   const queryOptions = local === 'en' ? findOptionsEN : findOptionsZH
 
-  const data = await KUNStickerModel.find({ sid }, queryOptions)
+  const data = await KUNStickerModel.find({ sid }, queryOptions).sort({ pid: 1 }).lean()
   return data.map((sticker) => ({
     sid: sticker.sid,
     pid: sticker.pid,
