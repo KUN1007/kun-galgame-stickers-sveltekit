@@ -32,8 +32,8 @@
         <p>This video is also released on Bilibili, if you like it, please give it a thumbs up</p>
         <p>
           Bilibili:
-          <a href="https://www.bilibili.com/video/BV1vF41197DW">
-            350多张纯 galgame 表情包，我建了一个 galgame 表情包仓库
+          <a href="https://www.bilibili.com/video/BV19u4m1c7ZN">
+            【论坛子网站】搭了一个 Galgame 表情包网站[SvelteKit]
           </a>
         </p>
         <br />
