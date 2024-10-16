@@ -22,6 +22,7 @@ const KUNStickerSchema = new mongoose.Schema<KUNStickers>(
   { timestamps: { createdAt: 'created', updatedAt: 'updated' } }
 )
 
-const KUNStickerModel = mongoose.model<KUNStickers>('stickers', KUNStickerSchema)
+const KUNStickerModel =
+  mongoose.models.stickers || mongoose.model<KUNStickers>('stickers', KUNStickerSchema)
 
 export default KUNStickerModel

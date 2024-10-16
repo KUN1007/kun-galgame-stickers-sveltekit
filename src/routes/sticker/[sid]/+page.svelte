@@ -76,6 +76,7 @@
     flex-direction: column;
     justify-content: space-between;
     position: relative;
+    transition: all 0.2s;
 
     .image-container {
       width: 100%;
@@ -92,7 +93,6 @@
     }
 
     &:hover {
-      transition: all 0.2s;
       box-shadow: var(--kungalgame-shadow-1);
     }
   }

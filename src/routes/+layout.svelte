@@ -146,12 +146,8 @@
 
     a {
       color: var(--kungalgame-blue-5);
-      font-weight: bold;
-      border-bottom: 2px solid var(--kungalgame-trans-white-9);
-
-      &:hover {
-        border-bottom: 2px solid var(--kungalgame-blue-5);
-      }
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
   }
 

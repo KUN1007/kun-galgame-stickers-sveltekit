@@ -40,6 +40,7 @@
     border-radius: 10px;
     border: 1px solid var(--kungalgame-trans-blue-1);
     box-shadow: var(--kungalgame-shadow-0);
+    transition: all 0.2s;
 
     img {
       position: absolute;
@@ -70,7 +71,6 @@
     }
 
     &:hover {
-      transition: all 0.2s;
       box-shadow: var(--kungalgame-shadow-1);
     }
   }
