@@ -6,25 +6,27 @@ import mongoose from 'mongoose'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// MongoDB connection string
 const mongoURI = 'mongodb://127.0.0.1:27017/kungalgame_sticker'
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 
-// Define the schema and model
 const KUNStickerSchema = new mongoose.Schema(
   {
     sid: { type: Number, default: 0 },
     pid: { type: Number, default: 0 },
     src: { type: String, default: '' },
 
-    game_en: { type: String, default: '' },
-    game_zh: { type: String, default: '' },
-    game_ja: { type: String, default: '' },
-
-    loli_en: { type: String, default: '' },
-    loli_zh: { type: String, default: '' },
-    loli_ja: { type: String, default: '' },
-
+    game: {
+      'en-us': { type: String, default: '' },
+      'ja-jp': { type: String, default: '' },
+      'zh-cn': { type: String, default: '' },
+      'zh-tw': { type: String, default: '' }
+    },
+    loli: {
+      'en-us': { type: String, default: '' },
+      'ja-jp': { type: String, default: '' },
+      'zh-cn': { type: String, default: '' },
+      'zh-tw': { type: String, default: '' }
+    },
     vndb: { type: Number, default: 0 },
     describe: { type: String, default: '' }
   },
@@ -38,7 +40,6 @@ async function readAndParseJSON(filePath) {
   return JSON.parse(data)
 }
 
-// Function to migrate data
 async function migrateData() {
   const gameFolderPathEn = path.join(__dirname, 'en/game')
   const lassFolderPathEn = path.join(__dirname, 'en/lass')
@@ -53,30 +54,25 @@ async function migrateData() {
     const lassDataZh = await readAndParseJSON(path.join(lassFolderPathZh, `lass${i}.json`))
 
     for (const pid in gameDataEn) {
-      // if (Object.hasOwnProperty.call(gameData, pid)) {
       const sticker = new KUNStickerModel({
         sid: i,
         pid: parseInt(pid, 10),
-        game_en: gameDataEn[pid],
-        loli_en: lassDataEn[pid],
-        game_zh: gameDataZh[pid],
-        loli_zh: lassDataZh[pid]
+        game: {
+          'en-us': gameDataEn[pid],
+          'ja-jp': '',
+          'zh-cn': gameDataZh[pid],
+          'zh-tw': ''
+        },
+        loli: {
+          'en-us': lassDataEn[pid],
+          'ja-jp': '',
+          'zh-cn': lassDataZh[pid],
+          'zh-tw': ''
+        }
       })
       await sticker.save()
-
-      // await KUNStickerModel.updateOne(
-      //   { sid: i, pid },
-      //   {
-      //     game_zh: gameData[pid],
-      //     loli_zh: lassData[pid]
-      //   }
-      // )
-      // }
     }
   }
 }
 
-// Run the migration
-migrateData()
-  .then(() => console.log('Migration completed.'))
-  .catch((error) => console.error('Migration failed:', error))
+migrateData().then(() => console.log('Migration completed.'))

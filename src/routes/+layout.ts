@@ -2,7 +2,7 @@ import { loadTranslations } from '~/lib/language'
 
 interface KunData {
   theme: App.KunTheme
-  language: App.KunLanguage
+  language: Language
 }
 
 export const load = async ({ data }: { data: KunData }) => {

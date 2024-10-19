@@ -1,18 +1,19 @@
 <script lang="ts">
   import { t } from '~/lib/language'
+  import { getPreferredLanguageText } from '~/utils/getPreferredLanguageText'
 
   export let data
+  $: language = data.language as Language
 
   const { sid, pid } = data
 
-  $: game = data.stickerData?.game
-  $: loli = data.stickerData?.loli
-  $: describe = data.stickerData?.describe
+  const game = getPreferredLanguageText(JSON.parse(data.game), language)
+  const loli = getPreferredLanguageText(JSON.parse(data.loli), language)
 </script>
 
 <svelte:head>
   <title>{`${game} | ${loli}`}</title>
-  <meta name="description" content={describe ? describe : `${game} | ${loli}`} />
+  <meta name="description" content={`${game} | ${loli}`} />
 </svelte:head>
 
 <div class="root">

@@ -80,7 +80,7 @@
         GitHub
       </a>
     </p>
-    {#if $locale === 'zh'}
+    {#if $locale === 'zh-cn'}
       <p>
         由
         <a aria-label="KUN Visual Novel Forum | 鲲 Galgame 论坛" href="https://www.kungal.com">
@@ -90,7 +90,7 @@
       </p>
     {/if}
 
-    {#if $locale === 'en'}
+    {#if $locale === 'en-us'}
       <p>
         Powered by
         <a aria-label="KUN Visual Novel Forum | 鲲 Galgame 论坛" href="https://www.kungal.com">

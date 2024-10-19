@@ -6,13 +6,9 @@ export interface KUNStickers {
   // Sticker image source
   src: string
   // Visual Novel name
-  game_en: string
-  game_zh: string
-  game_ja: string
+  game: KunLanguage
   // Kawaii loli name
-  loli_en: string
-  loli_zh: string
-  loli_ja: string
+  loli: KunLanguage
   // VNDB VisualNovel vid
   vndb: number
   // Sticker description
@@ -22,8 +18,8 @@ export interface KUNStickers {
 export interface KUNStickersResponseData {
   sid: number
   pid: number
-  game: string
-  loli: string
+  game: KunLanguage
+  loli: KunLanguage
   vndb: number
   describe: string
 }

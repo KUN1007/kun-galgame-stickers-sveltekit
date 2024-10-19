@@ -5,6 +5,6 @@
   "light": "Light",
   "dark": "Dark",
   "system": "System",
-  "en": "English",
-  "zh": "中文"
+  "en-us": "English",
+  "zh-cn": "中文"
 }

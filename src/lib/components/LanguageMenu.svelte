@@ -3,8 +3,6 @@
   import { getLanguageContext } from '~/lib/contexts/language'
   import { isShowLanguageMenu } from '../store/menuStore'
   import { t } from '../language'
-  import { invalidate } from '$app/navigation'
-  import { page } from '$app/stores'
   import type { LanguageItem } from '~/types/menu'
 
   let menuContainer: HTMLElement
@@ -12,11 +10,11 @@
 
   let kunLangName: LanguageItem[] = [
     {
-      name: 'en',
+      name: 'en-us',
       selected: false
     },
     {
-      name: 'zh',
+      name: 'zh-cn',
       selected: false
     }
   ]
@@ -26,22 +24,17 @@
     selected: item.name === $languageStore
   }))
 
-  const handleChangeLanguage = (language: App.KunLanguage) => {
+  const handleChangeLanguage = (language: Language) => {
     menuContainer.focus()
     languageStore.change(language)
-
-    if ($page.route.id === '/sticker/[sid]') {
-      // invalidate page data and refetch data
-      invalidate('kun:sticker')
-    }
-    if ($page.route.id === '/sticker/[sid]-[pid]') {
-      invalidate('kun:details')
-    }
 
     kunLangName = kunLangName.map((item) => ({
       ...item,
       selected: item.name === language
     }))
+
+    // TODO:
+    location.reload()
   }
 
   onMount(() => menuContainer.focus())
@@ -56,8 +49,8 @@
 </script>
 
 <button bind:this={menuContainer} class="container" on:blur={handleMenuBlur}>
-  <span class="triangle1"></span>
-  <span class="triangle2"></span>
+  <span class="triangle1" />
+  <span class="triangle2" />
   <div class="kungalgamer">
     {#each kunLangName ?? [] as item}
       <button

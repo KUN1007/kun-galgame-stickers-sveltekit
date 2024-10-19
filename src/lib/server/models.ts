@@ -7,15 +7,18 @@ const KUNStickerSchema = new mongoose.Schema<KUNStickers>(
     sid: { type: Number, default: 0 },
     pid: { type: Number, default: 0 },
     src: { type: String, default: '' },
-
-    game_en: { type: String, default: '' },
-    game_zh: { type: String, default: '' },
-    game_ja: { type: String, default: '' },
-
-    loli_en: { type: String, default: '' },
-    loli_zh: { type: String, default: '' },
-    loli_ja: { type: String, default: '' },
-
+    game: {
+      'en-us': { type: String, default: '' },
+      'ja-jp': { type: String, default: '' },
+      'zh-cn': { type: String, default: '' },
+      'zh-tw': { type: String, default: '' }
+    },
+    loli: {
+      'en-us': { type: String, default: '' },
+      'ja-jp': { type: String, default: '' },
+      'zh-cn': { type: String, default: '' },
+      'zh-tw': { type: String, default: '' }
+    },
     vndb: { type: Number, default: 0 },
     describe: { type: String, default: '' }
   },

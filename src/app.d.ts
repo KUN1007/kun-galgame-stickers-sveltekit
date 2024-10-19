@@ -3,12 +3,11 @@
 declare global {
   namespace App {
     declare type KunTheme = 'light' | 'dark' | 'system'
-    declare type KunLanguage = 'en' | 'zh'
 
     // interface Error {}
     interface Locals {
       theme: KunTheme
-      language: KunLanguage
+      language: Language
     }
     // interface PageData {}
     // interface PageState {}

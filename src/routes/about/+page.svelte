@@ -8,7 +8,7 @@
   <meta name="description" content={$t('about.description')} />
 </svelte:head>
 
-{#if $locale === 'en'}
+{#if $locale.toLocaleLowerCase() === 'en-us'}
   <div class="root">
     <h1>
       <a href="https://github.com/KUN1007/kun-galgame-stickers-sveltekit" target="_blank">
@@ -155,7 +155,7 @@
   </div>
 {/if}
 
-{#if $locale === 'zh'}
+{#if $locale.toLocaleLowerCase() === 'zh-cn'}
   <div class="root">
     <h1>
       <a href="https://github.com/KUN1007/kun-galgame-stickers-sveltekit" target="_blank">

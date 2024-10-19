@@ -5,6 +5,6 @@
   "light": "白天",
   "dark": "黑夜",
   "system": "系统默认",
-  "en": "English",
-  "zh": "中文"
+  "en-us": "English",
+  "zh-cn": "中文"
 }
