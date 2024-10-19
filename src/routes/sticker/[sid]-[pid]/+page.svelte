@@ -3,7 +3,7 @@
   import { getPreferredLanguageText } from '~/utils/getPreferredLanguageText'
 
   export let data
-  $: language = data.language as Language
+  const language = data.language as Language
 
   const { sid, pid } = data
 
