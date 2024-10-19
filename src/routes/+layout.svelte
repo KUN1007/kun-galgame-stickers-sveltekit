@@ -1,5 +1,6 @@
 <script lang="ts">
   import Header from '~/lib/components/Header.svelte'
+  import ProgressBar from '~/lib/components/ProgressBar.svelte'
   import Icon from '@iconify/svelte'
   import '~/styles/index.scss'
   import { onMount, beforeUpdate } from 'svelte'
@@ -52,6 +53,8 @@
   <meta property="og:description" content={$t('seo.og-desc')} />
   <meta property="og:image" content="/title.webp" />
 </svelte:head>
+
+<ProgressBar />
 
 <div class="app">
   <Header />

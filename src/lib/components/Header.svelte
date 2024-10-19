@@ -78,7 +78,7 @@
     background-color: var(--kungalgame-trans-white-5);
     backdrop-filter: blur(5px);
     padding: 0 50px;
-    z-index: 9999;
+    z-index: 1007;
   }
 
   .kungalgame {
