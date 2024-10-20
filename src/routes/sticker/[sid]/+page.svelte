@@ -2,10 +2,11 @@
   import Icon from '@iconify/svelte'
   import { goto } from '$app/navigation'
   import { t } from '~/lib/language'
+  import { getLanguageContext } from '~/lib/contexts/language'
   import { getPreferredLanguageText } from '~/utils/getPreferredLanguageText'
 
   export let data
-  $: language = data.language as Language
+  const languageStore = getLanguageContext()
 
   const downloadImage = async (imagePath: string) => {
     const response = await fetch(imagePath)
@@ -37,11 +38,8 @@
         <span class="sequence">{`${data.sid}-${sticker.pid}`}</span>
 
         <div class="info">
-          <!-- <p>{$t('sticker.game')}: {$t(`game${data.sid}.${sticker.pid}`)}</p>
-          <p>{$t('sticker.lass')}: {$t(`lass${data.sid}.${sticker.pid}`)}</p> -->
-          <!-- <p>{$t('sticker.introduction')}: TODO</p> -->
-          <p>{$t('sticker.game')}: {getPreferredLanguageText(sticker.game, language)}</p>
-          <p>{$t('sticker.lass')}: {getPreferredLanguageText(sticker.loli, language)}</p>
+          <p>{$t('sticker.game')}: {getPreferredLanguageText(sticker.game, $languageStore)}</p>
+          <p>{$t('sticker.lass')}: {getPreferredLanguageText(sticker.loli, $languageStore)}</p>
         </div>
 
         <div class="btn">

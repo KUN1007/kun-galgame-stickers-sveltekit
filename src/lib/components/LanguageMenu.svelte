@@ -32,9 +32,6 @@
       ...item,
       selected: item.name === language
     }))
-
-    // TODO:
-    location.reload()
   }
 
   onMount(() => menuContainer.focus())

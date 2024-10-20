@@ -1,14 +1,15 @@
 <script lang="ts">
   import { t } from '~/lib/language'
+  import { getLanguageContext } from '~/lib/contexts/language'
   import { getPreferredLanguageText } from '~/utils/getPreferredLanguageText'
 
   export let data
-  const language = data.language as Language
+  const languageStore = getLanguageContext()
 
   const { sid, pid } = data
 
-  const game = getPreferredLanguageText(JSON.parse(data.game), language)
-  const loli = getPreferredLanguageText(JSON.parse(data.loli), language)
+  $: game = getPreferredLanguageText(JSON.parse(data.game), $languageStore)
+  $: loli = getPreferredLanguageText(JSON.parse(data.loli), $languageStore)
 </script>
 
 <svelte:head>
