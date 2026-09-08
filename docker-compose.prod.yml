@@ -69,6 +69,37 @@ services:
       <<: *api-env
     expose:
       - '9421'
+    # The public developer-platform face (NextMoe doc 08 §16.5). These labels
+    # are hand-written because they carry a middleware Dokploy's Domains panel
+    # cannot express; the sticker.kungal.com routers beside them are still
+    # Dokploy's own and are not repeated here.
+    #
+    # The gateway does the authenticating: forwardAuth asks oauth whether the
+    # caller's nmk_ key carries sticker:read, and only then forwards. Nothing
+    # strips the prefix, so the API serves /v1/sticker/* verbatim (it also
+    # answers /v2/sticker/* -- see apps/api/internal/app/face.go -- so moving
+    # the face to the live /v2 namespace is a change to these labels alone).
+    #
+    # authResponseHeaders is what makes the three X-NextMoe-* headers
+    # trustworthy: Traefik overwrites whatever the client sent with what oauth
+    # answered.
+    #
+    # Dokploy does not redeploy on a compose-only change. Click Deploy.
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: dokploy-network
+      traefik.http.routers.sticker-face-pub.rule: Host(`api.nextmoe.dev`) && PathPrefix(`/v1/sticker`)
+      traefik.http.routers.sticker-face-pub.entrypoints: websecure
+      traefik.http.routers.sticker-face-pub.tls.certresolver: letsencrypt
+      traefik.http.routers.sticker-face-pub.middlewares: sticker-face-forwardauth
+      traefik.http.routers.sticker-face-pub.service: sticker-face-pub
+      traefik.http.routers.sticker-face-pub-http.rule: Host(`api.nextmoe.dev`) && PathPrefix(`/v1/sticker`)
+      traefik.http.routers.sticker-face-pub-http.entrypoints: web
+      traefik.http.routers.sticker-face-pub-http.middlewares: redirect-to-https@file
+      traefik.http.routers.sticker-face-pub-http.service: sticker-face-pub
+      traefik.http.middlewares.sticker-face-forwardauth.forwardauth.address: http://oauth:9277/internal/devapi/forward-auth?face=sticker
+      traefik.http.middlewares.sticker-face-forwardauth.forwardauth.authResponseHeaders: X-NextMoe-Client-Id,X-NextMoe-Key-Id,X-NextMoe-Tier
+      traefik.http.services.sticker-face-pub.loadbalancer.server.port: '9421'
     depends_on:
       migrate:
         condition: service_completed_successfully

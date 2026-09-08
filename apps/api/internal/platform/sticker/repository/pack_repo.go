@@ -18,9 +18,12 @@ type ListParams struct {
 	TagSlug      string
 	LinkedOnly   bool
 	CatalogWork  int64
-	Order        string
-	Offset       int
-	Limit        int
+	// AnyCatalogWork matches a pack that declares the work or holds a sticker
+	// of it.
+	AnyCatalogWork int64
+	Order          string
+	Offset         int
+	Limit          int
 }
 
 type PackRepo struct{ db *gorm.DB }
@@ -51,6 +54,12 @@ func (r *PackRepo) filtered(p ListParams) *gorm.DB {
 	}
 	if p.CatalogWork > 0 {
 		q = q.Where("catalog_work_id = ?", p.CatalogWork)
+	}
+	if p.AnyCatalogWork > 0 {
+		q = q.Where(
+			"(catalog_work_id = ? OR EXISTS (SELECT 1 FROM sticker s WHERE s.pack_id = pack.id AND s.catalog_work_id = ?))",
+			p.AnyCatalogWork, p.AnyCatalogWork,
+		)
 	}
 	if p.TagSlug != "" {
 		q = q.Where(

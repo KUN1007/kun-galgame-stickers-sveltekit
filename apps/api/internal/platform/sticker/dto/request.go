@@ -26,8 +26,14 @@ type ListQuery struct {
 	// LinkedOnly keeps only packs that declare a catalog work, so a reader
 	// who came for galgame stickers can filter out everything else.
 	LinkedOnly bool
-	// CatalogWorkID lists the packs of one game.
+	// CatalogWorkID lists the packs of one game, by the game the pack itself
+	// declares.
 	CatalogWorkID int64
+	// AnyCatalogWorkID is the wider relation the public face publishes: a pack
+	// is about a game if it declares it OR holds a sticker of it. The seeded
+	// official packs declare nothing and carry material for dozens of games,
+	// so the narrow filter answers nothing for them.
+	AnyCatalogWorkID int64
 
 	// OwnerUID scopes the list to one author. ViewerUID is who is asking --
 	// only an author sees their own drafts.

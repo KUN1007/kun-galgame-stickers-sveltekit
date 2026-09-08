@@ -25,17 +25,18 @@ func (s *Service) List(ctx context.Context, q dto.ListQuery, v Viewer) (*dto.Pac
 	}
 
 	rows, total, err := s.packs.List(repository.ListParams{
-		OwnerUID:     q.OwnerUID,
-		Statuses:     statuses,
-		OfficialOnly: q.OfficialOnly,
-		SFWOnly:      q.Rating == dto.RatingFilterSFW,
-		Search:       q.Search,
-		TagSlug:      q.Tag,
-		LinkedOnly:   q.LinkedOnly,
-		CatalogWork:  q.CatalogWorkID,
-		Order:        orderFor(q.Sort),
-		Offset:       (q.Page - 1) * q.Limit,
-		Limit:        q.Limit,
+		OwnerUID:       q.OwnerUID,
+		Statuses:       statuses,
+		OfficialOnly:   q.OfficialOnly,
+		SFWOnly:        q.Rating == dto.RatingFilterSFW,
+		Search:         q.Search,
+		TagSlug:        q.Tag,
+		LinkedOnly:     q.LinkedOnly,
+		CatalogWork:    q.CatalogWorkID,
+		AnyCatalogWork: q.AnyCatalogWorkID,
+		Order:          orderFor(q.Sort),
+		Offset:         (q.Page - 1) * q.Limit,
+		Limit:          q.Limit,
 	})
 	if err != nil {
 		return nil, errors.ErrInternal("failed to list packs")

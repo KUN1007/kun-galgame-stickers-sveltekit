@@ -21,6 +21,7 @@ import (
 	"kun-galgame-sticker-api/pkg/config"
 	"kun-galgame-sticker-api/pkg/errors"
 	"kun-galgame-sticker-api/pkg/imageclient"
+	"kun-galgame-sticker-api/pkg/problem"
 	"kun-galgame-sticker-api/pkg/response"
 	"kun-galgame-sticker-api/pkg/userclient"
 
@@ -107,6 +108,9 @@ func New(cfg *config.Config) *App {
 	})
 	fiberApp.Use(recover.New())
 	fiberApp.Use(cors.New(cors.Config{
+		// The public face brings its own CORS: it answers any origin and sends
+		// no credentials, which this policy cannot express at the same time.
+		Next:             isFacePath,
 		AllowOrigins:     strings.Split(cfg.CORS.AllowOrigins, ","),
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
@@ -131,6 +135,10 @@ func New(cfg *config.Config) *App {
 	writeLimit := userLimiter(120)
 	uploadLimit := userLimiter(60)
 	cacheable := publicCache(60)
+
+	// The public developer-platform face, mounted on its public prefixes before
+	// the site's own group so the two are visibly separate things. See face.go.
+	mountFace(fiberApp, h)
 
 	api := fiberApp.Group("/api/v1")
 
@@ -218,15 +226,41 @@ func publicCache(seconds int) fiber.Handler {
 	}
 }
 
+// errorHandler speaks whichever error language the path belongs to. Without
+// the face branch an unrouted /v1/sticker path would answer with the site's
+// house envelope, which is exactly the second error dialect the face exists to
+// avoid.
 func errorHandler(c fiber.Ctx, err error) error {
 	var appErr *errors.AppError
 	if stderrors.As(err, &appErr) {
+		if isFacePath(c) {
+			return faceProblem(c, appErr.StatusCode, appErr.Message)
+		}
 		return response.Error(c, appErr)
 	}
 	var fe *fiber.Error
 	if stderrors.As(err, &fe) {
+		if isFacePath(c) {
+			return faceProblem(c, fe.Code, fe.Message)
+		}
 		return response.Error(c, errors.New(errors.CodeBiz, fe.Message, fe.Code))
 	}
 	slog.Error("unhandled", "error", err)
+	if isFacePath(c) {
+		return faceProblem(c, fiber.StatusInternalServerError, "internal error")
+	}
 	return response.Error(c, errors.ErrInternal("internal error"))
+}
+
+func faceProblem(c fiber.Ctx, status int, detail string) error {
+	switch status {
+	case fiber.StatusNotFound:
+		return problem.Write(c, problem.CodeNotFound, detail)
+	case fiber.StatusBadRequest:
+		return problem.Write(c, problem.CodeInvalidParameter, detail)
+	case fiber.StatusServiceUnavailable:
+		return problem.Write(c, problem.CodeServiceUnavailable, detail)
+	default:
+		return problem.Write(c, problem.CodeInternalError, detail)
+	}
 }

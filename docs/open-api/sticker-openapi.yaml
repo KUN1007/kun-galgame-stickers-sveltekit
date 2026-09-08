@@ -1,0 +1,562 @@
+openapi: 3.1.0
+info:
+  title: NextMoe Sticker Face
+  version: 1.0.0
+  x-stability: stable
+  summary: Galgame sticker packs, indexed by catalog work and character identity.
+  description: |
+    A read-only face of sticker.kungal.com, federated into the NextMoe developer
+    platform per doc 08 §16 (face `sticker`, scope `sticker:read`).
+
+    What this face is for: it is not a second content list. Every sticker on the
+    site is tagged with an infra **catalog** work and character id, so this face
+    answers the question "which sticker material exists for this catalog
+    identity". A caller already holding catalog ids can join against it directly
+    -- that is what `/v1/sticker/characters/{character_id}/stickers` and
+    `/v1/sticker/works/{work_id}/packs` are for, and the rest is scaffolding
+    around them.
+
+    **Authentication happens at the gateway.** Traefik runs ForwardAuth against
+    the platform's key plane before a request reaches this service, so 401, 403
+    and 429 come from the gateway in its own format and are not described here.
+    Send `Authorization: Bearer nmk_live_...` (or `X-API-Key`).
+
+    **Scope of the data.** Only published packs are visible. Drafts, hidden and
+    removed packs, comment bodies, moderation state and every authoring endpoint
+    are outside this face and always will be.
+
+    **Names are multilingual maps**, not strings. Keys are `zh-cn`, `zh-tw`,
+    `ja-jp`, `en-us` and `und`; every one of them is optional, and `und` is
+    where a catalog display name with no language tag lands. Pick a language
+    with your own fallback chain -- this face never picks one for you.
+  contact:
+    name: sticker.kungal.com
+    url: https://sticker.kungal.com
+  license:
+    name: MIT
+    url: https://github.com/KunMoe/kun-galgame-stickers/blob/svelte-kit/LICENSE
+
+servers:
+  - url: https://api.nextmoe.dev
+    description: Production
+
+security:
+  - apiKey: []
+  - bearerKey: []
+
+tags:
+  - name: packs
+    description: Sticker packs and the stickers inside them.
+  - name: catalog
+    description: Entry points keyed by infra catalog ids. The reason this face exists.
+  - name: vocabulary
+    description: Tags.
+
+paths:
+  /v1/sticker/packs:
+    get:
+      operationId: listPacks
+      summary: List published sticker packs
+      tags: [packs]
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Nsfw'
+        - name: tag
+          in: query
+          description: Tag slug. Unknown slugs match nothing rather than erroring.
+          schema: { type: string, maxLength: 64 }
+        - name: work
+          in: query
+          description: >-
+            Catalog work id. Keeps packs that declare this game or hold a sticker
+            of it -- the same relation `/v1/sticker/works/{work_id}/packs` uses.
+          schema: { type: integer, format: int64, minimum: 1 }
+        - name: official
+          in: query
+          description: true keeps only packs published by the site itself.
+          schema: { type: string, enum: ['true', 'false'] }
+        - name: linked
+          in: query
+          description: true keeps only packs that declare a catalog work.
+          schema: { type: string, enum: ['true', 'false'] }
+      responses:
+        '200':
+          $ref: '#/components/responses/PackList'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '500':
+          $ref: '#/components/responses/Problem'
+
+  /v1/sticker/packs/{pack_id}:
+    get:
+      operationId: getPack
+      summary: One pack, with its stickers
+      tags: [packs]
+      parameters:
+        - name: pack_id
+          in: path
+          required: true
+          description: This site's own pack id (UUIDv7).
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: The pack.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PackDetail' }
+        '400':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+
+  /v1/sticker/stickers/{sticker_id}:
+    get:
+      operationId: getSticker
+      summary: One sticker
+      tags: [packs]
+      parameters:
+        - name: sticker_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: The sticker.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Sticker' }
+        '400':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+
+  /v1/sticker/characters:
+    get:
+      operationId: listCharacters
+      summary: Catalog characters this site has stickers of
+      description: >-
+        The index a caller syncs against: every catalog character id that has at
+        least one sticker in a published pack, ordered by how many. Characters
+        catalog knows but this site has no material for are absent by design.
+      tags: [catalog]
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Query'
+        - name: work
+          in: query
+          description: Narrow to the characters of one catalog work.
+          schema: { type: integer, format: int64, minimum: 1 }
+      responses:
+        '200':
+          description: A page of characters.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/List'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Character' }
+        '400':
+          $ref: '#/components/responses/Problem'
+
+  /v1/sticker/characters/{character_id}:
+    get:
+      operationId: getCharacter
+      summary: One catalog character, as this site holds it
+      tags: [catalog]
+      parameters:
+        - $ref: '#/components/parameters/CharacterID'
+      responses:
+        '200':
+          description: The character.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Character' }
+        '400':
+          $ref: '#/components/responses/Problem'
+        '404':
+          description: >-
+            No published sticker on this site is tagged with that character.
+            It says nothing about whether catalog knows the id.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /v1/sticker/characters/{character_id}/stickers:
+    get:
+      operationId: listCharacterStickers
+      summary: Every sticker of one catalog character
+      description: >-
+        The primary lane. Newest first, published packs only. An empty page and
+        a 404 mean different things: this returns an empty list for a character
+        with no material, and never 404s on the id alone.
+      tags: [catalog]
+      parameters:
+        - $ref: '#/components/parameters/CharacterID'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: A page of stickers.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/List'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Sticker' }
+        '400':
+          $ref: '#/components/responses/Problem'
+
+  /v1/sticker/works:
+    get:
+      operationId: listWorks
+      summary: Catalog works this site has material for
+      tags: [catalog]
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Query'
+      responses:
+        '200':
+          description: A page of works.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/List'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Work' }
+        '400':
+          $ref: '#/components/responses/Problem'
+
+  /v1/sticker/works/{work_id}/packs:
+    get:
+      operationId: listWorkPacks
+      summary: Packs about one catalog work
+      description: >-
+        A pack counts as being about a game if it declares it or holds a sticker
+        of it. The seeded official packs declare nothing and draw on dozens of
+        games each, so the narrow reading would answer nothing for them.
+      tags: [catalog]
+      parameters:
+        - name: work_id
+          in: path
+          required: true
+          description: Infra catalog work id.
+          schema: { type: integer, format: int64, minimum: 1 }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Nsfw'
+      responses:
+        '200':
+          $ref: '#/components/responses/PackList'
+        '400':
+          $ref: '#/components/responses/Problem'
+
+  /v1/sticker/tags:
+    get:
+      operationId: listTags
+      summary: Tags, most used first
+      tags: [vocabulary]
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: A page of tags.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/List'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Tag' }
+        '400':
+          $ref: '#/components/responses/Problem'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: A platform application key (`nmk_live_` / `nmk_test_`) holding scope `sticker:read`.
+    bearerKey:
+      type: http
+      scheme: bearer
+      description: "The same key as `Authorization: Bearer nmk_live_...`."
+
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: Page size, 1-50, default 20. Above 50 is 400 LIMIT_TOO_LARGE.
+      schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+    Page:
+      name: page
+      in: query
+      description: 1-based page number, 1-1000.
+      schema: { type: integer, minimum: 1, maximum: 1000, default: 1 }
+    Sort:
+      name: sort
+      in: query
+      description: >-
+        `new` (default) orders by publication date, `hot` by downloads then
+        views. Both end on the id, which is a UUIDv7 and therefore a stable
+        tiebreaker.
+      schema: { type: string, enum: [new, hot], default: new }
+    Query:
+      name: q
+      in: query
+      description: >-
+        Substring match, case-insensitive, across every language at once -- a
+        Japanese query finds a pack whose Japanese title matches even when
+        nothing else does. Truncated at 100 characters.
+      schema: { type: string, maxLength: 100 }
+    Nsfw:
+      name: nsfw
+      in: query
+      description: >-
+        `true` includes r18 packs; absent or `false` hides them. Same meaning as
+        catalog's nsfw parameter. Note this is the *pack's* rating: a pack of
+        ordinary reaction faces cut from an r18 game is `all_ages`, and its
+        work's `content_rating` still says `r18`.
+      schema: { type: string, enum: ['true', 'false'] }
+    CharacterID:
+      name: character_id
+      in: path
+      required: true
+      description: Infra catalog character id.
+      schema: { type: integer, format: int64, minimum: 1 }
+
+  responses:
+    PackList:
+      description: A page of packs.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/List'
+              - type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Pack' }
+    Problem:
+      description: An RFC 9457 problem document.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+    MultilingualText:
+      type: object
+      description: >-
+        Locale key to text. Every key is optional and any may be absent; `und`
+        holds a name catalog carries without a language tag.
+      additionalProperties: { type: string }
+      propertyNames:
+        enum: [zh-cn, zh-tw, ja-jp, en-us, und]
+      examples:
+        - { zh-cn: 夏日口袋, ja-jp: サマーポケッツ, en-us: Summer Pockets }
+
+    List:
+      type: object
+      required: [object, items, total, page, limit]
+      properties:
+        object: { type: string, const: list }
+        items: { type: array, items: {} }
+        total:
+          type: integer
+          format: int64
+          description: Rows matching the filter, across all pages.
+        page: { type: integer }
+        limit: { type: integer }
+
+    Image:
+      type: object
+      required: [url, thumb_url]
+      properties:
+        hash:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+          description: >-
+            The infra image service's content address, and the only stable
+            identifier here. Absent on a pack cover, which points at
+            `cover_sticker_id` instead. The same bytes stored by another
+            NextMoe site carry the same hash.
+        url: { type: string, format: uri, description: Full-size WebP on the image CDN. }
+        thumb_url: { type: string, format: uri, description: 320px variant. }
+        width: { type: integer }
+        height: { type: integer }
+
+    Work:
+      type: object
+      required: [object, id, name]
+      properties:
+        object: { type: string, const: work }
+        id:
+          type: integer
+          format: int64
+          description: Infra catalog work id. Resolve it against `/v2/catalog/works/{id}`.
+        name: { $ref: '#/components/schemas/MultilingualText' }
+        cover_url: { type: string, format: uri }
+        content_rating:
+          type: string
+          enum: [all_ages, sensitive, r18]
+          description: >-
+            Catalog's rating for the game, carried through verbatim. 89 of the
+            95 games linked here are r18; the stickers cut from them are not.
+        sticker_count:
+          type: integer
+          format: int64
+          description: Set on the work index only.
+
+    Character:
+      type: object
+      required: [object, id, name]
+      properties:
+        object: { type: string, const: character }
+        id:
+          type: integer
+          format: int64
+          description: Infra catalog character id. Resolve it against `/v2/catalog/characters/{id}`.
+        name: { $ref: '#/components/schemas/MultilingualText' }
+        image_url:
+          type: string
+          format: uri
+          description: >-
+            Catalog's portrait, usually a half-body crop rather than a square.
+            Absent when catalog marks the image explicit.
+        sticker_count: { type: integer, format: int64 }
+        work:
+          allOf: [{ $ref: '#/components/schemas/Work' }]
+          description: The game this site associates the character with.
+
+    Author:
+      type: object
+      required: [object, id, name]
+      properties:
+        object: { type: string, const: author }
+        id:
+          type: integer
+          description: NextMoe account id, the same one every site in the ecosystem uses.
+        name: { type: string }
+        avatar_url: { type: string, format: uri }
+
+    Tag:
+      type: object
+      required: [object, slug, name, pack_count]
+      properties:
+        object: { type: string, const: tag }
+        slug: { type: string }
+        name: { $ref: '#/components/schemas/MultilingualText' }
+        pack_count: { type: integer }
+
+    Pack:
+      type: object
+      required:
+        [object, id, title, description, official, content_rating,
+         sticker_count, view_count, download_count, tags, author,
+         created_at, updated_at]
+      properties:
+        object: { type: string, const: pack }
+        id: { type: string, format: uuid }
+        title: { $ref: '#/components/schemas/MultilingualText' }
+        description: { $ref: '#/components/schemas/MultilingualText' }
+        official:
+          type: boolean
+          description: Published by the site itself rather than by a user.
+        content_rating:
+          type: string
+          enum: [all_ages, r18]
+          description: The pack's own rating, not its game's.
+        sticker_count: { type: integer }
+        view_count: { type: integer, format: int64 }
+        download_count: { type: integer, format: int64 }
+        cover:
+          allOf: [{ $ref: '#/components/schemas/Image' }]
+          description: Rendering convenience. It carries no hash; use cover_sticker_id.
+        cover_sticker_id: { type: string, format: uuid }
+        work:
+          allOf: [{ $ref: '#/components/schemas/Work' }]
+          description: >-
+            The game the pack declares, when its author declared one. A mixed
+            pack declares nothing and still carries per-sticker links.
+        tags:
+          type: array
+          items: { $ref: '#/components/schemas/Tag' }
+        author: { $ref: '#/components/schemas/Author' }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        published_at: { type: string, format: date-time }
+
+    PackDetail:
+      allOf:
+        - $ref: '#/components/schemas/Pack'
+        - type: object
+          required: [stickers, works, characters]
+          properties:
+            stickers:
+              type: array
+              description: In display order.
+              items: { $ref: '#/components/schemas/Sticker' }
+            works:
+              type: array
+              description: The distinct games across this pack's stickers.
+              items: { $ref: '#/components/schemas/Work' }
+            characters:
+              type: array
+              description: The distinct characters across this pack's stickers.
+              items: { $ref: '#/components/schemas/Character' }
+
+    Sticker:
+      type: object
+      required: [object, id, pack_id, position, image]
+      properties:
+        object: { type: string, const: sticker }
+        id: { type: string, format: uuid }
+        pack_id: { type: string, format: uuid }
+        position: { type: integer, description: "1-based, unique within the pack." }
+        image: { $ref: '#/components/schemas/Image' }
+        note: { type: string }
+        work: { $ref: '#/components/schemas/Work' }
+        character: { $ref: '#/components/schemas/Character' }
+
+    Problem:
+      type: object
+      description: RFC 9457. Field names match the platform's /v2 problem documents.
+      required: [type, title, status, instance, code]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        detail: { type: string }
+        instance:
+          type: string
+          description: The request path and query string that failed.
+        code:
+          type: string
+          enum:
+            [INVALID_PARAMETER, LIMIT_TOO_LARGE, NOT_FOUND, INTERNAL_ERROR,
+             SERVICE_UNAVAILABLE]
+          description: >-
+            Taken verbatim from the platform's closed registry, so one client
+            decoder covers this face and catalog's.

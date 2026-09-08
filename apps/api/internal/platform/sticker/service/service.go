@@ -157,6 +157,7 @@ func (s *Service) packDTO(
 	}
 	if cover != nil {
 		out.CoverURL, out.CoverThumbURL = s.urls(cover.ImageHash)
+		out.CoverStickerID = cover.ID.String()
 	}
 	if row.PublishedAt != nil {
 		published := row.PublishedAt.UTC().Format(time.RFC3339)

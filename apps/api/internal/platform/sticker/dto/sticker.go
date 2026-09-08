@@ -82,14 +82,17 @@ type Pack struct {
 	Description   MultilingualText `json:"description"`
 	CoverURL      string           `json:"cover_url"`
 	CoverThumbURL string           `json:"cover_thumb_url"`
-	StickerCount  int              `json:"sticker_count"`
-	ViewCount     int64            `json:"view_count"`
-	DownloadCount int64            `json:"download_count"`
-	Author        Author           `json:"author"`
-	Tags          []Tag            `json:"tags"`
-	CreatedAt     string           `json:"created_at"`
-	UpdatedAt     string           `json:"updated_at"`
-	PublishedAt   *string          `json:"published_at,omitempty"`
+	// Which sticker the cover is. The editor sets it and the face resolves
+	// through it; before this the only way to read it back was to guess.
+	CoverStickerID string  `json:"cover_sticker_id,omitempty"`
+	StickerCount   int     `json:"sticker_count"`
+	ViewCount      int64   `json:"view_count"`
+	DownloadCount  int64   `json:"download_count"`
+	Author         Author  `json:"author"`
+	Tags           []Tag   `json:"tags"`
+	CreatedAt      string  `json:"created_at"`
+	UpdatedAt      string  `json:"updated_at"`
+	PublishedAt    *string `json:"published_at,omitempty"`
 
 	CatalogWork *CatalogWork `json:"catalog_work,omitempty"`
 }
