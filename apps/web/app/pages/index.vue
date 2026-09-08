@@ -2,6 +2,7 @@
 import { resolveMultilingual } from '~/features/pack/types'
 
 const { t, locale } = useI18n()
+const config = useRuntimeConfig()
 const { scope, search, tag, linked, work, page, query, update } = useDiscoveryFilters()
 
 const { data: tags } = await useAsyncData('discovery-tags', () => fetchTags())
@@ -30,10 +31,18 @@ const currentPage = computed({
   set: (value: number) => update({ page: value === 1 ? undefined : value })
 })
 
-useSeoMeta({
-  title: () => t('discovery.title'),
-  description: () => t('meta.description')
-})
+useKunSeo(() => ({
+  title: t('discovery.title'),
+  description: t('meta.description'),
+  image: kunOgImage('site', locale.value),
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: t('discovery.title'),
+    description: t('meta.description'),
+    isPartOf: { '@type': 'WebSite', name: t('meta.title'), url: config.public.siteUrl }
+  }
+}))
 </script>
 
 <template>

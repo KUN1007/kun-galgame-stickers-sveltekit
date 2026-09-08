@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -28,9 +28,14 @@ const currentPage = computed({
   set: (value: number) => router.push({ query: value === 1 ? {} : { page: String(value) } })
 })
 
-useSeoMeta({
-  title: () => (author.value ? t('user.title', { name: author.value.name }) : t('user.fallback'))
-})
+useKunSeo(() => ({
+  title: author.value ? t('user.title', { name: author.value.name }) : t('user.fallback'),
+  description: author.value
+    ? t('user.seo', { name: author.value.name })
+    : t('meta.description'),
+  image: kunOgImage('site', locale.value),
+  type: 'profile'
+}))
 </script>
 
 <template>

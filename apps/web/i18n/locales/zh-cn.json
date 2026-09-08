@@ -51,7 +51,8 @@
     "title": "{name} 的表情包",
     "fallback": "这位用户",
     "packCount": "公开 {count} 套",
-    "empty": "这位用户还没有公开的表情包"
+    "empty": "这位用户还没有公开的表情包",
+    "seo": "{name} 发布的 Galgame 表情包"
   },
   "editor": {
     "myPacks": "我的表情包",
@@ -239,5 +240,8 @@
     "ratingHint": "是否在列表与搜索结果中显示 R18 表情包",
     "contentSafe": "仅全年龄",
     "contentAll": "显示 R18"
+  },
+  "tag": {
+    "seo": "带有 #{tag} 标签的 Galgame 表情包"
   }
 }

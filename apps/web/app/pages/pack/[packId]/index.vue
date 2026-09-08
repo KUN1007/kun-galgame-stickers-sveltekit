@@ -34,12 +34,27 @@ const shownGames = computed(() =>
   showAllGames.value ? games.value : games.value.slice(0, gameLimit)
 )
 
-useSeoMeta({
-  title: () => title.value,
-  description: () => description.value || t('pack.seoFallback', { name: title.value }),
-  ogTitle: () => title.value,
-  ogImage: () => pack.value?.cover_url || `${config.public.siteUrl}/title.webp`
-})
+useKunSeo(() => ({
+  title: title.value,
+  description: description.value || t('pack.seoFallback', { name: title.value }),
+  image: kunOgImage(`pack/${packId.value}`, locale.value),
+  type: 'article',
+  // ImageGallery rather than CreativeWork: a pack is a set of images, and the
+  // count and the author are the two facts a result card can use.
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'ImageGallery',
+    name: title.value,
+    description: description.value || undefined,
+    url: `${config.public.siteUrl}/pack/${packId.value}`,
+    image: pack.value?.cover_url || undefined,
+    datePublished: pack.value?.published_at,
+    dateModified: pack.value?.updated_at,
+    author: pack.value ? { '@type': 'Person', name: pack.value.author.name } : undefined,
+    numberOfItems: pack.value?.sticker_count,
+    isFamilyFriendly: pack.value?.content_rating !== RATING_NSFW
+  }
+}))
 </script>
 
 <template>

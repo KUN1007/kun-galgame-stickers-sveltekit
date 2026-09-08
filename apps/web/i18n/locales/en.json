@@ -51,7 +51,8 @@
     "title": "Packs by {name}",
     "fallback": "This user",
     "packCount": "{count} public packs",
-    "empty": "This user has not published a pack yet"
+    "empty": "This user has not published a pack yet",
+    "seo": "Galgame sticker packs published by {name}"
   },
   "editor": {
     "myPacks": "My packs",
@@ -239,5 +240,8 @@
     "ratingHint": "Whether R18 packs appear in listings and search",
     "contentSafe": "All ages only",
     "contentAll": "Show R18"
+  },
+  "tag": {
+    "seo": "Galgame sticker packs tagged #{tag}"
   }
 }

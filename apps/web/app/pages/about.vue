@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ container: 'narrow' })
 
-const { t, tm, rt } = useI18n()
+const { t, tm, rt, locale } = useI18n()
 const localePath = useLocalePath()
 
 const lines = (key: string): string[] =>
@@ -14,10 +14,11 @@ const faq = computed(() =>
   })
 )
 
-useSeoMeta({
-  title: () => t('about.title'),
-  description: () => t('meta.description')
-})
+useKunSeo(() => ({
+  title: t('about.title'),
+  description: t('meta.description'),
+  image: kunOgImage('site', locale.value)
+}))
 </script>
 
 <template>

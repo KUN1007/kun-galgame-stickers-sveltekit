@@ -19,11 +19,14 @@ if (!sticker.value) {
 const game = computed(() => resolveMultilingual(sticker.value?.game, locale.value))
 const character = computed(() => resolveMultilingual(sticker.value?.character_name, locale.value))
 
-useSeoMeta({
-  title: () => [character.value, game.value].filter(Boolean).join(' · ') || t('sticker.title'),
-  description: () => t('sticker.seo', { character: character.value, game: game.value }),
-  ogImage: () => sticker.value?.image_url ?? ''
-})
+useKunSeo(() => ({
+  title: [character.value, game.value].filter(Boolean).join(' · ') || t('sticker.title'),
+  description: t('sticker.seo', { character: character.value, game: game.value }),
+  // One sticker is its own share image: it is a square picture and the whole
+  // point of the page, so a composed card would only put a frame round it.
+  image: sticker.value?.image_url || undefined,
+  type: 'article'
+}))
 </script>
 
 <template>

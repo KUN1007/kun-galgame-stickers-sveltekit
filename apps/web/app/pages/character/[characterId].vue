@@ -54,12 +54,23 @@ const facts = computed(() => {
 
 const packOf = (packId: string) => page.value?.packs[packId]
 
-useSeoMeta({
-  title: () => name.value,
-  description: () => t('catalog.characterSeo', { name: name.value }),
-  ogTitle: () => name.value,
-  ogImage: () => page.value?.character.image_url || `${config.public.siteUrl}/title.webp`
-})
+useKunSeo(() => ({
+  title: name.value,
+  description: t('catalog.characterSeo', { name: name.value }),
+  image: kunOgImage(`character/${characterId.value}`, locale.value),
+  type: 'profile',
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    mainEntity: {
+      '@type': 'Person',
+      name: name.value,
+      alternateName: page.value?.character.aliases,
+      image: page.value?.character.image_url || undefined
+    },
+    url: `${config.public.siteUrl}/character/${characterId.value}`
+  }
+}))
 </script>
 
 <template>

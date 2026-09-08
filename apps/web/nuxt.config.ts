@@ -70,6 +70,12 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     apiBaseUrl: envValue('NUXT_API_BASE_URL') || 'http://127.0.0.1:9421',
+    // nextmoe-og signs its URLs with a per-site secret. It stays server-side:
+    // the signature is computed in a Nitro route, never in a page, so the key
+    // cannot reach a bundle. Empty means share images fall back to the
+    // artwork the page already has.
+    ogBaseUrl: envValue('NUXT_OG_BASE_URL') || 'https://og.nextmoe.dev',
+    ogSiteKey: envValue('NUXT_OG_SITE_KEY', 'OG_SITE_KEY') || '',
     public: {
       apiBaseUrl: envValue('NUXT_PUBLIC_API_BASE_URL') || 'http://127.0.0.1:9421',
       siteUrl: envValue('NUXT_PUBLIC_SITE_URL') || 'https://sticker.kungal.com',

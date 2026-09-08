@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 
 const slug = computed(() => String(route.params.slug))
@@ -24,7 +24,11 @@ const currentPage = computed({
     router.push({ query: value === 1 ? {} : { page: String(value) } })
 })
 
-useSeoMeta({ title: () => `#${slug.value}` })
+useKunSeo(() => ({
+  title: `#${slug.value}`,
+  description: t('tag.seo', { tag: slug.value }),
+  image: kunOgImage('site', locale.value)
+}))
 </script>
 
 <template>

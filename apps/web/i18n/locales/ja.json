@@ -51,7 +51,8 @@
     "title": "{name} のスタンプ",
     "fallback": "このユーザー",
     "packCount": "公開 {count} セット",
-    "empty": "このユーザーはまだ公開していません"
+    "empty": "このユーザーはまだ公開していません",
+    "seo": "{name} が公開した Galgame スタンプ"
   },
   "editor": {
     "myPacks": "マイパック",
@@ -239,5 +240,8 @@
     "ratingHint": "一覧や検索結果に R18 のスタンプを表示するか",
     "contentSafe": "全年齢のみ",
     "contentAll": "R18 を表示"
+  },
+  "tag": {
+    "seo": "#{tag} タグの Galgame スタンプ"
   }
 }
