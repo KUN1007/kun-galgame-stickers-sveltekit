@@ -6,7 +6,7 @@ info:
   summary: Galgame sticker packs, indexed by catalog work and character identity.
   description: |
     A read-only face of sticker.kungal.com, federated into the NextMoe developer
-    platform per doc 08 §16 (face `sticker`, scope `sticker:read`).
+    platform per doc 08 §16 (face `sticker`).
 
     What this face is for: it is not a second content list. Every sticker on the
     site is tagged with an infra **catalog** work and character id, so this face
@@ -17,9 +17,14 @@ info:
     around them.
 
     **Authentication happens at the gateway.** Traefik runs ForwardAuth against
-    the platform's key plane before a request reaches this service, so 401, 403
-    and 429 come from the gateway in its own format and are not described here.
+    the platform's key plane before a request reaches this service, so 401 and
+    429 come from the gateway in its own format and are not described here.
     Send `Authorization: Bearer nmk_live_...` (or `X-API-Key`).
+
+    **No scope is required.** Any valid platform key reaches this face; the
+    gate checks identity, rate and quota, not authorization. Do not ask for a
+    `sticker:read` scope when minting a key -- the string does not exist and
+    the mint will be refused.
 
     **Scope of the data.** Only published packs are visible. Drafts, hidden and
     removed packs, comment bodies, moderation state and every authoring endpoint
@@ -297,7 +302,7 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
-      description: A platform application key (`nmk_live_` / `nmk_test_`) holding scope `sticker:read`.
+      description: Any valid platform application key (`nmk_live_` / `nmk_test_`). No scope needed.
     bearerKey:
       type: http
       scheme: bearer

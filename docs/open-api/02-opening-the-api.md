@@ -43,6 +43,8 @@
 **face 名 `sticker`，scope `sticker:read`，路径 `api.nextmoe.dev/v1/sticker/*`。**
 命名沿用 03 §4.2 词表规则（`<face>:read`）；计量 face 字符串 `sticker`，落 `developer_api_usage`。
 
+> 📌 `sticker:read` **已不存在**。它在 2026-09-08 随 B 档交付上线，当天就被 infra 撤销（PR #168）：免费只读下游面收任意有效密钥，闸门只管身份、计量与限额。常量已删，铸键点名该串会被拒。见 [03 §8](./03-wiring.md)。
+
 > 📌 本节的 `/v1/` 是提案当时按 doc 08 §16.2 写的。**已改判为 `/v2/sticker/*`**（infra PR #167，2026-09-08；`/v1` 已于 2026-08-27 整面退役）。下文所有路径按此顺读，实际契约以 [sticker-openapi.yaml](./sticker-openapi.yaml) 与 [03 §4.1](./03-wiring.md) 为准。
 
 ```
@@ -108,7 +110,7 @@ NSFW 能力位已于 2026-08-25 整档退役（03 §4.2），任何 key 都能�
 
 按 07 §14 与既往两次教训整理。**Traefik router 那一步在生产上被漏过两次**（`/v1/store`、`/v1/playtime`），漏了的表现是 Traefik 404 而不是应用报错，所以单列。
 
-- [ ] scope `sticker:read` 进词表（03 §4.2），自助集勾选
+- [x] ~~scope `sticker:read` 进词表（03 §4.2），自助集勾选~~ — **已作废**，见 03 §8
 - [ ] face 字符串 `sticker` 进 `developer_api_usage`（注意 07 §14 的 face 列宽教训）
 - [ ] **Traefik router：`/v1/sticker/` → sticker-api**（孪生 router 模式；⚠️ 最容易漏的一步）
 - [ ] 若走 B：ForwardAuth 中间件挂在该 router 上，指向新交付的校验端点

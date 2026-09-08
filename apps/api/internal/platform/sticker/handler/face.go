@@ -16,7 +16,7 @@ import (
 // from the site's own handlers: the body is bare JSON rather than the house
 // {code, message, data} envelope, and failures are RFC 9457 problem documents.
 // Authentication is not among them -- the gateway terminates it, and by the
-// time a request arrives here it has already been keyed, scoped and metered.
+// time a request arrives here it has already been keyed, budgeted and metered.
 
 const (
 	faceDefaultLimit = 20

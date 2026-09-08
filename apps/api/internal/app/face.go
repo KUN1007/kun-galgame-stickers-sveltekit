@@ -10,16 +10,21 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/etag"
 )
 
-// The public developer-platform face (NextMoe doc 08 §16, face name `sticker`,
-// scope `sticker:read`).
+// The public developer-platform face (NextMoe doc 08 §16, face name `sticker`).
 //
 // The gateway terminates authentication: Traefik runs ForwardAuth against
 // oauth's /internal/devapi/forward-auth?face=sticker, which validates the
-// nmk_ key, checks the scope, applies the key's rate and quota budget and
-// meters the admitted request. Nothing reaches these routes unkeyed from the
-// public internet, and the three X-NextMoe-* headers Traefik sets are the only
-// trustworthy statement of who is calling. This service reads none of them --
-// every answer here is the same for every caller.
+// nmk_ key, applies the key's rate and quota budget and meters the admitted
+// request. Nothing reaches these routes unkeyed from the public internet, and
+// the three X-NextMoe-* headers Traefik sets are the only trustworthy
+// statement of who is calling. This service reads none of them -- every answer
+// here is the same for every caller.
+//
+// There is deliberately no scope. The face shipped on 2026-09-08 behind a
+// `sticker:read` scope and lost it the same day (infra PR #168): a free
+// read-only B-tier face admits any valid key, because the gate's job here is
+// identity, metering and rate limits, not authorization. The constant is gone
+// from infra's vocabulary, so a key can no longer be minted holding it.
 //
 // Traefik does not rewrite the path, so the routes must be mounted on the
 // public prefix verbatim.

@@ -75,10 +75,12 @@ services:
     # Dokploy's own and are not repeated here.
     #
     # The gateway does the authenticating: forwardAuth asks oauth whether the
-    # caller's nmk_ key carries sticker:read, and only then forwards. Nothing
-    # strips the prefix, so the API serves /v2/sticker/* verbatim -- /v2 is the
-    # platform's live public namespace, and where infra ruled the downstream
-    # faces belong after /v1 was retired wholesale on 2026-08-27.
+    # caller's nmk_ key is valid and within budget, and only then forwards. It
+    # asks for no scope -- a free read-only face admits any valid key (infra
+    # PR #168, 2026-09-08). Nothing strips the prefix, so the API serves
+    # /v2/sticker/* verbatim -- /v2 is the platform's live public namespace,
+    # and where infra ruled the downstream faces belong after /v1 was retired
+    # wholesale on 2026-08-27.
     #
     # authResponseHeaders is what makes the three X-NextMoe-* headers
     # trustworthy: Traefik overwrites whatever the client sent with what oauth

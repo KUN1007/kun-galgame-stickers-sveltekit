@@ -10,7 +10,7 @@
 |---|---|
 | `GET /internal/devapi/forward-auth?face=<name>` | ✅ 已上线。oauth 容器 2026-09-08T10:51:53Z 重建 |
 | face 注册表 `moyu` / `sticker` | ✅ 手维护于 `devapi/forwardauth.go`，未注册 face 进不了计量表 |
-| scope `sticker:read` / `moyu:read` | ✅ 常量、自助集、门户 picker、quickstart 文档一并落地 |
+| scope `sticker:read` / `moyu:read` | ~~✅ 常量、自助集、门户 picker、quickstart 文档一并落地~~ **当天即撤销**，见 §8 |
 | Traefik 标签配方 | ✅ 记在 doc 08 §16.5，占位符待填 |
 | 网关接线本身 | ⬜ 未做（本次交付明确不含） |
 
@@ -93,17 +93,18 @@ ForwardAuth 对所有方法生效，浏览器的 `OPTIONS` 预检不带任何认
 
 ## 5. 上线清单
 
-- [x] scope `sticker:read` 进词表 + 自助集 — infra 已做
+- [x] ~~scope `sticker:read` 进词表 + 自助集~~ — **已作废**：免费只读面不设 scope（§8）
 - [x] face 字符串 `sticker` 进注册表 — infra 已做
 - [x] 校验端点上线并验收 — infra 已做，本文 §1 实测
 - [x] 面实现 + OpenAPI 3 契约 — 本站已做
 - [x] 前缀裁决为 `/v2/sticker` — infra PR #167；本仓已全面收敛（§4.1）
 - [x] **面板点 Deploy** — 2026-09-08 完成，两条 face router 已在 Traefik 生效（§7）
-- [x] 冒烟：无 key → 401，真 key → 403 `missing required scope: sticker:read`（§7）
-- [ ] **给某个 client / key 授予 `sticker:read`**，才能拿到 200 —— 全库 50 把 key 目前无一持有该 scope（§7）
+- [x] 冒烟：无 key → 401，真 key → 403 `missing required scope: sticker:read`（§7；该 403 已随 #168 消失）
+- [x] ~~给某个 client / key 授予 `sticker:read`~~ — **需求消失**，任意有效 key 即可（§8）
+- [ ] **oauth 重部署后复测 200** —— 这是 #168 唯一剩下的验收动作（§8）
 - [ ] moyu 仓照同一配方加标签（`moyu-api`、5214、`face=moyu`）
 - [ ] spec 注册进门户 docs-model + oasdiff 门 + operation-count 守卫（9 op）+ kungal-docs 登记
-- [ ] #167 合并后 oauth 再部署一次，`pathLabel` 记账才是新值（纯计量，端点行为不变）
+- [ ] #167 合并后 oauth 再部署一次，`pathLabel` 记账才是新值（纯计量，端点行为不变）——与 #168 同一次部署一并生效
 
 ## 6. Deploy 前查到的一件事：`/v2` 已有 catch-all router
 
@@ -141,7 +142,7 @@ enabled  26 kun-visual-novel-sticker-eaxaym-12-web{,secure}@docker   Host(`stick
 | 探测 | 结果 |
 |---|---|
 | `GET /v2/sticker/packs`（无 key） | `401 {"code":10001,…}` —— ForwardAuth 拦住，不再是 catch-all 的 404 |
-| `GET /v2/sticker/packs`（真 `nmk_live_` key，仅 `catalog:read`） | **`403 {"code":5,"message":"missing required scope: sticker:read"}`** |
+| `GET /v2/sticker/packs`（真 `nmk_live_` key，仅 `catalog:read`） | **`403 {"code":5,"message":"missing required scope: sticker:read"}`**（当日实测；#168 之后应为 200，见 §8） |
 | 同一把 key 打 `/v2/catalog/works` | `200` —— key 本身健康，403 是 scope 判定不是 key 失效 |
 | `http://api.nextmoe.dev/v2/sticker/packs` | `301` → https |
 | 容器内 `sticker-api:9421/v2/sticker/packs` | `200 {"object":"list",…}` —— 镜像带着面 |
@@ -149,6 +150,49 @@ enabled  26 kun-visual-novel-sticker-eaxaym-12-web{,secure}@docker   Host(`stick
 
 那句 403 是**整条链路打通的证据**：Traefik 命中了我们的 router → forwardAuth 打到 oauth → oauth 认出 face `sticker`、校验了 key、按注册表比对 scope 后拒绝。
 
-**唯一还差的一步：没有任何 key 持有 `sticker:read`。** 全库 50 把 key 的 scope 只有 `catalog:read` / `store:read` / `galgame:*` / `claim_events:read`；表情包自己那个 client（`c5cd7b07…`，`dev_tier=internal`，`catalog_site=sticker`）的 `allowed_scopes` 里也没有它。要拿到 200，得先在开发者门户给某个 client 勾上 `sticker:read` 并给 key 授予（§16.5 说它在自助集里），或直接改 `oauth_clients.allowed_scopes` + `developer_api_keys.scopes`——两者都受 60s 凭据缓存影响。
+> ⚠️ **本节以下的判断已被 §8 取代。** 当时的结论是「唯一还差的一步：没有任何 key 持有 `sticker:read`」——全库 50 把 key 的 scope 只有 `catalog:read` / `store:read` / `galgame:*` / `claim_events:read`，表情包自己那个 client（`c5cd7b07…`）的 `allowed_scopes` 里也没有它，所以要拿 200 就得先去门户勾一个 scope。infra 当天复核后没有选择「补发 scope」，而是**把 scope 这一关整个撤掉**（PR #168）。这个 403 因此不是一个待补的配置，而是一段已被删除的代码。
 
 生产数据现状：7 个已发布包、498 张贴纸、**0 个标签**（所以 `/v2/sticker/tags` 会诚实地回空列表，不是 bug）。
+
+## 8. 免 scope 改判（infra PR #168，2026-09-08）
+
+§7 那个 403 触发了 infra 的复核，结论不是「给谁补一个 scope」，而是**撤掉这一档面的 scope 检查**：
+
+> 免费只读的 B 档下游面收**任意有效密钥**。闸门在这类面上的职责是身份、计量与限额，不是授权。
+
+落地形态（`9d843a05`，已并入 `main`，CI 全绿）：
+
+- `forwardauth.go` 的注册表从 `face → {scope, pathLabel}` 退化为 `face → pathLabel`，`HasScope` 那一段连同它记的那条 403 计量**整段删除**。
+- `ScopeMoyuRead` / `ScopeStickerRead` **两个常量直接删掉**，不是留着不查——生产核实过零把密钥曾铸入任一，所以撤得干净。自助集回到 `catalog:read` / `store:read` 两项。
+- 铸键时仍然点名这两串的请求（比如缓存了旧门户构建的页面）拿到的是 `ErrScopeNotAllowed`，不是静默成功。
+- doc 08 §16.2/§16.5 记录改判：「加一张脸 = 注册表一行」，要授权的敏感面另立审批 scope 或走 A 档，**不复用这条免 scope 通道**。
+
+**闸门在这个面上现在只会回三种非 2xx**：401（无/坏密钥）、429（超限）、500（face 未注册——那是接线错误不是客户端错误）。**403 不再存在。**
+
+### 本站因此要改的
+
+只有文档与注释——面的代码一行没动，因为它本来就不读 scope，B 档的全部意义就在这里。已改：
+
+| 位置 | 改动 |
+|---|---|
+| `sticker-openapi.yaml` | `info.description` 去掉 scope 声明并写明「不要在铸键时勾 `sticker:read`，那个串已经不存在，会被拒」；`securitySchemes.apiKey.description` 改为「任意有效 key」；顶部的 401/403/429 三件套去掉 403。`redocly lint` 仍通过 |
+| `apps/api/internal/app/face.go` | 面的头注释去掉 scope，并记下这条改判与它的理由 |
+| `handler/face.go` | 「已被 keyed, scoped and metered」→ `budgeted` |
+| `docker-compose.prod.yml` | forwardAuth 注释不再说「查 `sticker:read`」（**注释改动，标签一字未动，不需要重新 Deploy**） |
+| 本文 §1 / §5 / §7 | 标注作废 |
+
+`info.version` 保持 `1.0.0`：这份 spec 还没注册进门户，没有任何第三方见过 1.0.0，也就没有需要 oasdiff 比对的基线——**首次发布的那一版应当直接就是现在这个事实**。
+
+### 还差的验收
+
+oauth 重部署（#167 的 `pathLabel` 与 #168 的免 scope 同一次生效）之后，拿任意一把健康的 `nmk_live_` key 打：
+
+```
+GET https://api.nextmoe.dev/v2/sticker/packs
+Authorization: Bearer nmk_live_...
+→ 期望 200 {"object":"list","items":[…7 个包…],"total":7,"page":1,"limit":20}
+```
+
+三条判读照 §6 不变：`problems/platform/not-found` = 标签没生效；401 = key 的问题；200 = 通了。
+
+顺带那句「确认三个 `X-NextMoe-*` 头有没有被 Traefik 转给 sticker」，**从外部观察不到**——本站不读也不回显这三个头（`face.go` 的注释就写着「every answer here is the same for every caller」）。能查的是接线本身：`dokploy-traefik` 的 `/api/http/middlewares` 里 `sticker-face-forwardauth@docker` 的 `authResponseHeaders` 应为 `X-NextMoe-Client-Id,X-NextMoe-Key-Id,X-NextMoe-Tier`（compose 里就是这么写的，Deploy 已生效）。真要看到头本身落地，得临时加一条回显——本站不打算为此改代码。
