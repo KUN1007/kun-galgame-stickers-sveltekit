@@ -189,3 +189,13 @@ type CommentLikeResult struct {
 	Liked     bool `json:"liked"`
 	LikeCount int  `json:"like_count"`
 }
+
+// AvatarPool is the default-avatar manifest served to other NextMoe sites.
+// URLs are absolute and content-addressed; Variant is informational (which
+// image-service variant they point at). Consumers index the array with
+// hash(seed) % len(urls) and must not parse or rebuild the URLs.
+type AvatarPool struct {
+	Version string   `json:"version"`
+	Variant string   `json:"variant"`
+	URLs    []string `json:"urls"`
+}

@@ -221,3 +221,22 @@ func (r *StickerRepo) ListImageHashes() ([]string, error) {
 		Distinct().Pluck("image_hash", &hashes).Error
 	return hashes, err
 }
+
+// AvatarPoolHashes returns the curated avatar fallback pool in slot order.
+//
+// The two joins are the safety property, not an optimization: only stickers in
+// a PUBLISHED, OFFICIAL pack may be the default avatar of an account that has
+// none. Hiding a pack drops its stickers out of the pool on the next read,
+// and nothing an arbitrary uploader can do puts an image in front of 119k
+// people who never chose it.
+func (r *StickerRepo) AvatarPoolHashes() ([]string, error) {
+	var hashes []string
+	err := r.db.Model(&model.Sticker{}).
+		Joins("JOIN pack ON pack.id = sticker.pack_id").
+		Where("sticker.avatar_pool_slot IS NOT NULL").
+		Where("sticker.image_hash <> ''").
+		Where("pack.status = ? AND pack.is_official", model.PackPublished).
+		Order("sticker.avatar_pool_slot ASC").
+		Pluck("sticker.image_hash", &hashes).Error
+	return hashes, err
+}

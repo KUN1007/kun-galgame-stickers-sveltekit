@@ -28,8 +28,13 @@ type Sticker struct {
 	CatalogCharacterName  datatypes.JSON `gorm:"column:catalog_character_name;type:jsonb"`
 	CatalogCharacterImage string         `gorm:"column:catalog_character_image"`
 	Note                  string         `gorm:"column:note"`
-	CreatedAt             time.Time      `gorm:"column:created_at"`
-	UpdatedAt             time.Time      `gorm:"column:updated_at"`
+	// AvatarPoolSlot is this sticker's index in the ecosystem-wide avatar
+	// fallback pool, or nil if it is not in it. A slot is an array index, not
+	// a rank: consumers pick with hash(name) % len(pool), so the array is
+	// edited in place and never resized. See migration 000008.
+	AvatarPoolSlot *int16    `gorm:"column:avatar_pool_slot"`
+	CreatedAt      time.Time `gorm:"column:created_at"`
+	UpdatedAt      time.Time `gorm:"column:updated_at"`
 }
 
 func (Sticker) TableName() string { return "sticker" }

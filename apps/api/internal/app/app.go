@@ -146,6 +146,14 @@ func New(cfg *config.Config) *App {
 	api.Get("/packs", readLimit, cacheable, etag.New(), h.ListPacks)
 	api.Get("/tags", readLimit, cacheable, etag.New(), h.ListTags)
 
+	// The ecosystem's default-avatar manifest. Its cache window is an order of
+	// magnitude longer than the rest of this group because the pool changes by
+	// hand, perhaps twice a year, while the packs list changes whenever anyone
+	// publishes. stale-while-revalidate is the load-bearing part: if this
+	// service is down, every consuming site keeps serving avatars from a week
+	// old copy instead of falling back.
+	api.Get("/avatar-pool", readLimit, avatarPoolCache, etag.New(), h.AvatarPool)
+
 	// Public, but an author also sees their own drafts here.
 	api.Get("/packs/:packId", readLimit, optionalAuth, h.GetPack)
 	api.Get("/packs/:packId/download", readLimit, optionalAuth, h.DownloadPack)
@@ -216,6 +224,14 @@ func userLimiter(perMinute int) fiber.Handler {
 
 func tooManyRequests(c fiber.Ctx) error {
 	return response.Error(c, errors.New(errors.CodeBiz, "too many requests", 429))
+}
+
+// avatarPoolCache is deliberately not publicCache(n): the numbers differ by
+// three orders of magnitude and writing them apart keeps anyone from "tidying"
+// the pool onto the 60s window that suits a content list.
+func avatarPoolCache(c fiber.Ctx) error {
+	c.Set(fiber.HeaderCacheControl, "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800")
+	return c.Next()
 }
 
 func publicCache(seconds int) fiber.Handler {

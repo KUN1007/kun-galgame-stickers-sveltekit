@@ -149,3 +149,15 @@ func (h *Handler) ListTags(c fiber.Ctx) error {
 	}
 	return response.OK(c, tags)
 }
+
+// AvatarPool serves the ecosystem-wide default-avatar manifest. Public and
+// unauthenticated on purpose: it is a list of URLs that are already public,
+// and the sites that consume it fetch it from their own servers at boot, not
+// from a browser.
+func (h *Handler) AvatarPool(c fiber.Ctx) error {
+	pool, appErr := h.svc.AvatarPool()
+	if appErr != nil {
+		return response.Error(c, appErr)
+	}
+	return response.OK(c, pool)
+}
