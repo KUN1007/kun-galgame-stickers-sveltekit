@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	stderrors "errors"
+	"strconv"
 	"time"
 
 	"kun-galgame-sticker-api/internal/platform/sticker/dto"
@@ -131,12 +132,42 @@ func (s *Service) Get(ctx context.Context, id uuid.UUID, v Viewer) (*dto.PackDet
 		_ = s.packs.BumpView(pack.ID)
 	}
 	works, characters := distinctCatalog(stickers)
+	s.fillWorkCovers(ctx, works)
 	return &dto.PackDetail{
 		Pack:       packs[0],
 		Stickers:   stickers,
 		Works:      works,
 		Characters: characters,
 	}, nil
+}
+
+// fillWorkCovers fetches the cover art for the games a pack's stickers point
+// at. Only the pack's own declared game has a cover cached -- a sticker stores
+// its game's id, name and rating but not a second copy of the art -- so
+// without this a mixed pack lists its games as bare text. One batch call for
+// the page, and a failure costs the covers, not the list.
+func (s *Service) fillWorkCovers(ctx context.Context, works []dto.CatalogWork) {
+	missing := make([]string, 0, len(works))
+	for _, work := range works {
+		if work.CoverURL == "" {
+			missing = append(missing, strconv.FormatInt(work.ID, 10))
+		}
+	}
+	if len(missing) == 0 || !s.catalog.Configured() {
+		return
+	}
+	covers, err := s.catalog.WorksByIDs(ctx, missing)
+	if err != nil {
+		return
+	}
+	for i := range works {
+		if works[i].CoverURL != "" {
+			continue
+		}
+		if full, ok := covers[strconv.FormatInt(works[i].ID, 10)]; ok {
+			works[i].CoverURL = imageURL(full.Cover)
+		}
+	}
 }
 
 // distinctCatalog collects the games and characters a pack's stickers point
