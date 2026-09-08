@@ -240,3 +240,20 @@ func (r *StickerRepo) AvatarPoolHashes() ([]string, error) {
 		Pluck("sticker.image_hash", &hashes).Error
 	return hashes, err
 }
+
+// ForPacks loads the stickers of several packs in one query, grouped by pack.
+func (r *StickerRepo) ForPacks(packIDs []uuid.UUID) (map[uuid.UUID][]model.Sticker, error) {
+	out := make(map[uuid.UUID][]model.Sticker, len(packIDs))
+	if len(packIDs) == 0 {
+		return out, nil
+	}
+	var rows []model.Sticker
+	if err := r.db.Where("pack_id IN ?", packIDs).
+		Order("pack_id ASC, position ASC").Find(&rows).Error; err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		out[row.PackID] = append(out[row.PackID], row)
+	}
+	return out, nil
+}

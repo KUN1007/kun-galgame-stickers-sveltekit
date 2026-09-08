@@ -199,3 +199,20 @@ type AvatarPool struct {
 	Variant string   `json:"variant"`
 	URLs    []string `json:"urls"`
 }
+
+// EditorPacks is the sticker-picker payload other sites' editors render. The
+// field names match @kungal/editor-core's StickerPack/StickerItem so a
+// consumer can hand the response straight to its `stickerSource` adapter.
+type EditorPacks struct {
+	Packs []EditorPack `json:"packs"`
+}
+
+type EditorPack struct {
+	Name     string          `json:"name"`
+	Stickers []EditorSticker `json:"stickers"`
+}
+
+type EditorSticker struct {
+	Src  string `json:"src"`
+	Name string `json:"name"`
+}

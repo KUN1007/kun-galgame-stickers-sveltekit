@@ -161,3 +161,15 @@ func (h *Handler) AvatarPool(c fiber.Ctx) error {
 	}
 	return response.OK(c, pool)
 }
+
+// EditorPacks serves the sticker-picker payload other sites' editors render.
+// Public and unauthenticated for the same reason as AvatarPool: it lists
+// images that are already public, and the consuming sites fetch it from their
+// own servers.
+func (h *Handler) EditorPacks(c fiber.Ctx) error {
+	packs, appErr := h.svc.EditorPacks()
+	if appErr != nil {
+		return response.Error(c, appErr)
+	}
+	return response.OK(c, packs)
+}

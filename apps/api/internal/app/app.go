@@ -154,6 +154,12 @@ func New(cfg *config.Config) *App {
 	// old copy instead of falling back.
 	api.Get("/avatar-pool", readLimit, avatarPoolCache, etag.New(), h.AvatarPool)
 
+	// The sticker-picker payload other sites' editors render, in one response
+	// rather than the face's list-then-fetch-each: a picker needs every
+	// sticker of every pack at once, and 1+N round trips to build one panel is
+	// what made every consumer hardcode the URLs in the first place.
+	api.Get("/editor-packs", readLimit, avatarPoolCache, etag.New(), h.EditorPacks)
+
 	// Public, but an author also sees their own drafts here.
 	api.Get("/packs/:packId", readLimit, optionalAuth, h.GetPack)
 	api.Get("/packs/:packId/download", readLimit, optionalAuth, h.DownloadPack)

@@ -140,3 +140,13 @@ func escapeLike(s string) string {
 	r := strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
 	return r.Replace(s)
 }
+
+// OfficialPublished lists the official packs in publication order. It is the
+// picker's pack list, so it deliberately ignores the list filters: an editor
+// panel in someone else's app shows the same tabs to everyone.
+func (r *PackRepo) OfficialPublished() ([]model.Pack, error) {
+	var rows []model.Pack
+	err := r.db.Where("status = ? AND is_official", model.PackPublished).
+		Order("created_at ASC, id ASC").Find(&rows).Error
+	return rows, err
+}
