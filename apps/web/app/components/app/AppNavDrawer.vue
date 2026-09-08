@@ -12,20 +12,19 @@ const close = () => {
   open.value = false
 }
 
-watch(
-  () => route.fullPath,
-  () => {
-    close()
-  }
-)
+watch(() => route.fullPath, close)
 
 const navItems = computed(() => {
   const items = [
-    { to: localePath('/'), label: t('header.home') },
-    { to: localePath('/about'), label: t('header.about') }
+    { to: localePath('/'), label: t('header.discover'), icon: 'lucide:compass' },
+    { to: localePath('/about'), label: t('header.about'), icon: 'lucide:info' }
   ]
   if (user.value) {
-    items.push({ to: localePath('/me/packs'), label: t('header.myPacks') })
+    items.push({
+      to: localePath('/me/packs'),
+      label: t('header.myPacks'),
+      icon: 'lucide:folder-heart'
+    })
   }
   return items
 })
@@ -42,10 +41,6 @@ const languageItems = computed(() =>
     label: item.name
   }))
 )
-
-const onTheme = (key: string) => {
-  colorMode.preference = key
-}
 
 const onLanguage = async (code: string) => {
   await navigateTo(switchLocalePath(code as 'zh-cn' | 'en' | 'ja'))
@@ -71,17 +66,19 @@ const register = () => {
         :key="item.to"
         :href="item.to"
         variant="light"
-        class-name="w-full justify-start"
+        class-name="w-full justify-start gap-2"
         @click="close"
       >
+        <KunIcon :name="item.icon" class="text-lg" />
         {{ item.label }}
       </KunButton>
       <KunButton
         v-if="!user"
         variant="light"
-        class-name="w-full justify-start"
+        class-name="w-full justify-start gap-2"
         @click="register"
       >
+        <KunIcon name="lucide:user-plus" class="text-lg" />
         {{ t('auth.register') }}
       </KunButton>
     </nav>
@@ -94,7 +91,7 @@ const register = () => {
           :key="item.key"
           size="sm"
           :variant="colorMode.preference === item.key ? 'solid' : 'light'"
-          @click="onTheme(item.key)"
+          @click="colorMode.preference = item.key"
         >
           {{ item.label }}
         </KunButton>

@@ -1,13 +1,13 @@
 {
   "meta": {
     "title": "鯤 Galgame スタンプ",
-    "description": "鯤 Galgame のギャルゲースタンプ集",
-    "og": "鯤 Galgame",
-    "ogDescription": "鯤 Galgame はビジュアルノベルの共同体です。広告なし、ずっと無料。"
+    "description": "ビジュアルノベルのスタンプ広場。誰でも自分のセットを公開できます。",
+    "og": "鯤 Galgame スタンプ",
+    "ogDescription": "ビジュアルノベルのスタンプ広場。誰でも自分のセットを公開できます。"
   },
   "header": {
     "title": "鯤 Galgame スタンプ",
-    "home": "ホーム",
+    "discover": "さがす",
     "about": "について",
     "myPacks": "マイパック",
     "openNav": "ナビを開く",
@@ -17,24 +17,82 @@
     "dark": "ダーク",
     "system": "システム"
   },
-  "home": {
-    "sticker": "鯤 Galgame スタンプ",
-    "kun": "鯤 Galgame | スタンプ",
-    "open": "オープンソース。ソースは"
+  "discovery": {
+    "title": "スタンプをさがす",
+    "subtitle": "検索やタグで探す、あるいは自分のセットを公開する。",
+    "searchPlaceholder": "スタンプを検索…",
+    "all": "すべて",
+    "hot": "人気",
+    "official": "公式",
+    "empty": "条件に合うセットはありません",
+    "resultCount": "全 {count} セット"
+  },
+  "pack": {
+    "untitled": "無題のセット",
+    "official": "公式",
+    "draft": "下書き",
+    "hidden": "非公開",
+    "published": "公開中",
+    "stickerCount": "{count} 枚",
+    "downloadCount": "{count} 回ダウンロード",
+    "downloadAll": "セットをダウンロード",
+    "seoFallback": "{name} —— ビジュアルノベルのスタンプセット"
   },
   "sticker": {
-    "title": "ギャルゲースタンプ",
-    "description": "スタンプのプレビューとダウンロード",
-    "game": "ゲーム",
-    "lass": "キャラクター",
-    "original": "原画",
-    "download": "原画をダウンロード",
-    "notFound": "スタンプが見つかりません"
+    "title": "スタンプ",
+    "download": "原寸をダウンロード",
+    "backToPack": "← セットに戻る",
+    "seo": "{character}（{game} より）"
   },
-  "footer": {
-    "poweredBy": "",
-    "forumName": "鯤 Galgame フォーラム",
-    "forumSuffix": "提供"
+  "user": {
+    "title": "{name} のスタンプ",
+    "fallback": "このユーザー",
+    "packCount": "公開 {count} セット",
+    "empty": "このユーザーはまだ公開していません"
+  },
+  "editor": {
+    "myPacks": "マイパック",
+    "newPack": "新しいセット",
+    "noPacks": "まだセットがありません。作ってみましょう",
+    "packTitle": "タイトル",
+    "packTitlePlaceholder": "このセットの名前",
+    "packDescription": "説明",
+    "packDescriptionPlaceholder": "どんなセットですか？",
+    "rating": "レーティング",
+    "ratingSfw": "全年齢",
+    "ratingNsfw": "R18",
+    "tags": "タグ",
+    "tagsPlaceholder": "Enter でタグを追加",
+    "tagsHint": "最大 10 個。見つけてもらいやすくなります",
+    "details": "基本情報",
+    "save": "保存",
+    "saving": "保存中…",
+    "saved": "保存しました",
+    "create": "作成",
+    "creating": "作成中…",
+    "edit": "編集",
+    "publish": "公開",
+    "unpublish": "公開をやめる",
+    "viewPublic": "公開ページを見る",
+    "backToPacks": "← マイパック",
+    "editing": "{name} を編集",
+    "needSticker": "公開するには少なくとも 1 枚必要です。",
+    "stickers": "スタンプ",
+    "upload": "画像をアップロード",
+    "uploadHint": "png / jpeg / webp、1 枚 10MB まで。あと {count} 枚",
+    "noStickers": "まだ 1 枚もありません",
+    "characterName": "キャラクター",
+    "gameName": "作品名",
+    "moveUp": "上へ",
+    "moveDown": "下へ",
+    "setCover": "表紙にする",
+    "coverSet": "表紙を更新しました",
+    "remove": "削除",
+    "removeTitle": "このスタンプを削除？",
+    "removePrompt": "セットから外れます。元に戻せません。",
+    "deletePack": "セットを削除",
+    "deleteTitle": "セットごと削除？",
+    "deletePrompt": "セットと中のスタンプがすべて削除されます。元に戻せません。"
   },
   "auth": {
     "login": "ログイン",
@@ -42,102 +100,95 @@
     "logout": "ログアウト",
     "profile": "プロフィール",
     "logoutTitle": "ログアウト",
-    "logoutPrompt": "ログアウトする範囲を選んでください：",
-    "logoutEverywhere": "本サイトと OAuth アカウントからログアウト",
-    "logoutEverywhereHint": "本サイトと OAuth アカウントの両方からログアウトします。共有デバイス向け。",
-    "logoutLocal": "本サイトのみ",
-    "logoutLocalHint": "本サイトだけログアウトします。OAuth と他サイトはログインしたままです。自分の端末向け。",
+    "logoutPrompt": "どこまでログアウトしますか？",
+    "logoutEverywhere": "すべての鯤サイトからログアウト",
+    "logoutEverywhereHint": "中央アカウントのセッションも終了します",
+    "logoutLocal": "このサイトのみ",
+    "logoutLocalHint": "他の鯤サイトはログインしたまま",
     "cancel": "キャンセル",
-    "callbackError": "ログインに失敗しました。もう一度お試しください。"
+    "callbackError": "ログインに失敗しました。もう一度お試しください"
   },
-  "publish": {
-    "title": "マイスタンプパック",
-    "new": "新規パック",
-    "name": "パック名",
-    "namePlaceholder": "このパックの名前",
-    "create": "下書きを作成",
-    "creating": "作成中…",
-    "empty": "まだパックがありません。下書きを作ってスタンプを上げてから公開してください。",
-    "draft": "下書き",
-    "published": "公開中",
-    "hidden": "非公開",
-    "publish": "公開する",
-    "unpublish": "公開をやめる",
-    "save": "保存",
-    "upload": "スタンプをアップロード",
-    "uploading": "アップロード中…",
-    "preview": "カバーにする",
-    "remove": "削除",
-    "limit": "1 パックあたり最大 80 枚。",
-    "needSticker": "公開するには 1 枚以上必要です。",
-    "notFound": "パックが見つからないか、作者ではありません。",
-    "back": "マイパックに戻る"
+  "footer": {
+    "tagline": "鯤 Galgame スタンプ —— 誰でも公開できるビジュアルノベルのスタンプ広場",
+    "forumName": "鯤 Galgame フォーラム"
   },
   "about": {
-    "title": "について - 鯤 Galgame スタンプ",
-    "repo": "kun-galgame-stickers",
-    "introduction": {
-      "heading": "紹介",
-      "lines": ["このプロジェクトの紹介動画を作りました。", "いまサイトには 400 枚以上のスタンプがあります。"],
-      "bilibiliPrefix": "この動画は Bilibili にもあります。よければ高評価を。",
-      "bilibiliLink": "純ギャルゲーのスタンプを 350 枚以上集めたリポジトリ",
-      "purposeIntro": "ギャルゲーから自分で撮ったスタンプです。目的は：",
-      "purpose": ["スタンプを通して萌えゲーをおすすめすること", "萌え！"],
-      "future": "いずれ SD_CG や CG も足すかもしれません。今は表情だけです。"
+    "title": "このサイトについて",
+    "lead": "ビジュアルノベルのスタンプを集めています。鯤アカウントがあれば誰でも公開できます。",
+    "what": {
+      "heading": "これは何か",
+      "lines": [
+        "セットは複数のスタンプから成り、それぞれに作品名とキャラクター名を付けられます。",
+        "最初の 7 セットは管理人が作品から切り出したものですが、今はみなさんのセットと同じ一覧に並んでいます。"
+      ]
     },
-    "telegram": {
-      "heading": "Telegram スタンプパック",
-      "intro": "Telegram にも同じセットを同期しています。1 セット 80 枚。追加はこちら：",
-      "packLabel": "鯤 Galgame スタンプ",
-      "note": "リポジトリ内の画像の方が Telegram よりきれいです。スタンプセット化のときに圧縮されています。",
-      "downloadIntro": "原画のダウンロード：",
-      "downloadLink": "ダウンロード"
+    "publish": {
+      "heading": "公開の手順",
+      "intro": "鯤アカウントでログインすれば数ステップです：",
+      "steps": [
+        "セットを作り、タイトルを付ける。",
+        "画像をアップロードする（複数選択できます）。",
+        "各スタンプにキャラクターと作品名を付け、ドラッグで並べ替える。",
+        "問題なければ公開する。"
+      ],
+      "cta": "公開をはじめる"
     },
     "rules": {
-      "heading": "方針",
-      "intro": "できるだけ次に従います。",
+      "heading": "ルール",
       "items": [
-        "ギャルゲー（Visual Novel）のスタンプだけ。アニメ・漫画・イラストは含めない",
-        "正方形の切り抜き",
-        "可能ならアホ毛まで入れる",
-        "小さくて可愛いソフト萌えの白毛が中心"
-      ],
-      "note": "初期に撮ったものは、この方針より前なので守っていません。"
-    },
-    "games": {
-      "heading": "収録ゲーム",
-      "lines": [
-        "スタンプに使ったゲームです。自分で遊んでみてください。",
-        "全部プレイ済みです。ぜんぶ萌えゲー。",
-        "どのゲームの切り抜きかを見る。"
-      ],
-      "linkLabel": "パックごとの収録ゲーム一覧"
+        "ビジュアルノベルに関係のない内容は避けてください。",
+        "成人向けを含むセットは R18 にしてください。",
+        "原作者を尊重し、再配布が禁止されている素材は使わないでください。",
+        "違反したセットは非公開または削除されます。"
+      ]
     },
     "faq": {
-      "heading": "FAQ",
+      "heading": "よくある質問",
       "items": [
         {
-          "q": "スタンプは更新され続けますか？",
-          "a": "はい。ゲームをやりながら撮っています。ギャルゲーを続けている限り更新します。"
+          "q": "1 セットに何枚入りますか？",
+          "a": "80 枚です。一般的なメッセンジャーのスタンプ数に合わせています。"
         },
         {
-          "q": "スタンプを投稿できますか？",
-          "a": "できます。GitHub で PR を出して、Others の下に自分のフォルダを作って入れてください。"
+          "q": "対応する画像形式は？",
+          "a": "png・jpeg・webp、1 枚 10MB までです。アップロード後は webp に変換されます。"
         },
         {
-          "q": "第 1 パックだけ画像形式が混在しているのはなぜ？",
-          "a": "本格収集の前に QQ から持ってきたものがあるからです。今後の更新はすべて PNG です。"
+          "q": "セットごとダウンロードできますか？",
+          "a": "できます。セットページの「セットをダウンロード」で zip になります。"
         },
         {
-          "q": "なぜ多くの作品で一人分の表情しかないのですか？",
-          "a": "単ルート戦士だからです。"
+          "q": "公開後に編集できますか？",
+          "a": "できます。公開をやめると自分だけに戻り、直してから再公開できます。"
         }
       ]
     },
-    "tips": {
-      "heading": "Tips",
-      "lines": ["気に入ったら GitHub の star をください。", "Telegram グループ: https://t.me/kungalgame"],
-      "note": "グループルールはありません。蹴られても入り直せます。"
+    "open": {
+      "heading": "オープンソース",
+      "body": "このサイトはオープンソースです。公開 API は計画中で、nextmoe 開発者プラットフォーム経由で提供予定です。"
     }
+  },
+  "error": {
+    "unauthorized": "先にログインしてください",
+    "packNotFound": "そのセットは見つかりません",
+    "stickerNotFound": "そのスタンプは見つかりません",
+    "notOwner": "あなたのセットではありません",
+    "packLimit": "作成できるセット数の上限に達しました",
+    "stickerLimit": "このセットはいっぱいです",
+    "uploadDailyLimit": "本日のアップロード上限に達しました",
+    "fileTooLarge": "画像が大きすぎます",
+    "packNeedsSticker": "公開するには少なくとも 1 枚必要です",
+    "imageRejected": "png・jpeg・webp のみ対応しています",
+    "moderation": "この画像は審査を通りませんでした",
+    "imageUnavailable": "画像サービスが一時的に利用できません",
+    "invalidParams": "入力内容に問題があります",
+    "tagLimit": "タグが多すぎます",
+    "network": "通信に失敗しました",
+    "unknown": "問題が発生しました。もう一度お試しください",
+    "notFoundTitle": "ページが見つかりません",
+    "notFoundBody": "このアドレスには何もありません。削除された可能性があります。",
+    "genericTitle": "問題が発生しました",
+    "genericBody": "現在ご利用いただけません。しばらくしてからお試しください。",
+    "backHome": "ホームへ戻る"
   }
 }

@@ -1,40 +1,98 @@
 {
   "meta": {
     "title": "鲲 Galgame 表情包",
-    "description": "Galgame 表情包网站, 鲲 Galgame, Galgame 表情包下载",
-    "og": "鲲 Galgame",
-    "ogDescription": "鲲 Galgame 是一个 Galgame 联盟。为营造最好的氛围而努力。永远不会有广告，永远免费。"
+    "description": "来自视觉小说的表情包平台，人人都能发布自己的套装。",
+    "og": "鲲 Galgame 表情包",
+    "ogDescription": "来自视觉小说的表情包平台，人人都能发布自己的套装。"
   },
   "header": {
     "title": "鲲 Galgame 表情包",
-    "home": "主页",
+    "discover": "发现",
     "about": "关于",
-    "myPacks": "我的套装",
+    "myPacks": "我的表情包",
     "openNav": "打开导航",
     "theme": "主题",
     "language": "语言",
     "light": "白天",
     "dark": "黑夜",
-    "system": "系统"
+    "system": "跟随系统"
   },
-  "home": {
-    "sticker": "鲲 Galgame 表情包",
-    "kun": "鲲 Galgame | 表情包",
-    "open": "本网站开源，源码在"
+  "discovery": {
+    "title": "发现表情包",
+    "subtitle": "搜索、按标签浏览，或者发布你自己的一套。",
+    "searchPlaceholder": "搜索表情包…",
+    "all": "全部",
+    "hot": "热门",
+    "official": "官方",
+    "empty": "没有找到符合条件的表情包",
+    "resultCount": "共 {count} 套"
+  },
+  "pack": {
+    "untitled": "未命名表情包",
+    "official": "官方",
+    "draft": "草稿",
+    "hidden": "已隐藏",
+    "published": "已发布",
+    "stickerCount": "{count} 张",
+    "downloadCount": "下载 {count} 次",
+    "downloadAll": "下载整套",
+    "seoFallback": "{name} —— 来自视觉小说的表情包套装"
   },
   "sticker": {
-    "title": "Galgame 表情包",
-    "description": "Galgame 表情包预览、下载",
-    "game": "游戏名",
-    "lass": "少女名",
-    "original": "原图",
-    "download": "原图下载",
-    "notFound": "找不到该表情包"
+    "title": "表情",
+    "download": "下载原图",
+    "backToPack": "← 返回套装",
+    "seo": "{character}，出自 {game}"
   },
-  "footer": {
-    "poweredBy": "由",
-    "forumName": "鲲 Galgame 论坛",
-    "forumSuffix": "提供支持"
+  "user": {
+    "title": "{name} 的表情包",
+    "fallback": "这位用户",
+    "packCount": "公开 {count} 套",
+    "empty": "这位用户还没有公开的表情包"
+  },
+  "editor": {
+    "myPacks": "我的表情包",
+    "newPack": "新建表情包",
+    "noPacks": "你还没有表情包，新建一套开始吧",
+    "packTitle": "标题",
+    "packTitlePlaceholder": "给这套表情包起个名字",
+    "packDescription": "描述",
+    "packDescriptionPlaceholder": "这套表情包是关于什么的？",
+    "rating": "内容分级",
+    "ratingSfw": "全年龄",
+    "ratingNsfw": "R18",
+    "tags": "标签",
+    "tagsPlaceholder": "回车添加标签",
+    "tagsHint": "最多 10 个，帮助别人找到你的表情包",
+    "details": "基本信息",
+    "save": "保存",
+    "saving": "保存中…",
+    "saved": "已保存",
+    "create": "创建",
+    "creating": "创建中…",
+    "edit": "编辑",
+    "publish": "发布",
+    "unpublish": "取消发布",
+    "viewPublic": "查看公开页",
+    "backToPacks": "← 我的表情包",
+    "editing": "编辑 {name}",
+    "needSticker": "至少要有一张表情才能发布。",
+    "stickers": "表情",
+    "upload": "上传图片",
+    "uploadHint": "png / jpeg / webp，单张不超过 10MB，还能再加 {count} 张",
+    "noStickers": "还没有表情，上传几张试试",
+    "characterName": "角色名",
+    "gameName": "作品名",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "setCover": "设为封面",
+    "coverSet": "封面已更新",
+    "remove": "删除",
+    "removeTitle": "删除这张表情？",
+    "removePrompt": "删掉之后这张表情就不在套装里了，这个操作无法撤销。",
+    "deletePack": "删除套装",
+    "deleteTitle": "删除整套表情包？",
+    "deletePrompt": "整套表情包和里面所有表情都会被删除，这个操作无法撤销。"
   },
   "auth": {
     "login": "登录",
@@ -42,102 +100,95 @@
     "logout": "登出",
     "profile": "个人资料",
     "logoutTitle": "登出",
-    "logoutPrompt": "请选择登出范围：",
-    "logoutEverywhere": "登出本站和 OAuth 账号",
-    "logoutEverywhereHint": "本站与 OAuth 账号都会登出；其它已登录的站点会在下次刷新登录态时一并登出；再次登录需重新验证身份。适合公共 / 共享设备。",
-    "logoutLocal": "仅登出本站",
-    "logoutLocalHint": "只登出本站；OAuth 账号与其它站点保持登录；再次登录本站可免密直接进入。适合自己的设备。",
+    "logoutPrompt": "你希望登出到什么程度？",
+    "logoutEverywhere": "登出所有鲲账号站点",
+    "logoutEverywhereHint": "同时结束中央账号会话",
+    "logoutLocal": "只登出本站",
+    "logoutLocalHint": "其他鲲账号站点保持登录",
     "cancel": "取消",
     "callbackError": "登录失败，请重试"
   },
-  "publish": {
-    "title": "我的表情包套装",
-    "new": "新建套装",
-    "name": "套装名称",
-    "namePlaceholder": "给这套表情包起个名字",
-    "create": "创建草稿",
-    "creating": "创建中…",
-    "empty": "还没有套装。先建一套草稿，上传表情后再发布。",
-    "draft": "草稿",
-    "published": "已发布",
-    "hidden": "已隐藏",
-    "publish": "发布",
-    "unpublish": "取消发布",
-    "save": "保存",
-    "upload": "上传表情",
-    "uploading": "上传中…",
-    "preview": "设为封面",
-    "remove": "移除",
-    "limit": "每套最多 80 张。",
-    "needSticker": "至少上传一张才能发布。",
-    "notFound": "找不到这套表情包，或你不是作者。",
-    "back": "返回我的套装"
+  "footer": {
+    "tagline": "鲲 Galgame 表情包 —— 人人都能发布的视觉小说表情包平台",
+    "forumName": "鲲 Galgame 论坛"
   },
   "about": {
-    "title": "关于 - 鲲 Galgame 表情包",
-    "repo": "kun-galgame-stickers",
-    "introduction": {
-      "heading": "介绍",
-      "lines": ["做了一个视频介绍这个项目啦", "目前这个网站的表情包数量已经超过 400 张了。"],
-      "bilibiliPrefix": "本视频同步发布于 Bilibili，喜欢可以来点个赞",
-      "bilibiliLink": "350 多张纯 galgame 表情包，我建了一个 galgame 表情包仓库",
-      "purposeIntro": "这是由我个人在各种 galgame 里截的表情包，目的是",
-      "purpose": ["通过表情包的方式给更多人推荐好玩的萌萌游戏", "萌！"],
-      "future": "以后可能会更新一些游戏的 SD_CG 和 CG 的截图作为表情包，现在只有游戏中人物的纯表情"
+    "title": "关于本站",
+    "lead": "这里收集来自视觉小说的表情包。任何鲲账号用户都可以发布自己的套装。",
+    "what": {
+      "heading": "这是什么",
+      "lines": [
+        "表情包由一张张表情组成，每张表情可以标注它出自哪部作品、画的是哪个角色。",
+        "最早的七套是站长从视觉小说里截取整理的，现在它们和大家发布的套装并列在同一个目录里。"
+      ]
     },
-    "telegram": {
-      "heading": "Telegram 贴纸包",
-      "intro": "这套贴纸会同步在 Telegram 的贴纸集内更新，每套 80 张，也可以点击下方的链接添加贴纸",
-      "packLabel": "鲲 Galgame 表情包",
-      "note": "仓库中的表情包比 Telegram 中的贴纸集清晰，因为做成 Telegram 贴纸集时对质量做了压缩",
-      "downloadIntro": "你可以点击下面的链接下载这些贴纸",
-      "downloadLink": "下载链接"
+    "publish": {
+      "heading": "怎么发布",
+      "intro": "用鲲账号登录之后，几步就能发出一套：",
+      "steps": [
+        "新建一套表情包，填好标题。",
+        "上传图片，一次可以选多张。",
+        "给每张表情标上角色和作品，拖动可以调整顺序。",
+        "确认无误后点击发布。"
+      ],
+      "cta": "开始发布"
     },
     "rules": {
-      "heading": "规范",
-      "intro": "这个表情包系列尽量遵循以下几点规范",
+      "heading": "发布规则",
       "items": [
-        "全部为 galgame（Visual Novel）的表情包，不包括动漫、漫画、插画等",
-        "正方形截图",
-        "尽量把人物的呆毛截全",
-        "以小只可爱软萌白毛为主"
-      ],
-      "note": "由于部分表情包截图的时间过早，所以没有遵循此规范"
-    },
-    "games": {
-      "heading": "相关游戏",
-      "lines": [
-        "下面是表情包中用到的游戏，大家可以自己去玩相应的游戏",
-        "当然这些游戏我都玩过，全部是萌萌游戏",
-        "可以点击这里查看表情包里面使用了哪些游戏截的图"
-      ],
-      "linkLabel": "表情包游戏概览"
+        "不要上传与视觉小说无关的内容。",
+        "含成人内容的套装请标记为 R18。",
+        "尊重原作者，不要上传明确禁止二次分发的素材。",
+        "违规内容会被隐藏或删除。"
+      ]
     },
     "faq": {
-      "heading": "FAQ",
+      "heading": "常见问题",
       "items": [
         {
-          "q": "这些表情包会不断更新吗？",
-          "a": "当然会。我边打游戏会边截表情包，只要我还在玩 galgame，那就一定会更新"
+          "q": "一套表情包最多能放多少张？",
+          "a": "80 张，和主流即时通讯软件的一套表情数量一致。"
         },
         {
-          "q": "我可以为这个表情包系列贡献表情吗？",
-          "a": "当然可以。如果熟悉 GitHub，可以提交 PR，将自己的表情放在 Others 文件夹下自己命名的目录中"
+          "q": "支持什么图片格式？",
+          "a": "png、jpeg 和 webp，单张不超过 10MB。上传后会统一转换为 webp。"
         },
         {
-          "q": "为什么第一套贴纸的图片格式不一样？",
-          "a": "有一些是直接从 QQ 搬过来的，以前还没有专门收集这些贴纸。今后所有更新均为 png 格式"
+          "q": "可以下载整套吗？",
+          "a": "可以，套装页面上的「下载整套」会打包成一个 zip。"
         },
         {
-          "q": "为什么很多游戏一整部只有一个人的表情？",
-          "a": "我是单线战士"
+          "q": "发布之后还能改吗？",
+          "a": "可以。取消发布会把套装变回仅自己可见，改完再发布即可。"
         }
       ]
     },
-    "tips": {
-      "heading": "Tips",
-      "lines": ["如果觉得我们做得不错，欢迎点个 star", "我们的 Telegram 群组：https://t.me/kungalgame"],
-      "note": "我们没有群规，被鲨了可以重新加"
+    "open": {
+      "heading": "开放与开源",
+      "body": "本站代码开源。开放 API 正在规划中，之后会通过 nextmoe 开发者平台提供给下游应用。"
     }
+  },
+  "error": {
+    "unauthorized": "请先登录",
+    "packNotFound": "找不到这套表情包",
+    "stickerNotFound": "找不到这张表情",
+    "notOwner": "这不是你的表情包",
+    "packLimit": "你创建的表情包已经达到上限",
+    "stickerLimit": "这套表情包已经装满了",
+    "uploadDailyLimit": "今天的上传次数已经用完了，明天再来",
+    "fileTooLarge": "图片太大了",
+    "packNeedsSticker": "至少要有一张表情才能发布",
+    "imageRejected": "只接受 png、jpeg 和 webp 图片",
+    "moderation": "这张图片没有通过审核",
+    "imageUnavailable": "图片服务暂时不可用，稍后再试",
+    "invalidParams": "填写的内容有问题",
+    "tagLimit": "标签太多了",
+    "network": "网络连接失败",
+    "unknown": "出了点问题，请重试",
+    "notFoundTitle": "页面走丢了",
+    "notFoundBody": "这个地址下没有内容，也许它已经被删除了。",
+    "genericTitle": "出了点问题",
+    "genericBody": "服务暂时不可用，稍后再试。",
+    "backHome": "回到首页"
   }
 }

@@ -79,9 +79,9 @@ export default defineNuxtConfig({
       oauthFrontendUrl:
         envValue('NUXT_PUBLIC_OAUTH_FRONTEND_URL', 'KUN_OAUTH_WEB_URL') ||
         'http://127.0.0.1:9420',
-      oauthClientId:
-        envValue('NUXT_PUBLIC_OAUTH_CLIENT_ID', 'KUN_OAUTH_CLIENT_ID') ||
-        'c5cd7b074804ba134934eb6c175a8f4d',
+      // No fallback client id on purpose: a hardcoded one lets a misconfigured
+      // environment silently authenticate against the production OAuth client.
+      oauthClientId: envValue('NUXT_PUBLIC_OAUTH_CLIENT_ID', 'KUN_OAUTH_CLIENT_ID'),
       oauthRedirectUri:
         envValue('NUXT_PUBLIC_OAUTH_REDIRECT_URI', 'KUN_OAUTH_REDIRECT_URI') ||
         'http://127.0.0.1:5173/auth/callback'

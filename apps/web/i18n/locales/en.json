@@ -1,13 +1,13 @@
 {
   "meta": {
     "title": "KUN Visual Novel Stickers",
-    "description": "Visual novel sticker packs from KUN Visual Novel",
-    "og": "KUN Visual Novel",
-    "ogDescription": "KUN Visual Novel is a visual novel alliance. No ads, free forever."
+    "description": "A sticker platform for visual novel fans. Anyone can publish a pack.",
+    "og": "KUN Visual Novel Stickers",
+    "ogDescription": "A sticker platform for visual novel fans. Anyone can publish a pack."
   },
   "header": {
-    "title": "KUN Visual Novel Stickers",
-    "home": "Home",
+    "title": "KUN Stickers",
+    "discover": "Discover",
     "about": "About",
     "myPacks": "My packs",
     "openNav": "Open navigation",
@@ -17,24 +17,82 @@
     "dark": "Dark",
     "system": "System"
   },
-  "home": {
-    "sticker": "KUN Visual Novel Sticker",
-    "kun": "KUN Visual Novel | Stickers",
-    "open": "Open source. Source code on"
+  "discovery": {
+    "title": "Discover sticker packs",
+    "subtitle": "Search, browse by tag, or publish a pack of your own.",
+    "searchPlaceholder": "Search packs…",
+    "all": "All",
+    "hot": "Popular",
+    "official": "Official",
+    "empty": "No packs match these filters",
+    "resultCount": "{count} packs"
+  },
+  "pack": {
+    "untitled": "Untitled pack",
+    "official": "Official",
+    "draft": "Draft",
+    "hidden": "Hidden",
+    "published": "Published",
+    "stickerCount": "{count} stickers",
+    "downloadCount": "{count} downloads",
+    "downloadAll": "Download pack",
+    "seoFallback": "{name} — a visual novel sticker pack"
   },
   "sticker": {
-    "title": "Visual Novel Sticker Pack",
-    "description": "Preview and download visual novel stickers",
-    "game": "Game",
-    "lass": "Character",
-    "original": "Original",
+    "title": "Sticker",
     "download": "Download original",
-    "notFound": "Sticker not found"
+    "backToPack": "← Back to pack",
+    "seo": "{character}, from {game}"
   },
-  "footer": {
-    "poweredBy": "Powered by",
-    "forumName": "KUN Visual Novel Forum",
-    "forumSuffix": ""
+  "user": {
+    "title": "Packs by {name}",
+    "fallback": "This user",
+    "packCount": "{count} public packs",
+    "empty": "This user has not published a pack yet"
+  },
+  "editor": {
+    "myPacks": "My packs",
+    "newPack": "New pack",
+    "noPacks": "No packs yet — create one to get started",
+    "packTitle": "Title",
+    "packTitlePlaceholder": "Name this pack",
+    "packDescription": "Description",
+    "packDescriptionPlaceholder": "What is this pack about?",
+    "rating": "Content rating",
+    "ratingSfw": "All ages",
+    "ratingNsfw": "R18",
+    "tags": "Tags",
+    "tagsPlaceholder": "Press enter to add a tag",
+    "tagsHint": "Up to 10, so people can find your pack",
+    "details": "Details",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "create": "Create",
+    "creating": "Creating…",
+    "edit": "Edit",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "viewPublic": "View public page",
+    "backToPacks": "← My packs",
+    "editing": "Editing {name}",
+    "needSticker": "A pack needs at least one sticker before it can be published.",
+    "stickers": "Stickers",
+    "upload": "Upload images",
+    "uploadHint": "png / jpeg / webp, up to 10MB each, {count} slots left",
+    "noStickers": "No stickers yet — upload a few",
+    "characterName": "Character",
+    "gameName": "Visual novel",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "setCover": "Set as cover",
+    "coverSet": "Cover updated",
+    "remove": "Remove",
+    "removeTitle": "Remove this sticker?",
+    "removePrompt": "It will be taken out of the pack. This cannot be undone.",
+    "deletePack": "Delete pack",
+    "deleteTitle": "Delete the whole pack?",
+    "deletePrompt": "The pack and every sticker in it will be deleted. This cannot be undone."
   },
   "auth": {
     "login": "Sign in",
@@ -42,102 +100,95 @@
     "logout": "Sign out",
     "profile": "Profile",
     "logoutTitle": "Sign out",
-    "logoutPrompt": "Choose what to sign out of:",
-    "logoutEverywhere": "Sign out of this site and OAuth",
-    "logoutEverywhereHint": "Signs out of this site and your OAuth account. Other sites sign out on their next refresh. Best for public or shared devices.",
-    "logoutLocal": "This site only",
-    "logoutLocalHint": "Signs out of this site only. Your OAuth account and other sites stay signed in. Best for your own device.",
+    "logoutPrompt": "How far do you want to sign out?",
+    "logoutEverywhere": "Sign out of every KUN site",
+    "logoutEverywhereHint": "Ends the central account session too",
+    "logoutLocal": "Sign out of this site only",
+    "logoutLocalHint": "Other KUN sites stay signed in",
     "cancel": "Cancel",
-    "callbackError": "Sign-in failed. Please try again."
+    "callbackError": "Sign-in failed, please try again"
   },
-  "publish": {
-    "title": "My sticker packs",
-    "new": "New pack",
-    "name": "Pack name",
-    "namePlaceholder": "Name this sticker pack",
-    "create": "Create draft",
-    "creating": "Creating…",
-    "empty": "No packs yet. Create a draft, upload stickers, then publish.",
-    "draft": "Draft",
-    "published": "Published",
-    "hidden": "Hidden",
-    "publish": "Publish",
-    "unpublish": "Unpublish",
-    "save": "Save",
-    "upload": "Upload stickers",
-    "uploading": "Uploading…",
-    "preview": "Set as cover",
-    "remove": "Remove",
-    "limit": "Up to 80 stickers per pack.",
-    "needSticker": "Upload at least one sticker before publishing.",
-    "notFound": "Pack not found, or you are not the owner.",
-    "back": "Back to my packs"
+  "footer": {
+    "tagline": "KUN Visual Novel Stickers — a sticker platform anyone can publish to",
+    "forumName": "KUN Visual Novel Forum"
   },
   "about": {
-    "title": "About - KUN Visual Novel Stickers",
-    "repo": "kun-galgame-stickers",
-    "introduction": {
-      "heading": "Introduction",
-      "lines": ["A video introducing this project has been made.", "The site now hosts over 400 stickers."],
-      "bilibiliPrefix": "This video is also on Bilibili — give it a thumbs up if you like it.",
-      "bilibiliLink": "I built a galgame sticker repository with over 350 pure galgame stickers",
-      "purposeIntro": "These are stickers I captured from visual novels, with the purpose of:",
-      "purpose": ["Recommending fun and cute games through stickers", "Moe!"],
-      "future": "SD_CG and CG stills may be added later. For now there are only character expressions."
+    "title": "About",
+    "lead": "Stickers captured from visual novels. Any KUN account can publish a pack.",
+    "what": {
+      "heading": "What this is",
+      "lines": [
+        "A pack is a set of stickers. Each sticker can name the visual novel it came from and the character it shows.",
+        "The first seven packs were put together by the site owner; they now sit in the same catalogue as everyone else's."
+      ]
     },
-    "telegram": {
-      "heading": "Telegram sticker packs",
-      "intro": "Packs are mirrored to Telegram, 80 stickers per set. Add them here:",
-      "packLabel": "KUN Visual Novel Sticker Pack",
-      "note": "Copies in this repository are sharper than the Telegram sets because Telegram compresses them.",
-      "downloadIntro": "Download the originals here:",
-      "downloadLink": "Download"
+    "publish": {
+      "heading": "Publishing",
+      "intro": "Sign in with a KUN account and it takes a few steps:",
+      "steps": [
+        "Create a pack and give it a title.",
+        "Upload images — you can select several at once.",
+        "Label each sticker with its character and visual novel, and drag to reorder.",
+        "Publish when it looks right."
+      ],
+      "cta": "Start publishing"
     },
     "rules": {
-      "heading": "Standards",
-      "intro": "This series tries to follow:",
+      "heading": "Rules",
       "items": [
-        "Visual novel (galgame) stickers only — no anime, manga, or illustrations",
-        "Square screenshots",
-        "Capture the character's ahoge in full whenever possible",
-        "Mostly small, cute, soft-moe white-haired characters"
-      ],
-      "note": "Some early stickers do not follow these, because they were captured before the rules existed."
-    },
-    "games": {
-      "heading": "Related games",
-      "lines": [
-        "These are the games used in the stickers. Go play them.",
-        "I have played all of them. They are all moe games.",
-        "See which games were used for which screenshots."
-      ],
-      "linkLabel": "Sticker pack game overview"
+        "Keep it related to visual novels.",
+        "Mark packs with adult content as R18.",
+        "Respect the original artists; do not upload material that forbids redistribution.",
+        "Rule-breaking packs are hidden or removed."
+      ]
     },
     "faq": {
       "heading": "FAQ",
       "items": [
         {
-          "q": "Will these stickers keep being updated?",
-          "a": "Yes. I capture stickers while playing. As long as I still play visual novels, there will be updates."
+          "q": "How many stickers fit in one pack?",
+          "a": "80, the same as a typical messenger sticker set."
         },
         {
-          "q": "Can I contribute stickers?",
-          "a": "Yes. Open a PR and put your stickers in a named folder under Others."
+          "q": "Which image formats work?",
+          "a": "png, jpeg and webp, up to 10MB each. Everything is converted to webp on upload."
         },
         {
-          "q": "Why is the first pack's image format mixed?",
-          "a": "Some files were copied from QQ before this collection was deliberate. Everything new is PNG."
+          "q": "Can I download a whole pack?",
+          "a": "Yes — \"Download pack\" on the pack page gives you a zip."
         },
         {
-          "q": "Why do many games only have expressions from one character?",
-          "a": "I am a one-route warrior."
+          "q": "Can I edit a pack after publishing?",
+          "a": "Yes. Unpublishing makes it private again; publish once you are happy."
         }
       ]
     },
-    "tips": {
-      "heading": "Tips",
-      "lines": ["If you like this, a GitHub star is welcome.", "Telegram group: https://t.me/kungalgame"],
-      "note": "There are no group rules. If you get kicked, you can rejoin."
+    "open": {
+      "heading": "Open source",
+      "body": "The site is open source. A public API is planned and will be offered through the nextmoe developer platform."
     }
+  },
+  "error": {
+    "unauthorized": "Please sign in first",
+    "packNotFound": "That pack does not exist",
+    "stickerNotFound": "That sticker does not exist",
+    "notOwner": "That pack is not yours",
+    "packLimit": "You have reached the pack limit",
+    "stickerLimit": "This pack is full",
+    "uploadDailyLimit": "You have used up today's uploads",
+    "fileTooLarge": "That image is too large",
+    "packNeedsSticker": "A pack needs at least one sticker to publish",
+    "imageRejected": "Only png, jpeg and webp images are accepted",
+    "moderation": "That image did not pass moderation",
+    "imageUnavailable": "The image service is unavailable, try again shortly",
+    "invalidParams": "Something in the form is not valid",
+    "tagLimit": "Too many tags",
+    "network": "Network request failed",
+    "unknown": "Something went wrong, please try again",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "There is nothing at this address; it may have been removed.",
+    "genericTitle": "Something went wrong",
+    "genericBody": "The service is unavailable right now, try again shortly.",
+    "backHome": "Back to home"
   }
 }

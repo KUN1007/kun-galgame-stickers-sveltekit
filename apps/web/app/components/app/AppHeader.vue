@@ -4,11 +4,12 @@ const localePath = useLocalePath()
 const switchLocalePath = useSwitchLocalePath()
 const user = useAuthUser()
 const colorMode = useColorMode()
+const route = useRoute()
 const navOpen = ref(false)
 
 const navItems = computed(() => {
   const items = [
-    { to: localePath('/'), label: t('header.home') },
+    { to: localePath('/'), label: t('header.discover') },
     { to: localePath('/about'), label: t('header.about') }
   ]
   if (user.value) {
@@ -16,6 +17,8 @@ const navItems = computed(() => {
   }
   return items
 })
+
+const isActive = (to: string) => route.path === to
 
 const themeItems = computed(() => [
   { key: 'light', label: t('header.light') },
@@ -41,56 +44,60 @@ const onLanguage = async (item: { key: string }) => {
 
 <template>
   <header
-    class="bg-content1/80 fixed inset-x-0 top-0 z-[1007] flex h-14 items-center gap-3 border-b px-3 backdrop-blur-md sm:gap-4 sm:px-12"
+    class="bg-content1/85 border-default-200 fixed inset-x-0 top-0 z-[1007] border-b backdrop-blur-md"
   >
-    <KunButton
-      is-icon-only
-      variant="light"
-      class-name="sm:hidden"
-      :aria-label="t('header.openNav')"
-      @click="navOpen = true"
-    >
-      <KunIcon name="lucide:menu" class="text-xl" />
-    </KunButton>
-
-    <KunLink :to="localePath('/')" class="flex min-w-0 items-center gap-3">
-      <img src="/favicon.webp" alt="" class="h-10 w-10 shrink-0" >
-      <span class="hidden truncate text-lg sm:block">{{ t('header.title') }}</span>
-    </KunLink>
-
-    <nav class="hidden flex-1 items-center justify-center gap-5 text-base sm:flex">
-      <KunLink
-        v-for="item in navItems"
-        :key="item.to"
-        :to="item.to"
-        class="text-primary"
+    <div class="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
+      <KunButton
+        is-icon-only
+        variant="light"
+        class-name="lg:hidden"
+        :aria-label="t('header.openNav')"
+        @click="navOpen = true"
       >
-        {{ item.label }}
-      </KunLink>
-      <KunDropdown :items="themeItems" @select="onTheme">
-        <template #trigger>
-          <span
-            class="inline-flex h-9 w-9 items-center justify-center"
-            :aria-label="t('header.theme')"
-          >
-            <KunIcon name="lucide:sun-moon" class="text-xl" />
-          </span>
-        </template>
-      </KunDropdown>
-      <KunDropdown :items="languageItems" @select="onLanguage">
-        <template #trigger>
-          <span
-            class="inline-flex h-9 w-9 items-center justify-center"
-            :aria-label="t('header.language')"
-          >
-            <KunIcon name="lucide:languages" class="text-xl" />
-          </span>
-        </template>
-      </KunDropdown>
-    </nav>
+        <KunIcon name="lucide:menu" class="text-xl" />
+      </KunButton>
 
-    <div class="ml-auto">
-      <AppUserMenu />
+      <KunLink :to="localePath('/')" class="flex shrink-0 items-center gap-2">
+        <img src="/favicon.webp" alt="" class="h-9 w-9" >
+        <span class="hidden text-base font-medium sm:block">{{ t('header.title') }}</span>
+      </KunLink>
+
+      <nav class="hidden items-center gap-4 lg:flex">
+        <KunLink
+          v-for="item in navItems"
+          :key="item.to"
+          :to="item.to"
+          :class="cn('text-sm', isActive(item.to) ? 'text-primary' : 'text-default-600')"
+        >
+          {{ item.label }}
+        </KunLink>
+      </nav>
+
+      <AppSearchInput class-name="hidden max-w-md flex-1 sm:block" />
+
+      <div class="ml-auto flex items-center gap-1">
+        <KunDropdown :items="themeItems" @select="onTheme">
+          <template #trigger>
+            <span
+              class="hidden h-9 w-9 items-center justify-center sm:inline-flex"
+              :aria-label="t('header.theme')"
+            >
+              <KunIcon name="lucide:sun-moon" class="text-xl" />
+            </span>
+          </template>
+        </KunDropdown>
+        <KunDropdown :items="languageItems" @select="onLanguage">
+          <template #trigger>
+            <span
+              class="hidden h-9 w-9 items-center justify-center sm:inline-flex"
+              :aria-label="t('header.language')"
+            >
+              <KunIcon name="lucide:languages" class="text-xl" />
+            </span>
+          </template>
+        </KunDropdown>
+        <AppUserMenu />
+      </div>
     </div>
 
     <AppNavDrawer v-model="navOpen" />

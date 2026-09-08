@@ -3,63 +3,91 @@ definePageMeta({ middleware: 'auth' })
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
+const mutate = useMutation()
 
-const { data: packs, refresh } = await useAsyncData('my-sticker-packs', () => fetchMyPacks())
+const { data, status, refresh } = await useAsyncData('my-packs', () => fetchMyPacks())
+const packs = computed(() => data.value?.packs ?? [])
 
-const statusLabel = (status: number) => {
-  if (status === PACK_PUBLISHED) return t('publish.published')
-  if (status === PACK_HIDDEN) return t('publish.hidden')
-  return t('publish.draft')
+const creating = ref(false)
+const showCreate = ref(false)
+const draftTitle = ref('')
+
+const create = async () => {
+  const title = draftTitle.value.trim()
+  if (!title || creating.value) return
+  creating.value = true
+  const pack = await mutate(() => createPack({ title: { [localeField(locale.value)]: title } }))
+  creating.value = false
+  if (!pack) return
+  showCreate.value = false
+  draftTitle.value = ''
+  await navigateTo(localePath(`/me/packs/${pack.id}`))
 }
 
-const toggle = async (pack: StickerPack) => {
-  if (pack.status === PACK_PUBLISHED) await unpublishPack(pack.sid)
-  else await publishPack(pack.sid)
-  await refresh()
+const toggle = async (packId: string, published: boolean) => {
+  const done = await mutate(() => (published ? unpublishPack(packId) : publishPack(packId)))
+  if (done) await refresh()
 }
 </script>
 
 <template>
   <section class="flex flex-col gap-6">
-    <div class="flex items-center justify-between gap-4">
-      <KunHeader :name="t('publish.title')" scale="h2" />
-      <KunButton color="primary" :href="localePath('/me/packs/new')">
-        {{ t('publish.new') }}
+    <header class="flex flex-wrap items-center justify-between gap-3">
+      <h1 class="text-2xl font-bold">{{ t('editor.myPacks') }}</h1>
+      <KunButton color="primary" class="gap-2" @click="showCreate = true">
+        <KunIcon name="lucide:plus" class="text-lg" />
+        {{ t('editor.newPack') }}
       </KunButton>
-    </div>
+    </header>
 
-    <p v-if="!packs?.length" class="text-default-500">
-      {{ t('publish.empty') }}
-    </p>
+    <PackGrid
+      :packs="packs"
+      :pending="status === 'pending'"
+      show-status
+      :empty-text="t('editor.noPacks')"
+    />
 
-    <article
-      v-for="pack in packs ?? []"
-      :key="pack.sid"
-      class="border-default-200 flex items-center gap-4 border p-3"
-    >
-      <img
-        :src="pack.preview_url"
-        alt=""
-        width="64"
-        height="64"
-        class="h-16 w-16 object-cover"
+    <ul v-if="packs.length" class="flex flex-col gap-2">
+      <li
+        v-for="pack in packs"
+        :key="pack.id"
+        class="border-default-200 flex flex-wrap items-center gap-3 border p-3"
       >
-      <div class="min-w-0 flex-1">
-        <KunLink :to="localePath(`/me/packs/${pack.sid}`)" class="truncate text-base">
-          {{ resolveMultilingual(pack.title, locale) || t('publish.new') }}
+        <KunLink :to="localePath(`/me/packs/${pack.id}`)" class="min-w-0 flex-1 truncate text-sm">
+          {{ resolveMultilingual(pack.title, locale) || t('pack.untitled') }}
         </KunLink>
-        <p class="text-default-500 text-sm">
-          {{ statusLabel(pack.status) }} · {{ pack.count }}
-        </p>
+        <span class="text-default-500 text-xs">
+          {{ t('pack.stickerCount', { count: pack.sticker_count }) }}
+        </span>
+        <KunButton
+          size="sm"
+          variant="bordered"
+          :disabled="pack.status !== PACK_PUBLISHED && pack.sticker_count < 1"
+          @click="toggle(pack.id, pack.status === PACK_PUBLISHED)"
+        >
+          {{ pack.status === PACK_PUBLISHED ? t('editor.unpublish') : t('editor.publish') }}
+        </KunButton>
+        <KunButton size="sm" variant="light" :href="localePath(`/me/packs/${pack.id}`)">
+          {{ t('editor.edit') }}
+        </KunButton>
+      </li>
+    </ul>
+
+    <KunModal v-model="showCreate" :title="t('editor.newPack')">
+      <div class="flex flex-col gap-4">
+        <KunInput
+          v-model="draftTitle"
+          :label="t('editor.packTitle')"
+          :placeholder="t('editor.packTitlePlaceholder')"
+          required
+        />
+        <div class="flex justify-end gap-2">
+          <KunButton variant="light" @click="showCreate = false">{{ t('auth.cancel') }}</KunButton>
+          <KunButton color="primary" :disabled="creating || !draftTitle.trim()" @click="create">
+            {{ creating ? t('editor.creating') : t('editor.create') }}
+          </KunButton>
+        </div>
       </div>
-      <KunButton
-        size="sm"
-        variant="bordered"
-        :disabled="pack.status !== PACK_PUBLISHED && pack.count < 1"
-        @click="toggle(pack)"
-      >
-        {{ pack.status === PACK_PUBLISHED ? t('publish.unpublish') : t('publish.publish') }}
-      </KunButton>
-    </article>
+    </KunModal>
   </section>
 </template>

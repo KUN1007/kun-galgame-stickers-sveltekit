@@ -1,13 +1,14 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const route = useRoute()
+const localePath = useLocalePath()
 const user = useAuthUser()
 const showLogout = ref(false)
 const pending = ref<'local' | 'everywhere' | null>(null)
 
 const returnTo = computed(() => route.fullPath)
 
-const displayName = computed(() => user.value?.name || user.value?.email || '')
+const displayName = computed(() => user.value?.name ?? '')
 
 const kunUser = computed(() => {
   if (!user.value) return null
@@ -59,6 +60,13 @@ const logoutEverywhere = async () => {
         class="justify-start"
       >
         {{ t('auth.profile') }}
+      </KunButton>
+      <KunButton
+        variant="light"
+        class="justify-start"
+        :href="localePath('/me/packs')"
+      >
+        {{ t('header.myPacks') }}
       </KunButton>
       <KunButton variant="light" class="justify-start" @click="showLogout = true">
         {{ t('auth.logout') }}
