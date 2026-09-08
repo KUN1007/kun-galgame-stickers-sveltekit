@@ -24,6 +24,12 @@ const create = async () => {
   await navigateTo(localePath(`/me/packs/${pack.id}`))
 }
 
+const statusLabel = (status: number) => {
+  if (status === PACK_PUBLISHED) return t('pack.published')
+  if (status === PACK_HIDDEN) return t('pack.hidden')
+  return t('pack.draft')
+}
+
 const toggle = async (packId: string, published: boolean) => {
   const done = await mutate(() => (published ? unpublishPack(packId) : publishPack(packId)))
   if (done) await refresh()
@@ -40,25 +46,35 @@ const toggle = async (packId: string, published: boolean) => {
       </KunButton>
     </header>
 
-    <PackGrid
-      :packs="packs"
-      :pending="status === 'pending'"
-      show-status
-      :empty-text="t('editor.noPacks')"
-    />
+    <div v-if="status === 'pending'" class="flex flex-col gap-2">
+      <KunSkeleton v-for="n in 3" :key="n" height="5.5rem" />
+    </div>
 
-    <ul v-if="packs.length" class="flex flex-col gap-2">
+    <p v-else-if="!packs.length" class="text-default-500">{{ t('editor.noPacks') }}</p>
+
+    <ul v-else class="flex flex-col gap-2">
       <li
         v-for="pack in packs"
         :key="pack.id"
         class="border-default-200 flex flex-wrap items-center gap-3 border p-3"
       >
-        <KunLink :to="localePath(`/me/packs/${pack.id}`)" class="min-w-0 flex-1 truncate text-sm">
-          {{ resolveMultilingual(pack.title, locale) || t('pack.untitled') }}
-        </KunLink>
-        <span class="text-default-500 text-xs">
-          {{ t('pack.stickerCount', { count: pack.sticker_count }) }}
-        </span>
+        <img
+          v-if="pack.cover_thumb_url"
+          :src="pack.cover_thumb_url"
+          alt=""
+          width="64"
+          height="64"
+          loading="lazy"
+          class="border-default-200 size-16 shrink-0 border object-cover"
+        >
+        <div class="flex min-w-0 flex-1 flex-col gap-1">
+          <KunLink :to="localePath(`/me/packs/${pack.id}`)" class="truncate text-sm">
+            {{ resolveMultilingual(pack.title, locale) || t('pack.untitled') }}
+          </KunLink>
+          <span class="text-default-500 text-xs">
+            {{ statusLabel(pack.status) }} · {{ t('pack.stickerCount', { count: pack.sticker_count }) }}
+          </span>
+        </div>
         <KunButton
           size="sm"
           variant="bordered"
