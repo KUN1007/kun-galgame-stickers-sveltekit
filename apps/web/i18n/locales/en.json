@@ -10,6 +10,9 @@
     "home": "Home",
     "about": "About",
     "myPacks": "My packs",
+    "openNav": "Open navigation",
+    "theme": "Theme",
+    "language": "Language",
     "light": "Light",
     "dark": "Dark",
     "system": "System"
@@ -34,7 +37,7 @@
     "forumSuffix": ""
   },
   "auth": {
-    "login": "Sign in with KUN",
+    "login": "Sign in",
     "register": "Create a KUN account",
     "logout": "Sign out",
     "profile": "Profile",

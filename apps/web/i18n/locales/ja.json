@@ -10,6 +10,9 @@
     "home": "ホーム",
     "about": "について",
     "myPacks": "マイパック",
+    "openNav": "ナビを開く",
+    "theme": "テーマ",
+    "language": "言語",
     "light": "ライト",
     "dark": "ダーク",
     "system": "システム"
@@ -34,7 +37,7 @@
     "forumSuffix": "提供"
   },
   "auth": {
-    "login": "鯤アカウントでログイン",
+    "login": "ログイン",
     "register": "鯤アカウントを作成",
     "logout": "ログアウト",
     "profile": "プロフィール",

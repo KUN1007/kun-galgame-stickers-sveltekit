@@ -19,7 +19,6 @@ const kunUser = computed(() => {
 })
 
 const login = () => startOAuthLogin(returnTo.value)
-const register = () => startOAuthRegister(returnTo.value)
 
 const logoutLocalOnly = async () => {
   if (pending.value) return
@@ -40,10 +39,7 @@ const logoutEverywhere = async () => {
 </script>
 
 <template>
-  <div v-if="!user" class="flex items-center gap-1">
-    <KunButton variant="light" class="hidden sm:inline-flex" @click="register">
-      {{ t('auth.register') }}
-    </KunButton>
+  <div v-if="!user">
     <KunButton color="primary" variant="light" @click="login">
       {{ t('auth.login') }}
     </KunButton>

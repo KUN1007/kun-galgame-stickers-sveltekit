@@ -10,6 +10,9 @@
     "home": "主页",
     "about": "关于",
     "myPacks": "我的套装",
+    "openNav": "打开导航",
+    "theme": "主题",
+    "language": "语言",
     "light": "白天",
     "dark": "黑夜",
     "system": "系统"
@@ -34,7 +37,7 @@
     "forumSuffix": "提供支持"
   },
   "auth": {
-    "login": "使用鲲账号登录",
+    "login": "登录",
     "register": "注册鲲账号",
     "logout": "登出",
     "profile": "个人资料",
