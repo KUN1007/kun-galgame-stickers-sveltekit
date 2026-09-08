@@ -20,6 +20,9 @@
 #   KUN_OAUTH_CLIENT_SECRET    — the 鲲 Galgame 表情包 confidential client secret
 #   KUN_CATALOG_API_KEY        — application key (nmk_live_…) scoped catalog:read,
 #                                minted in the NextMoe developer portal
+#   NUXT_OG_SITE_KEY           — nextmoe-og per-site signing key. Optional: with
+#                                it unset, share images fall back to the artwork
+#                                each page already has.
 # A Dokploy variable only reaches a container if this file names it, which is
 # why the key is written out in x-api-env below rather than merely existing in
 # the panel. It is required (:?) rather than optional on purpose: an absent key
@@ -51,6 +54,10 @@ x-api-env: &api-env
   # keystroke. Only the secret comes from Dokploy.
   KUN_CATALOG_BASE_URL: http://catalog:9281
   KUN_CATALOG_API_KEY: ${KUN_CATALOG_API_KEY:?set KUN_CATALOG_API_KEY}
+  # Pack comment threads. Same OAuth credentials as the image service; the
+  # tenant is derived upstream from this client's catalog_site binding and is
+  # never sent, so there is nothing else to configure here.
+  KUN_COMMUNITY_BASE_URL: http://community:9282
 
 services:
   # Unique name on dokploy-network (same reason kungal-api / moyu-api are not
@@ -84,6 +91,9 @@ services:
       NUXT_PUBLIC_OAUTH_FRONTEND_URL: https://oauth.kungal.com
       NUXT_PUBLIC_OAUTH_CLIENT_ID: c5cd7b074804ba134934eb6c175a8f4d
       NUXT_PUBLIC_OAUTH_REDIRECT_URI: https://sticker.kungal.com/auth/callback
+      # Server-side only: the signature is computed in a Nitro route, so this
+      # never reaches a browser bundle.
+      NUXT_OG_SITE_KEY: ${NUXT_OG_SITE_KEY:-}
     expose:
       - '3000'
     depends_on:
