@@ -21,12 +21,12 @@ const workName = (work: CatalogWork) =>
   resolveMultilingual(work.name, locale.value) || t('catalog.untitledWork')
 
 const options = computed(() =>
-  results.value.map((work) => ({
-    value: String(work.id),
-    label: work.release_date
-      ? `${workName(work)} · ${work.release_date.slice(0, 4)}`
-      : workName(work)
-  }))
+  results.value.map((work) => {
+    const parts = [workName(work)]
+    if (work.release_date) parts.push(work.release_date.slice(0, 4))
+    if (work.content_rating === 'r18') parts.push('R18')
+    return { value: String(work.id), label: parts.join(' · ') }
+  })
 )
 
 let seq = 0
@@ -82,9 +82,14 @@ const clear = () => {
       >
       <div class="min-w-0 flex-1">
         <p class="truncate text-sm font-medium">{{ workName(model) }}</p>
-        <p v-if="model.release_date" class="text-default-500 text-xs">
-          {{ model.release_date }}
-        </p>
+        <div class="flex items-center gap-2">
+          <p v-if="model.release_date" class="text-default-500 text-xs">
+            {{ model.release_date }}
+          </p>
+          <KunChip v-if="model.content_rating === 'r18'" size="sm" color="danger" variant="flat">
+            R18
+          </KunChip>
+        </div>
       </div>
       <KunButton size="sm" variant="light" color="danger" @click="clear">
         {{ t('catalog.unlink') }}

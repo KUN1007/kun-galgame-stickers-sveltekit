@@ -133,3 +133,31 @@ func TestCatalogNameLeavesLatinTitlesAlone(t *testing.T) {
 		t.Errorf("ja-jp = %q, want the value kept", got["ja-jp"])
 	}
 }
+
+// catalog rates images safe | suggestive | explicit but leaves nearly every row
+// unassessed, so the gate must drop exactly the explicit ones and keep the rest
+// -- requiring "safe" would blank almost every portrait on the site.
+func TestImageURLDropsOnlyExplicit(t *testing.T) {
+	safe, suggestive, explicit := "safe", "suggestive", "explicit"
+	cases := []struct {
+		name   string
+		sexual *string
+		want   string
+	}{
+		{"unassessed", nil, "https://cdn/x.webp"},
+		{"safe", &safe, "https://cdn/x.webp"},
+		{"suggestive", &suggestive, "https://cdn/x.webp"},
+		{"explicit", &explicit, ""},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := imageURL(&catalogclient.Image{URL: "https://cdn/x.webp", Sexual: tc.sexual})
+			if got != tc.want {
+				t.Errorf("imageURL = %q, want %q", got, tc.want)
+			}
+		})
+	}
+	if got := imageURL(nil); got != "" {
+		t.Errorf("imageURL(nil) = %q", got)
+	}
+}

@@ -14,70 +14,10 @@ import (
 	"gorm.io/datatypes"
 )
 
-// catalogLocales maps catalog's BCP-47 tags onto the key space this database
-// has always used. Anything outside the map is dropped rather than stored
-// under a key no page knows how to render.
-var catalogLocales = map[string]string{
-	"zh-Hans": "zh-cn",
-	"zh-Hant": "zh-tw",
-	"zh":      "zh-cn",
-	"ja":      "ja-jp",
-	"en":      "en-us",
-}
-
-// catalogName folds a catalog entity's display name and localized variants
-// into one multilingual value. display_name is the canonical name (usually
-// Japanese) and is kept under "und" so a locale with no translation still
-// renders something instead of an empty card.
+// catalogName wraps the shared fold into this package's DTO type. The mapping
+// itself lives in catalogclient because the backfill command needs the same one.
 func catalogName(displayName string, localized map[string]catalogclient.LocalizedText, latin *string) dto.MultilingualText {
-	out := dto.MultilingualText{}
-	displayName = strings.TrimSpace(displayName)
-	if displayName != "" {
-		out["und"] = displayName
-	}
-	for tag, text := range localized {
-		key, ok := catalogLocales[tag]
-		if !ok {
-			continue
-		}
-		value := strings.TrimSpace(text.Value)
-		if value == "" {
-			continue
-		}
-		// Character aliases file their romanization under lang=ja, so catalog
-		// answers 久島鴎 with localized["ja"] = "Kushima Kamome". Rendering that
-		// to a Japanese reader is worse than the canonical name they already
-		// have, so a Latin-script value never takes the Japanese slot -- it
-		// becomes the Latin form instead, which is what it is.
-		if key == "ja-jp" && !hasJapaneseScript(value) && hasJapaneseScript(displayName) {
-			if out["en-us"] == "" {
-				out["en-us"] = value
-			}
-			continue
-		}
-		out[key] = value
-	}
-	if latin != nil {
-		if value := strings.TrimSpace(*latin); value != "" && out["en-us"] == "" {
-			out["en-us"] = value
-		}
-	}
-	return out
-}
-
-// hasJapaneseScript reports whether a string contains kana or CJK ideographs.
-// It is deliberately coarse: it only has to tell a romanization apart from a
-// name written in the language it claims.
-func hasJapaneseScript(value string) bool {
-	for _, r := range value {
-		switch {
-		case r >= 0x3040 && r <= 0x30FF, // hiragana + katakana
-			r >= 0x4E00 && r <= 0x9FFF, // CJK unified ideographs
-			r >= 0x3400 && r <= 0x4DBF: // CJK extension A
-			return true
-		}
-	}
-	return false
+	return catalogclient.LocalizedName(displayName, localized, latin)
 }
 
 func encodeML(in dto.MultilingualText) datatypes.JSON {
@@ -88,8 +28,16 @@ func encodeML(in dto.MultilingualText) datatypes.JSON {
 	return datatypes.JSON(raw)
 }
 
+// imageURL is the single gate on catalog imagery. catalog rates an image
+// safe | suggestive | explicit, but leaves nearly every row unassessed, so
+// this can only drop what is actually marked explicit -- it is a backstop, not
+// a guarantee. The reliable signal is the work's content_rating, which travels
+// to the UI as a badge instead.
 func imageURL(img *catalogclient.Image) string {
 	if img == nil {
+		return ""
+	}
+	if img.Sexual != nil && *img.Sexual == "explicit" {
 		return ""
 	}
 	return img.URL
@@ -188,11 +136,12 @@ func (s *Service) SearchWorks(ctx context.Context, q string) ([]dto.CatalogWork,
 			continue
 		}
 		out = append(out, dto.CatalogWork{
-			ID:          *id,
-			Name:        catalogName(work.DisplayName, work.Localized, work.Latin),
-			CoverURL:    imageURL(work.Cover),
-			ReleaseDate: work.ReleaseDate,
-			Medium:      work.Medium,
+			ID:            *id,
+			Name:          catalogName(work.DisplayName, work.Localized, work.Latin),
+			CoverURL:      imageURL(work.Cover),
+			ReleaseDate:   work.ReleaseDate,
+			Medium:        work.Medium,
+			ContentRating: work.ContentRating,
 		})
 	}
 	return out, nil
@@ -379,11 +328,12 @@ func (s *Service) appearanceDTOs(ctx context.Context, in []catalogclient.Appeara
 			work = full
 		}
 		out = append(out, dto.CatalogWork{
-			ID:          *id,
-			Name:        catalogName(work.DisplayName, work.Localized, work.Latin),
-			CoverURL:    imageURL(work.Cover),
-			ReleaseDate: work.ReleaseDate,
-			Medium:      work.Medium,
+			ID:            *id,
+			Name:          catalogName(work.DisplayName, work.Localized, work.Latin),
+			CoverURL:      imageURL(work.Cover),
+			ReleaseDate:   work.ReleaseDate,
+			Medium:        work.Medium,
+			ContentRating: work.ContentRating,
 		})
 	}
 	return out

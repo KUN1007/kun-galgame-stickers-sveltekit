@@ -134,6 +134,9 @@ type Image struct {
 	Width     int    `json:"width"`
 	Height    int    `json:"height"`
 	Thumbhash string `json:"thumbhash"`
+	// Sexual is safe | suggestive | explicit, or empty when catalog has not
+	// assessed the image -- which, on live data, is nearly all of them.
+	Sexual *string `json:"sexual"`
 }
 
 type Work struct {
@@ -186,6 +189,12 @@ const searchLimit = 12
 // SearchWorks backs the editor's game picker. Only galgame-shaped media are
 // useful here, but catalog has no medium filter on the search lane, so the
 // caller sees whatever the index ranks highest.
+//
+// Every lane below asks for nsfw=true. Most galgame are r18, so without it the
+// picker cannot see the majority of the catalog and a legitimately linked r18
+// work 404s on the way back. What reaches a reader is decided here, not
+// upstream: an explicit image is dropped and the work's content_rating rides
+// along so the UI can badge it.
 func (c *Client) SearchWorks(ctx context.Context, q string, limit int) ([]Work, error) {
 	if limit <= 0 || limit > 50 {
 		limit = searchLimit
@@ -197,6 +206,7 @@ func (c *Client) SearchWorks(ctx context.Context, q string, limit int) ([]Work, 
 	// without it every hit comes back with only its canonical display name and
 	// a Chinese reader picks games off a list of Japanese titles.
 	v.Set("include", "titles")
+	v.Set("nsfw", "true")
 	var page List[Work]
 	if err := c.get(ctx, "/v2/catalog/works?"+v.Encode(), &page); err != nil {
 		return nil, err
@@ -206,7 +216,7 @@ func (c *Client) SearchWorks(ctx context.Context, q string, limit int) ([]Work, 
 
 func (c *Client) Work(ctx context.Context, id int64) (*Work, error) {
 	var out Work
-	if err := c.get(ctx, "/v2/catalog/works/"+strconv.FormatInt(id, 10)+"?include=titles", &out); err != nil {
+	if err := c.get(ctx, "/v2/catalog/works/"+strconv.FormatInt(id, 10)+"?include=titles&nsfw=true", &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -223,6 +233,7 @@ func (c *Client) WorkCharacters(ctx context.Context, id int64) ([]Character, err
 	for page := 0; page < maxPages; page++ {
 		v := url.Values{}
 		v.Set("limit", strconv.Itoa(perPage))
+		v.Set("nsfw", "true")
 		if cursor != "" {
 			v.Set("cursor", cursor)
 		}
@@ -243,6 +254,7 @@ func (c *Client) CharacterDetail(ctx context.Context, id int64) (*Character, err
 	v := url.Values{}
 	v.Set("view", "full")
 	v.Set("include", "image,traits,aliases")
+	v.Set("nsfw", "true")
 	var out Character
 	if err := c.get(ctx, "/v2/catalog/characters/"+strconv.FormatInt(id, 10)+"?"+v.Encode(), &out); err != nil {
 		return nil, err
@@ -264,6 +276,7 @@ func (c *Client) WorksByIDs(ctx context.Context, ids []string) (map[string]Work,
 	v := url.Values{}
 	v.Set("ids", strings.Join(ids, ","))
 	v.Set("include", "titles")
+	v.Set("nsfw", "true")
 	var page List[Work]
 	if err := c.get(ctx, "/v2/catalog/works?"+v.Encode(), &page); err != nil {
 		return nil, err
@@ -280,6 +293,7 @@ func (c *Client) CharacterAppearances(ctx context.Context, id int64, limit int) 
 	}
 	v := url.Values{}
 	v.Set("limit", strconv.Itoa(limit))
+	v.Set("nsfw", "true")
 	var page List[Appearance]
 	if err := c.get(ctx, "/v2/catalog/characters/"+strconv.FormatInt(id, 10)+"/appearances?"+v.Encode(), &page); err != nil {
 		return nil, err

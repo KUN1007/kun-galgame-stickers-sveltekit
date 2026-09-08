@@ -23,6 +23,9 @@ type CatalogWork struct {
 	CoverURL    string           `json:"cover_url"`
 	ReleaseDate *string          `json:"release_date,omitempty"`
 	Medium      string           `json:"medium,omitempty"`
+	// ContentRating is catalog's all_ages | sensitive | r18. Unlike the images'
+	// sexual field it is populated, so it is what the UI badges.
+	ContentRating string `json:"content_rating,omitempty"`
 }
 
 type CatalogCharacter struct {

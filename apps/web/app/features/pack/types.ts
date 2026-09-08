@@ -24,6 +24,8 @@ export interface CatalogWork {
   cover_url: string
   release_date?: string
   medium?: string
+  /** catalog's all_ages | sensitive | r18. */
+  content_rating?: string
 }
 
 export interface CatalogCharacter {

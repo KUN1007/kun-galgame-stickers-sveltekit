@@ -28,9 +28,14 @@ const name = computed(
     >
     <div class="min-w-0">
       <p :class="cn('truncate font-medium', compact ? 'text-xs' : 'text-sm')">{{ name }}</p>
-      <p v-if="work.release_date" class="text-default-500 text-xs">
-        {{ work.release_date }}
-      </p>
+      <div class="flex items-center gap-2">
+        <p v-if="work.release_date" class="text-default-500 text-xs">
+          {{ work.release_date }}
+        </p>
+        <KunChip v-if="work.content_rating === 'r18'" size="sm" color="danger" variant="flat">
+          R18
+        </KunChip>
+      </div>
     </div>
   </NuxtLink>
 </template>
