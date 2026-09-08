@@ -3,9 +3,10 @@
   "private": true,
   "packageManager": "pnpm@11.17.0",
   "scripts": {
-    "dev": "pnpm -F \"./apps/**\" --parallel --stream run dev",
-    "dev:web": "pnpm -F web run dev",
-    "dev:api": "pnpm -F @apps/api run dev",
+    "dev": "node scripts/dev-preflight.mjs && pnpm -F \"./apps/**\" --parallel --stream run dev",
+    "dev:web": "node scripts/dev-preflight.mjs web && pnpm -F web run dev",
+    "dev:api": "node scripts/dev-preflight.mjs api && pnpm -F @apps/api run dev",
+    "dev:ports": "node scripts/dev-preflight.mjs",
     "build": "pnpm run build:api && pnpm run build:web",
     "build:web": "pnpm -F web run build",
     "build:api": "pnpm -F @apps/api run build",
