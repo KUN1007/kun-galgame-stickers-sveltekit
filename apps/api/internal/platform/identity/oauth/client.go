@@ -25,9 +25,11 @@ type User struct {
 	Sub     string   `json:"sub"`
 	ID      int      `json:"id"`
 	Name    string   `json:"name"`
-	Email   string   `json:"email"`
 	Picture string   `json:"picture"`
 	Roles   []string `json:"roles"`
+	// SiteRoles are granted on sticker.kungal.com only; the OP returns them
+	// separately from the global roles.
+	SiteRoles []string `json:"site_roles"`
 }
 
 type Error struct {

@@ -3,25 +3,55 @@ package model
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 const (
 	PackDraft     int16 = 0
 	PackPublished int16 = 1
 	PackHidden    int16 = 2
+	PackRemoved   int16 = 3
+)
+
+const (
+	RatingSFW  int16 = 0
+	RatingNSFW int16 = 1
 )
 
 type Pack struct {
-	ID          int            `gorm:"primaryKey"`
-	OwnerUID    int            `gorm:"column:owner_uid"`
-	Status      int16          `gorm:"column:status"`
-	Title       datatypes.JSON `gorm:"column:title;type:jsonb"`
-	Description datatypes.JSON `gorm:"column:description;type:jsonb"`
-	PreviewPid  int            `gorm:"column:preview_pid"`
-	Created     time.Time      `gorm:"column:created"`
-	Updated     time.Time      `gorm:"column:updated"`
-	PublishedAt *time.Time     `gorm:"column:published_at"`
+	ID             uuid.UUID      `gorm:"column:id;primaryKey;default:uuidv7()"`
+	OwnerUID       int            `gorm:"column:owner_uid"`
+	Status         int16          `gorm:"column:status"`
+	IsOfficial     bool           `gorm:"column:is_official"`
+	ContentRating  int16          `gorm:"column:content_rating"`
+	Title          datatypes.JSON `gorm:"column:title;type:jsonb"`
+	Description    datatypes.JSON `gorm:"column:description;type:jsonb"`
+	CoverStickerID *uuid.UUID     `gorm:"column:cover_sticker_id"`
+	StickerCount   int            `gorm:"column:sticker_count"`
+	ViewCount      int64          `gorm:"column:view_count"`
+	DownloadCount  int64          `gorm:"column:download_count"`
+	SearchText     string         `gorm:"column:search_text"`
+	CreatedAt      time.Time      `gorm:"column:created_at"`
+	UpdatedAt      time.Time      `gorm:"column:updated_at"`
+	PublishedAt    *time.Time     `gorm:"column:published_at"`
 }
 
-func (Pack) TableName() string { return "sticker_pack" }
+func (Pack) TableName() string { return "pack" }
+
+// The jsonb columns are NOT NULL DEFAULT '{}', but GORM writes an explicit NULL
+// for a nil datatypes.JSON instead of omitting the column, so a caller that
+// leaves one unset gets a constraint violation rather than the default.
+func (p *Pack) BeforeSave(*gorm.DB) error {
+	p.Title = orEmptyJSON(p.Title)
+	p.Description = orEmptyJSON(p.Description)
+	return nil
+}
+
+func orEmptyJSON(in datatypes.JSON) datatypes.JSON {
+	if len(in) == 0 {
+		return datatypes.JSON("{}")
+	}
+	return in
+}

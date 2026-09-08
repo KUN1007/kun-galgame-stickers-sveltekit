@@ -4,7 +4,9 @@ import (
 	"context"
 	stderrors "errors"
 	"log/slog"
+	"strconv"
 	"strings"
+	"time"
 
 	"kun-galgame-sticker-api/internal/infrastructure/database"
 	"kun-galgame-sticker-api/internal/middleware"
@@ -18,15 +20,23 @@ import (
 	"kun-galgame-sticker-api/pkg/errors"
 	"kun-galgame-sticker-api/pkg/imageclient"
 	"kun-galgame-sticker-api/pkg/response"
+	"kun-galgame-sticker-api/pkg/userclient"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/etag"
+	"github.com/gofiber/fiber/v3/middleware/limiter"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 )
 
 type App struct {
 	Fiber *fiber.App
+	stop  context.CancelFunc
 }
+
+// Close stops the background reference ping. Without it the goroutine outlived
+// the process shutdown and kept a database handle open.
+func (a *App) Close() { a.stop() }
 
 func New(cfg *config.Config) *App {
 	db := database.NewPostgres(cfg.Database, cfg.Server.Mode)
@@ -45,9 +55,23 @@ func New(cfg *config.Config) *App {
 		})
 	}
 
-	stickerSvc := stickerservice.New(stickerrepo.New(db), imgCli)
-	stickerSvc.StartRefPing(context.Background())
-	stickerH := stickerhandler.New(stickerSvc)
+	users := userclient.New(userclient.Config{
+		BaseURL:      cfg.OAuth.ServerURL,
+		ClientID:     cfg.OAuth.ClientID,
+		ClientSecret: cfg.OAuth.ClientSecret,
+		ImageCDNBase: cfg.Image.CDNBase,
+	})
+
+	stickerSvc := stickerservice.New(
+		stickerrepo.NewPackRepo(db),
+		stickerrepo.NewStickerRepo(db),
+		stickerrepo.NewTagRepo(db),
+		imgCli,
+		users,
+	)
+	ctx, stop := context.WithCancel(context.Background())
+	stickerSvc.StartRefPing(ctx)
+	h := stickerhandler.New(stickerSvc)
 
 	fiberApp := fiber.New(fiber.Config{
 		AppName:        "kun-galgame-sticker-api",
@@ -68,29 +92,87 @@ func New(cfg *config.Config) *App {
 		return c.JSON(fiber.Map{"ok": true})
 	})
 
+	// Auth middleware is attached per route, never with Group(prefix, mw).
+	// fiber.Group registers its handlers as methodUse on the prefix, so they
+	// run for every route under it regardless of which Router registered them:
+	// an OptionalAuth group followed by a RequireAuth group made every write
+	// resolve the session twice, and on an expired access token that meant two
+	// refreshes -- the second one presenting a token the OP had already
+	// rotated, which logged the user out mid-write.
+	optionalAuth := middleware.OptionalAuth(authSvc, cfg.Server.Secure)
+	requireAuth := middleware.RequireAuth(authSvc, cfg.Server.Secure)
+	readLimit := publicLimiter()
+	writeLimit := userLimiter(120)
+	uploadLimit := userLimiter(60)
+	cacheable := publicCache(60)
+
 	api := fiberApp.Group("/api/v1")
-	api.Get("/sticker/packs", stickerH.ListPacks)
 
-	api.Post("/auth/oauth/callback", authHandler.Callback)
+	// Fully public, viewer-independent, and therefore cacheable.
+	api.Get("/packs", readLimit, cacheable, etag.New(), h.ListPacks)
+	api.Get("/tags", readLimit, cacheable, etag.New(), h.ListTags)
+
+	// Public, but an author also sees their own drafts here.
+	api.Get("/packs/:packId", readLimit, optionalAuth, h.GetPack)
+	api.Get("/packs/:packId/download", readLimit, optionalAuth, h.DownloadPack)
+	api.Get("/stickers/:stickerId", readLimit, optionalAuth, h.GetSticker)
+	api.Get("/stickers/:stickerId/download", readLimit, optionalAuth, h.DownloadSticker)
+	api.Get("/users/:uid/packs", readLimit, optionalAuth, h.ListUserPacks)
+
+	api.Post("/auth/oauth/callback", writeLimit, authHandler.Callback)
 	api.Post("/auth/logout", authHandler.Logout)
+	api.Get("/auth/me", optionalAuth, authHandler.Me)
 
-	opt := api.Group("", middleware.OptionalAuth(authSvc, cfg.Server.Secure))
-	opt.Get("/auth/me", authHandler.Me)
-	opt.Get("/sticker/packs/:sid", stickerH.GetPack)
-	opt.Get("/sticker/packs/:sid/:pid", stickerH.GetOne)
+	api.Get("/me/packs", requireAuth, h.ListMyPacks)
+	api.Post("/me/packs", requireAuth, writeLimit, h.CreatePack)
+	api.Patch("/me/packs/:packId", requireAuth, writeLimit, h.PatchPack)
+	api.Delete("/me/packs/:packId", requireAuth, writeLimit, h.DeletePack)
+	api.Post("/me/packs/:packId/publish", requireAuth, writeLimit, h.Publish)
+	api.Post("/me/packs/:packId/unpublish", requireAuth, writeLimit, h.Unpublish)
+	api.Post("/me/packs/:packId/images", requireAuth, uploadLimit, h.UploadImage)
+	api.Post("/me/packs/:packId/stickers", requireAuth, writeLimit, h.AddSticker)
+	api.Patch("/me/packs/:packId/stickers/:stickerId", requireAuth, writeLimit, h.PatchSticker)
+	api.Delete("/me/packs/:packId/stickers/:stickerId", requireAuth, writeLimit, h.DeleteSticker)
+	api.Put("/me/packs/:packId/stickers/order", requireAuth, writeLimit, h.ReorderStickers)
 
-	req := api.Group("", middleware.RequireAuth(authSvc, cfg.Server.Secure))
-	req.Get("/sticker/me/packs", stickerH.ListMine)
-	req.Post("/sticker/packs", stickerH.CreatePack)
-	req.Patch("/sticker/packs/:sid", stickerH.PatchPack)
-	req.Post("/sticker/packs/:sid/publish", stickerH.Publish)
-	req.Post("/sticker/packs/:sid/unpublish", stickerH.Unpublish)
-	req.Post("/sticker/packs/:sid/images", stickerH.UploadImage)
-	req.Post("/sticker/packs/:sid/stickers", stickerH.AddSticker)
-	req.Patch("/sticker/packs/:sid/stickers/:pid", stickerH.PatchSticker)
-	req.Delete("/sticker/packs/:sid/stickers/:pid", stickerH.DeleteSticker)
+	return &App{Fiber: fiberApp, stop: stop}
+}
 
-	return &App{Fiber: fiberApp}
+func publicLimiter() fiber.Handler {
+	return limiter.New(limiter.Config{
+		Max:          300,
+		Expiration:   time.Minute,
+		LimitReached: tooManyRequests,
+	})
+}
+
+// userLimiter counts per signed-in user, falling back to the client address for
+// anonymous callers -- a whole office behind one NAT would otherwise share a
+// single write budget.
+func userLimiter(perMinute int) fiber.Handler {
+	return limiter.New(limiter.Config{
+		Max:        perMinute,
+		Expiration: time.Minute,
+		KeyGenerator: func(c fiber.Ctx) string {
+			if user := middleware.CurrentUser(c); user != nil {
+				return "u" + strconv.Itoa(user.ID)
+			}
+			return c.IP()
+		},
+		LimitReached: tooManyRequests,
+	})
+}
+
+func tooManyRequests(c fiber.Ctx) error {
+	return response.Error(c, errors.New(errors.CodeBiz, "too many requests", 429))
+}
+
+func publicCache(seconds int) fiber.Handler {
+	value := "public, max-age=" + strconv.Itoa(seconds)
+	return func(c fiber.Ctx) error {
+		c.Set(fiber.HeaderCacheControl, value)
+		return c.Next()
+	}
 }
 
 func errorHandler(c fiber.Ctx, err error) error {
@@ -100,10 +182,7 @@ func errorHandler(c fiber.Ctx, err error) error {
 	}
 	var fe *fiber.Error
 	if stderrors.As(err, &fe) {
-		return c.Status(fe.Code).JSON(fiber.Map{
-			"code":    errors.CodeBiz,
-			"message": fe.Message,
-		})
+		return response.Error(c, errors.New(errors.CodeBiz, fe.Message, fe.Code))
 	}
 	slog.Error("unhandled", "error", err)
 	return response.Error(c, errors.ErrInternal("internal error"))

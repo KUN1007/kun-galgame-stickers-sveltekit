@@ -4,6 +4,7 @@ import (
 	"kun-galgame-sticker-api/internal/platform/identity/dto"
 	"kun-galgame-sticker-api/internal/platform/identity/oauth"
 	"kun-galgame-sticker-api/pkg/errors"
+	"kun-galgame-sticker-api/pkg/perm"
 )
 
 type AuthService struct {
@@ -56,7 +57,7 @@ func (s *AuthService) Revoke(refreshToken string) {
 }
 
 func toDTO(u *oauth.User) *dto.User {
-	roles := u.Roles
+	roles := perm.Union(u.Roles, u.SiteRoles)
 	if roles == nil {
 		roles = []string{}
 	}
@@ -64,7 +65,6 @@ func toDTO(u *oauth.User) *dto.User {
 		Sub:     u.Sub,
 		ID:      u.ID,
 		Name:    u.Name,
-		Email:   u.Email,
 		Picture: u.Picture,
 		Roles:   roles,
 	}

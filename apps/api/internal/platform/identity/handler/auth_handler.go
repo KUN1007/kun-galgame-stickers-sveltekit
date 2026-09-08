@@ -38,7 +38,7 @@ func (h *AuthHandler) Logout(c fiber.Ctx) error {
 	refresh := c.Cookies(middleware.CookieRefresh)
 	h.svc.Revoke(refresh)
 	middleware.ClearSession(c, h.secure)
-	return response.OKMessage(c, "已登出")
+	return response.OK(c, nil)
 }
 
 func (h *AuthHandler) Me(c fiber.Ctx) error {

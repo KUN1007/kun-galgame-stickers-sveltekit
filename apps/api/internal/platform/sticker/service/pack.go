@@ -1,0 +1,337 @@
+package service
+
+import (
+	"context"
+	stderrors "errors"
+	"time"
+
+	"kun-galgame-sticker-api/internal/platform/sticker/dto"
+	"kun-galgame-sticker-api/internal/platform/sticker/model"
+	"kun-galgame-sticker-api/internal/platform/sticker/repository"
+	"kun-galgame-sticker-api/pkg/errors"
+	"kun-galgame-sticker-api/pkg/perm"
+	"kun-galgame-sticker-api/pkg/userclient"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
+func (s *Service) List(ctx context.Context, q dto.ListQuery, v Viewer) (*dto.PackListPage, *errors.AppError) {
+	statuses := []int16{model.PackPublished}
+	if q.OwnerUID > 0 && (q.OwnerUID == v.UID || perm.Can(v.Roles, perm.PackViewHidden)) {
+		statuses = []int16{model.PackDraft, model.PackPublished, model.PackHidden}
+	}
+
+	rows, total, err := s.packs.List(repository.ListParams{
+		OwnerUID:     q.OwnerUID,
+		Statuses:     statuses,
+		OfficialOnly: q.OfficialOnly,
+		SFWOnly:      q.Rating == dto.RatingFilterSFW,
+		Search:       q.Search,
+		TagSlug:      q.Tag,
+		Order:        orderFor(q.Sort),
+		Offset:       (q.Page - 1) * q.Limit,
+		Limit:        q.Limit,
+	})
+	if err != nil {
+		return nil, errors.ErrInternal("failed to list packs")
+	}
+
+	packs, appErr := s.hydrate(ctx, rows)
+	if appErr != nil {
+		return nil, appErr
+	}
+	return &dto.PackListPage{Packs: packs, Total: total}, nil
+}
+
+// Every order ends with id: uuidv7 is monotonic, so it is a stable tiebreaker.
+// Without one, the seven official packs share a published_at and paging through
+// ties can repeat or skip rows.
+func orderFor(sort string) string {
+	switch sort {
+	case dto.SortHot:
+		return "download_count DESC, view_count DESC, published_at DESC NULLS LAST, id DESC"
+	case dto.SortUpdated:
+		return "updated_at DESC, id DESC"
+	default:
+		return "published_at DESC NULLS LAST, created_at DESC, id DESC"
+	}
+}
+
+// hydrate turns a page of rows into DTOs with four batch lookups, whatever the
+// page size. The previous implementation ran one count over the whole table
+// plus one cover query per pack.
+func (s *Service) hydrate(ctx context.Context, rows []model.Pack) ([]dto.Pack, *errors.AppError) {
+	out := make([]dto.Pack, 0, len(rows))
+	if len(rows) == 0 {
+		return out, nil
+	}
+
+	packIDs := make([]uuid.UUID, 0, len(rows))
+	coverIDs := make([]uuid.UUID, 0, len(rows))
+	ownerIDs := make([]int, 0, len(rows))
+	for _, row := range rows {
+		packIDs = append(packIDs, row.ID)
+		ownerIDs = append(ownerIDs, row.OwnerUID)
+		if row.CoverStickerID != nil {
+			coverIDs = append(coverIDs, *row.CoverStickerID)
+		}
+	}
+
+	covers, err := s.stickers.ByIDs(coverIDs)
+	if err != nil {
+		return nil, errors.ErrInternal("failed to load covers")
+	}
+	tags, err := s.tags.ForPacks(packIDs)
+	if err != nil {
+		return nil, errors.ErrInternal("failed to load tags")
+	}
+	authors := s.users.Users(ctx, ownerIDs)
+
+	for _, row := range rows {
+		var cover *model.Sticker
+		if row.CoverStickerID != nil {
+			if found, ok := covers[*row.CoverStickerID]; ok {
+				cover = &found
+			}
+		}
+		author, ok := authors[row.OwnerUID]
+		if !ok {
+			author = userclient.Placeholder(row.OwnerUID)
+		}
+		out = append(out, s.packDTO(row, cover, tags[row.ID], author))
+	}
+	return out, nil
+}
+
+func (s *Service) Get(ctx context.Context, id uuid.UUID, v Viewer) (*dto.PackDetail, *errors.AppError) {
+	pack, appErr := s.visiblePack(id, v)
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	rows, err := s.stickers.ListByPack(pack.ID)
+	if err != nil {
+		return nil, errors.ErrInternal("failed to load stickers")
+	}
+	packs, appErr := s.hydrate(ctx, []model.Pack{*pack})
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	stickers := make([]dto.Sticker, 0, len(rows))
+	for _, row := range rows {
+		stickers = append(stickers, s.stickerDTO(row))
+	}
+
+	if pack.Status == model.PackPublished {
+		_ = s.packs.BumpView(pack.ID)
+	}
+	return &dto.PackDetail{Pack: packs[0], Stickers: stickers}, nil
+}
+
+func (s *Service) visiblePack(id uuid.UUID, v Viewer) (*model.Pack, *errors.AppError) {
+	pack, err := s.packs.Get(id)
+	if err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.ErrPackNotFound()
+		}
+		return nil, errors.ErrInternal("failed to load pack")
+	}
+	if pack.Status == model.PackPublished {
+		return pack, nil
+	}
+	if pack.Status == model.PackRemoved || !v.canSeeUnpublished(pack) {
+		// 404 rather than 403: a stranger should not learn that a draft exists.
+		return nil, errors.ErrPackNotFound()
+	}
+	return pack, nil
+}
+
+func (s *Service) editablePack(id uuid.UUID, v Viewer) (*model.Pack, *errors.AppError) {
+	pack, err := s.packs.Get(id)
+	if err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.ErrPackNotFound()
+		}
+		return nil, errors.ErrInternal("failed to load pack")
+	}
+	if !v.canEdit(pack) {
+		if v.canSeeUnpublished(pack) || pack.Status == model.PackPublished {
+			return nil, errors.ErrNotOwner()
+		}
+		return nil, errors.ErrPackNotFound()
+	}
+	return pack, nil
+}
+
+func (s *Service) CreatePack(ctx context.Context, v Viewer, req dto.CreatePackRequest) (*dto.Pack, *errors.AppError) {
+	count, err := s.packs.CountByOwner(v.UID)
+	if err != nil {
+		return nil, errors.ErrInternal("failed to count packs")
+	}
+	if count >= MaxPacksPerUser {
+		return nil, errors.ErrPackLimit(MaxPacksPerUser)
+	}
+
+	title := sanitizeML(req.Title)
+	if !hasText(title) {
+		return nil, errors.ErrInvalidParams("a title in at least one language is required")
+	}
+	description := sanitizeML(req.Description)
+
+	pack := &model.Pack{
+		OwnerUID:      v.UID,
+		Status:        model.PackDraft,
+		ContentRating: rating(req.ContentRating),
+		Title:         title,
+		Description:   description,
+		SearchText:    searchText(title, description),
+	}
+	if err := s.packs.Create(pack); err != nil {
+		return nil, errors.ErrInternal("failed to create pack")
+	}
+	if appErr := s.applyTags(pack.ID, req.Tags); appErr != nil {
+		return nil, appErr
+	}
+	return s.single(ctx, pack)
+}
+
+func (s *Service) PatchPack(ctx context.Context, id uuid.UUID, v Viewer, req dto.PatchPackRequest) (*dto.Pack, *errors.AppError) {
+	pack, appErr := s.editablePack(id, v)
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	if req.Title != nil {
+		title := sanitizeML(*req.Title)
+		if !hasText(title) {
+			return nil, errors.ErrInvalidParams("a title in at least one language is required")
+		}
+		pack.Title = title
+	}
+	if req.Description != nil {
+		pack.Description = sanitizeML(*req.Description)
+	}
+	if req.ContentRating != nil {
+		pack.ContentRating = rating(req.ContentRating)
+	}
+	if req.CoverStickerID != nil {
+		coverID, ok := parseUUID(*req.CoverStickerID)
+		if !ok {
+			return nil, errors.ErrInvalidParams("cover_sticker_id is not a uuid")
+		}
+		cover, err := s.stickers.Get(coverID)
+		if err != nil || cover.PackID != pack.ID {
+			return nil, errors.ErrInvalidParams("cover sticker does not belong to this pack")
+		}
+		pack.CoverStickerID = &coverID
+	}
+	pack.SearchText = searchText(pack.Title, pack.Description)
+
+	if err := s.packs.Save(pack); err != nil {
+		return nil, errors.ErrInternal("failed to save pack")
+	}
+	if req.Tags != nil {
+		if appErr := s.applyTags(pack.ID, *req.Tags); appErr != nil {
+			return nil, appErr
+		}
+	}
+	return s.single(ctx, pack)
+}
+
+func (s *Service) SetPublished(ctx context.Context, id uuid.UUID, v Viewer, publish bool) (*dto.Pack, *errors.AppError) {
+	pack, appErr := s.editablePack(id, v)
+	if appErr != nil {
+		return nil, appErr
+	}
+
+	if publish {
+		if pack.StickerCount < 1 {
+			return nil, errors.ErrPackNeedsSticker()
+		}
+		pack.Status = model.PackPublished
+		if pack.PublishedAt == nil {
+			now := time.Now()
+			pack.PublishedAt = &now
+		}
+	} else {
+		pack.Status = model.PackHidden
+	}
+
+	if err := s.packs.Save(pack); err != nil {
+		return nil, errors.ErrInternal("failed to save pack")
+	}
+	// pack_count only counts published packs, so the tag cloud moves with this.
+	_ = s.tags.RecountForPack(pack.ID)
+	return s.single(ctx, pack)
+}
+
+func (s *Service) DeletePack(id uuid.UUID, v Viewer) *errors.AppError {
+	pack, err := s.packs.Get(id)
+	if err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.ErrPackNotFound()
+		}
+		return errors.ErrInternal("failed to load pack")
+	}
+	if !(pack.OwnerUID == v.UID || perm.Can(v.Roles, perm.PackDeleteAny)) {
+		return errors.ErrNotOwner()
+	}
+
+	var tagIDs []uuid.UUID
+	if err := s.packs.DB().Table("pack_tag").Where("pack_id = ?", id).
+		Pluck("tag_id", &tagIDs).Error; err != nil {
+		return errors.ErrInternal("failed to load tags")
+	}
+	// Stickers and pack_tag rows go with the pack (ON DELETE CASCADE). The
+	// image bytes are deliberately left alone: the image service deduplicates
+	// across every site in the ecosystem, so a hash this pack used may still
+	// back someone else's image. Dropping it from the daily reference ping is
+	// what releases it, on the image service's own TTL.
+	if err := s.packs.Delete(id); err != nil {
+		return errors.ErrInternal("failed to delete pack")
+	}
+	_ = s.tags.Recount(tagIDs)
+	return nil
+}
+
+func (s *Service) PopularTags(limit int) ([]dto.Tag, *errors.AppError) {
+	rows, err := s.tags.Popular(limit)
+	if err != nil {
+		return nil, errors.ErrInternal("failed to load tags")
+	}
+	return tagDTOs(rows), nil
+}
+
+func (s *Service) applyTags(packID uuid.UUID, labels []string) *errors.AppError {
+	if labels == nil {
+		return nil
+	}
+	if len(labels) > MaxTagsPerPack {
+		return errors.ErrTagLimit(MaxTagsPerPack)
+	}
+	if err := s.tags.SetPackTags(packID, labels); err != nil {
+		return errors.ErrInternal("failed to save tags")
+	}
+	return nil
+}
+
+func (s *Service) single(ctx context.Context, pack *model.Pack) (*dto.Pack, *errors.AppError) {
+	fresh, err := s.packs.Get(pack.ID)
+	if err != nil {
+		return nil, errors.ErrInternal("failed to reload pack")
+	}
+	packs, appErr := s.hydrate(ctx, []model.Pack{*fresh})
+	if appErr != nil {
+		return nil, appErr
+	}
+	return &packs[0], nil
+}
+
+func rating(in *int16) int16 {
+	if in != nil && *in == model.RatingNSFW {
+		return model.RatingNSFW
+	}
+	return model.RatingSFW
+}

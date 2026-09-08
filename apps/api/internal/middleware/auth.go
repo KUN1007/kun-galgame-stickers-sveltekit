@@ -72,7 +72,12 @@ func resolveUser(c fiber.Ctx, auth *service.AuthService, secure bool) *dto.User 
 		if claims != nil && claims.Exp > now+accessSafetyWindow {
 			if cached := c.Cookies(CookieUser); cached != "" {
 				var user dto.User
-				if json.Unmarshal([]byte(cached), &user) == nil {
+				// The subject comparison is what makes this cookie safe to
+				// trust: it is httpOnly but neither signed nor encrypted, so
+				// without it anyone able to set cookies could hand us any uid
+				// they liked and we would act as that user.
+				if json.Unmarshal([]byte(cached), &user) == nil &&
+					user.Sub != "" && user.Sub == claims.Sub {
 					return &user
 				}
 			}

@@ -2,28 +2,50 @@ package dto
 
 type MultilingualText map[string]string
 
+type Author struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+}
+
+type Tag struct {
+	ID        string           `json:"id"`
+	Slug      string           `json:"slug"`
+	Name      MultilingualText `json:"name"`
+	PackCount int              `json:"pack_count"`
+}
+
 type Sticker struct {
-	Sid       int              `json:"sid"`
-	Pid       int              `json:"pid"`
-	Game      MultilingualText `json:"game"`
-	Loli      MultilingualText `json:"loli"`
-	Vndb      int              `json:"vndb"`
-	Describe  string           `json:"describe"`
-	ImageHash string           `json:"image_hash,omitempty"`
-	ImageURL  string           `json:"image_url"`
-	ThumbURL  string           `json:"thumb_url"`
+	ID            string           `json:"id"`
+	PackID        string           `json:"pack_id"`
+	Position      int              `json:"position"`
+	Width         int              `json:"width"`
+	Height        int              `json:"height"`
+	Game          MultilingualText `json:"game"`
+	CharacterName MultilingualText `json:"character_name"`
+	VndbID        *int             `json:"vndb_id,omitempty"`
+	Note          string           `json:"note"`
+	ImageURL      string           `json:"image_url"`
+	ThumbURL      string           `json:"thumb_url"`
 }
 
 type Pack struct {
-	Sid         int              `json:"sid"`
-	OwnerUID    int              `json:"owner_uid"`
-	Status      int16            `json:"status"`
-	Title       MultilingualText `json:"title"`
-	Description MultilingualText `json:"description"`
-	PreviewPid  int              `json:"preview_pid"`
-	PreviewURL  string           `json:"preview_url"`
-	Count       int              `json:"count"`
-	PublishedAt *string          `json:"published_at,omitempty"`
+	ID            string           `json:"id"`
+	Status        int16            `json:"status"`
+	IsOfficial    bool             `json:"is_official"`
+	ContentRating int16            `json:"content_rating"`
+	Title         MultilingualText `json:"title"`
+	Description   MultilingualText `json:"description"`
+	CoverURL      string           `json:"cover_url"`
+	CoverThumbURL string           `json:"cover_thumb_url"`
+	StickerCount  int              `json:"sticker_count"`
+	ViewCount     int64            `json:"view_count"`
+	DownloadCount int64            `json:"download_count"`
+	Author        Author           `json:"author"`
+	Tags          []Tag            `json:"tags"`
+	CreatedAt     string           `json:"created_at"`
+	UpdatedAt     string           `json:"updated_at"`
+	PublishedAt   *string          `json:"published_at,omitempty"`
 }
 
 type PackDetail struct {
@@ -31,37 +53,15 @@ type PackDetail struct {
 	Stickers []Sticker `json:"stickers"`
 }
 
-type CreatePackRequest struct {
-	Title       MultilingualText `json:"title"`
-	Description MultilingualText `json:"description"`
-}
-
-type PatchPackRequest struct {
-	Title       MultilingualText `json:"title"`
-	Description MultilingualText `json:"description"`
-	PreviewPid  *int             `json:"preview_pid"`
-}
-
-type CreateStickerRequest struct {
-	ImageHash string           `json:"image_hash"`
-	Game      MultilingualText `json:"game"`
-	Loli      MultilingualText `json:"loli"`
-	Vndb      int              `json:"vndb"`
-	Describe  string           `json:"describe"`
-}
-
-type PatchStickerRequest struct {
-	ImageHash *string          `json:"image_hash"`
-	Game      MultilingualText `json:"game"`
-	Loli      MultilingualText `json:"loli"`
-	Vndb      *int             `json:"vndb"`
-	Describe  *string          `json:"describe"`
+type PackListPage struct {
+	Packs []Pack `json:"packs"`
+	Total int64  `json:"total"`
 }
 
 type UploadResult struct {
-	Hash        string            `json:"hash"`
-	URL         string            `json:"url"`
-	VariantURLs map[string]string `json:"variant_urls"`
-	Width       int               `json:"width"`
-	Height      int               `json:"height"`
+	Hash     string `json:"hash"`
+	ImageURL string `json:"image_url"`
+	ThumbURL string `json:"thumb_url"`
+	Width    int    `json:"width"`
+	Height   int    `json:"height"`
 }
