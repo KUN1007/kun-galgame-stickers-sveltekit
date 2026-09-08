@@ -45,6 +45,12 @@ const (
 	// from "the image service is down" (the upload cannot proceed at all).
 	CodeCatalogUnavailable = 90014
 	CodeCharacterNotFound  = 90015
+	// Comments live in the infra community service, so their failures are
+	// their own: "the discussion service is down" is not "the pack is gone".
+	CodeCommunityUnavailable = 90016
+	CodeCommentNotFound      = 90017
+	CodeCommentRateLimited   = 90018
+	CodeCommentHeld          = 90019
 )
 
 func ErrUnauthorized(msg string) *AppError { return New(CodeAuth, msg, 401) }
@@ -94,6 +100,24 @@ func ErrCatalogUnavailable() *AppError {
 
 func ErrCharacterNotFound() *AppError {
 	return New(CodeCharacterNotFound, "character not found", 404)
+}
+
+func ErrCommunityUnavailable() *AppError {
+	return New(CodeCommunityUnavailable, "comments are unavailable", 503)
+}
+
+func ErrCommentNotFound() *AppError {
+	return New(CodeCommentNotFound, "comment not found", 404)
+}
+
+func ErrCommentRateLimited() *AppError {
+	return New(CodeCommentRateLimited, "you are commenting too quickly", 429)
+}
+
+// ErrCommentHeld is not an error in the usual sense: the post was accepted and
+// is waiting for review, and saying so is better than showing nothing.
+func ErrCommentHeld() *AppError {
+	return New(CodeCommentHeld, "your comment is awaiting review", 202)
 }
 
 func ErrTagLimit(max int) *AppError {

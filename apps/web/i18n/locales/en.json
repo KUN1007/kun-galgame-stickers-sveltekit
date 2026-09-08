@@ -253,5 +253,19 @@
     "noResults": "No matches",
     "hint": "↑↓ to select · ↵ to open",
     "seeAll": "See all results"
+  },
+  "comment": {
+    "title": "Comments",
+    "placeholder": "Say something… (Markdown supported)",
+    "markdownHint": "Markdown supported",
+    "send": "Post",
+    "sending": "Posting…",
+    "empty": "No comments yet — be the first",
+    "signInPrompt": "Sign in to join the conversation",
+    "edited": "edited",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteTitle": "Delete this comment?",
+    "deletePrompt": "This cannot be undone."
   }
 }

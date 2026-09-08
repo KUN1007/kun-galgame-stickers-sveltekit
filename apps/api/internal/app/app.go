@@ -17,6 +17,7 @@ import (
 	stickerrepo "kun-galgame-sticker-api/internal/platform/sticker/repository"
 	stickerservice "kun-galgame-sticker-api/internal/platform/sticker/service"
 	"kun-galgame-sticker-api/pkg/catalogclient"
+	"kun-galgame-sticker-api/pkg/communityclient"
 	"kun-galgame-sticker-api/pkg/config"
 	"kun-galgame-sticker-api/pkg/errors"
 	"kun-galgame-sticker-api/pkg/imageclient"
@@ -73,6 +74,17 @@ func New(cfg *config.Config) *App {
 		slog.Warn("catalog not configured: game and character linking is disabled")
 	}
 
+	// Comments live in the infra community service. Unconfigured means a pack
+	// page simply has no comment section.
+	community := communityclient.New(communityclient.Config{
+		BaseURL:      cfg.Community.BaseURL,
+		ClientID:     cfg.OAuth.ClientID,
+		ClientSecret: cfg.OAuth.ClientSecret,
+	})
+	if !community.Configured() {
+		slog.Warn("community not configured: pack comments are disabled")
+	}
+
 	stickerSvc := stickerservice.New(
 		stickerrepo.NewPackRepo(db),
 		stickerrepo.NewStickerRepo(db),
@@ -80,6 +92,7 @@ func New(cfg *config.Config) *App {
 		imgCli,
 		users,
 		catalog,
+		community,
 	)
 	ctx, stop := context.WithCancel(context.Background())
 	stickerSvc.StartRefPing(ctx)
@@ -132,6 +145,13 @@ func New(cfg *config.Config) *App {
 	api.Get("/users/:uid/packs", readLimit, optionalAuth, h.ListUserPacks)
 	api.Get("/characters/:characterId", readLimit, optionalAuth, h.GetCharacter)
 	api.Get("/search", readLimit, h.Search)
+
+	// Comments hang off the pack, because that is how they are addressed
+	// upstream -- there is no thread id stored here to route by.
+	api.Get("/packs/:packId/comments", readLimit, optionalAuth, h.ListComments)
+	api.Post("/packs/:packId/comments", requireAuth, writeLimit, h.AddComment)
+	api.Patch("/comments/:commentId", requireAuth, writeLimit, h.PatchComment)
+	api.Delete("/comments/:commentId", requireAuth, writeLimit, h.DeleteComment)
 
 	// The catalog pickers sit behind auth: the application key must never
 	// reach a browser, and only an author composing a pack needs them. They

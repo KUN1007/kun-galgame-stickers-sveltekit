@@ -137,3 +137,35 @@ type UploadResult struct {
 	Width    int    `json:"width"`
 	Height   int    `json:"height"`
 }
+
+// Comment is one post in a pack's comment thread. The body arrives already
+// cooked and sanitized by community; this site renders content_html and never
+// re-processes it.
+type Comment struct {
+	ID          int64  `json:"id"`
+	PostNumber  int    `json:"post_number"`
+	ContentHTML string `json:"content_html"`
+	ContentRaw  string `json:"content_raw"`
+	CreatedAt   string `json:"created_at"`
+	EditedAt    string `json:"edited_at,omitempty"`
+	Author      Author `json:"author"`
+	// Told to the client so the UI does not offer an action the API will
+	// refuse; the API checks again regardless.
+	CanEdit   bool `json:"can_edit"`
+	CanDelete bool `json:"can_delete"`
+}
+
+type CommentPage struct {
+	ThreadID   int64     `json:"thread_id"`
+	Comments   []Comment `json:"comments"`
+	Total      int       `json:"total"`
+	NextCursor string    `json:"next_cursor,omitempty"`
+	// Enabled is false when the community service is not configured, which is
+	// how a pack page knows to leave the section out rather than show an error.
+	Enabled bool `json:"enabled"`
+}
+
+type CommentRequest struct {
+	Body    string `json:"body"`
+	ReplyTo int64  `json:"reply_to"`
+}

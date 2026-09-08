@@ -8,12 +8,21 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	OAuth    OAuthConfig
-	CORS     CORSConfig
-	Image    ImageConfig
-	Catalog  CatalogConfig
+	Server    ServerConfig
+	Database  DatabaseConfig
+	OAuth     OAuthConfig
+	CORS      CORSConfig
+	Image     ImageConfig
+	Catalog   CatalogConfig
+	Community CommunityConfig
+}
+
+// CommunityConfig points at the nextmoe-infra community service. It
+// authenticates with the same OAuth client credentials as the image service;
+// the tenant is derived upstream from that client's site binding, never sent.
+// Empty BaseURL disables comments and every pack page renders without them.
+type CommunityConfig struct {
+	BaseURL string
 }
 
 // CatalogConfig points at the nextmoe-infra catalog read face. APIKey is an
@@ -81,6 +90,9 @@ func Load() (*Config, error) {
 		Catalog: CatalogConfig{
 			BaseURL: strings.TrimRight(os.Getenv("KUN_CATALOG_BASE_URL"), "/"),
 			APIKey:  strings.TrimSpace(os.Getenv("KUN_CATALOG_API_KEY")),
+		},
+		Community: CommunityConfig{
+			BaseURL: strings.TrimRight(os.Getenv("KUN_COMMUNITY_BASE_URL"), "/"),
 		},
 		Image: ImageConfig{
 			BaseURL: strings.TrimRight(os.Getenv("KUN_IMAGE_CLIENT_BASE_URL"), "/"),

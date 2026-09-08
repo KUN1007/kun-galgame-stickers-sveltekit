@@ -10,6 +10,7 @@ import (
 	"kun-galgame-sticker-api/internal/platform/sticker/model"
 	"kun-galgame-sticker-api/internal/platform/sticker/repository"
 	"kun-galgame-sticker-api/pkg/catalogclient"
+	"kun-galgame-sticker-api/pkg/communityclient"
 	"kun-galgame-sticker-api/pkg/imageclient"
 	"kun-galgame-sticker-api/pkg/perm"
 	"kun-galgame-sticker-api/pkg/userclient"
@@ -70,13 +71,14 @@ func (v Viewer) canEdit(p *model.Pack) bool {
 }
 
 type Service struct {
-	packs    *repository.PackRepo
-	stickers *repository.StickerRepo
-	tags     *repository.TagRepo
-	images   *imageclient.Client
-	users    *userclient.Client
-	catalog  *catalogclient.Client
-	http     *http.Client
+	packs     *repository.PackRepo
+	stickers  *repository.StickerRepo
+	tags      *repository.TagRepo
+	images    *imageclient.Client
+	users     *userclient.Client
+	catalog   *catalogclient.Client
+	community *communityclient.Client
+	http      *http.Client
 }
 
 func New(
@@ -86,15 +88,17 @@ func New(
 	images *imageclient.Client,
 	users *userclient.Client,
 	catalog *catalogclient.Client,
+	community *communityclient.Client,
 ) *Service {
 	return &Service{
-		packs:    packs,
-		stickers: stickers,
-		tags:     tags,
-		images:   images,
-		users:    users,
-		catalog:  catalog,
-		http:     &http.Client{Timeout: downloadTimeout},
+		packs:     packs,
+		stickers:  stickers,
+		tags:      tags,
+		images:    images,
+		users:     users,
+		catalog:   catalog,
+		community: community,
+		http:      &http.Client{Timeout: downloadTimeout},
 	}
 }
 

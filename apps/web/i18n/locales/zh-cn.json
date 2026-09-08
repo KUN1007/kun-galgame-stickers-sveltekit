@@ -253,5 +253,19 @@
     "noResults": "没有找到匹配的结果",
     "hint": "↑↓ 选择 · ↵ 打开",
     "seeAll": "查看全部结果"
+  },
+  "comment": {
+    "title": "评论",
+    "placeholder": "说点什么…（支持 Markdown）",
+    "markdownHint": "支持 Markdown",
+    "send": "发表",
+    "sending": "发表中…",
+    "empty": "还没有评论，来说第一句吧",
+    "signInPrompt": "登录后即可参与评论",
+    "edited": "已编辑",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteTitle": "删除这条评论？",
+    "deletePrompt": "删除后无法恢复。"
   }
 }

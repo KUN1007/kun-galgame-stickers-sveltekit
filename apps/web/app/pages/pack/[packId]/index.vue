@@ -166,5 +166,7 @@ useKunSeo(() => ({
     </section>
 
     <StickerGrid :stickers="pack.stickers" :pack-id="pack.id" />
+
+    <CommentSection :pack-id="pack.id" />
   </article>
 </template>

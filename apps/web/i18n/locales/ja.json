@@ -253,5 +253,19 @@
     "noResults": "一致するものがありません",
     "hint": "↑↓ で選択 · ↵ で開く",
     "seeAll": "すべての結果を見る"
+  },
+  "comment": {
+    "title": "コメント",
+    "placeholder": "コメントを書く…（Markdown 可）",
+    "markdownHint": "Markdown 対応",
+    "send": "投稿",
+    "sending": "投稿中…",
+    "empty": "まだコメントがありません",
+    "signInPrompt": "ログインするとコメントできます",
+    "edited": "編集済み",
+    "edit": "編集",
+    "delete": "削除",
+    "deleteTitle": "このコメントを削除しますか？",
+    "deletePrompt": "元に戻せません。"
   }
 }
