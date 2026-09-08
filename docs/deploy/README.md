@@ -70,7 +70,7 @@ push 到 svelte-kit ─► GitHub Actions 构建三镜像 ─► 推 ghcr.io/kun
 
 ### 镜像体积
 
-`sticker-web` 目前偏大，因为表情图还在 `apps/web/public/`（列表 webp + telegram PNG 原图），会被打进 Nitro 产物。迁到 infra image service 之后镜像会明显变小。功能不受影响，只是构建 / 拉取慢一些。
+表情图已经全部迁到 infra image service，`apps/web/public/` 里那 340MB（列表 webp + telegram PNG 原图）已删除，`sticker-web` 镜像随之瘦身。所有图片按 hash 从 CDN 取，站点自身不再托管任何表情图。
 
 ---
 
@@ -109,6 +109,8 @@ compose 里已经固定的值（不要在面板里改掉语义）：
 生产 compose **每次 `up` 都会跑** `sticker-migrate`，成功后才起 `sticker-api`。SQL 在 `apps/api/migrations/`，工具是 golang-migrate（不是 Prisma）。
 
 `000001_baseline` 用 `CREATE TABLE IF NOT EXISTS`：现网 `kungalgame_sticker.sticker` 不会被重建，第一次跑只是把版本记进 `schema_migrations`。
+
+`000003_platform_rebuild` 是一次域重建：uuidv7 主键、pack / sticker / tag 三张新表，旧数据原样搬迁，旧表改名为 `pack_legacy` / `sticker_legacy` 保留（down 可完整回滚）。确认新结构稳定后再单独发一条 migration 删除它们。
 
 手工（一般不需要）：
 
@@ -163,8 +165,9 @@ client 已注册（`c5cd7b074804ba134934eb6c175a8f4d`），`redirect_uris` 已�
 curl -I https://sticker.kungal.com/                      # 200，有效证书
 curl -I https://sticker.kungal.com/en                    # 200
 curl -I https://sticker.kungal.com/ja/about              # 200
-curl -s https://sticker.kungal.com/api/v1/sticker/packs  # code === 0，7 套
-curl -I https://sticker.kungal.com/sticker/7             # 200
+curl -s https://sticker.kungal.com/api/v1/packs          # code === 0，data.packs / data.total
+curl -s https://sticker.kungal.com/api/v1/tags           # code === 0，标签云
+curl -I https://sticker.kungal.com/pack/<pack uuid>      # 200
 curl -I https://sticker.kungal.com/sitemap.xml           # 307 → /sitemap_index.xml（按语言拆成 zh-CN / en-US / ja-JP）
 curl -I https://sticker.kungal.com/sitemap_index.xml     # 200（运行时生成，含 hreflang）
 curl -I https://sticker.kungal.com/robots.txt            # 200，Sitemap 指向 sitemap_index.xml
@@ -203,7 +206,7 @@ docker build -f docker/nuxt.Dockerfile -t sticker-web:local .
 - **日志 / 重部署 / 回滚**：用 Dokploy 面板；预构建镜像模式下回滚 = 三个 GHCR tag 一起切回。
 - **Schema 变更**：加 `apps/api/migrations/` 里的 SQL，随 `sticker-migrate` 镜像发布。上线后 compose `up` 会自动 apply。记得在任务结束时明确说生产库要不要 sync。
 - **证书 / 反代**：Traefik 托管，勿叠加 Caddy/nginx/CF Tunnel。
-- **图片体积**：见 §2；迁 infra image service 后从 `apps/web/public/stickers/` 和 telegram 原图瘦身，是后续独立事项。
+- **图片体积**：见 §2，已完成。新上传统一走 image service（preset `sticker`），API 每天做一次 reference-ping 保活；漏掉保活的图片 60 天转冷、365 天软删。
 
 ---
 
