@@ -52,8 +52,6 @@ useKunSeo(() => ({
       <p class="text-default-500 text-sm">{{ t('discovery.subtitle') }}</p>
     </header>
 
-    <AppSearchInput class-name="sm:hidden" />
-
     <DiscoveryFilters
       :scope="scope"
       :tag="tag"

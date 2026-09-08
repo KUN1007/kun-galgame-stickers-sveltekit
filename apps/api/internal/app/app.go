@@ -131,6 +131,7 @@ func New(cfg *config.Config) *App {
 	api.Get("/stickers/:stickerId/download", readLimit, optionalAuth, h.DownloadSticker)
 	api.Get("/users/:uid/packs", readLimit, optionalAuth, h.ListUserPacks)
 	api.Get("/characters/:characterId", readLimit, optionalAuth, h.GetCharacter)
+	api.Get("/search", readLimit, h.Search)
 
 	// The catalog pickers sit behind auth: the application key must never
 	// reach a browser, and only an author composing a pack needs them. They

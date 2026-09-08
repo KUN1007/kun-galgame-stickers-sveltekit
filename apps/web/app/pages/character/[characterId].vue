@@ -80,9 +80,9 @@ useKunSeo(() => ({
         v-if="page.character.image_url"
         :src="page.character.image_url"
         :alt="name"
-        width="160"
-        height="160"
-        class="border-default-200 size-32 shrink-0 border object-cover sm:size-40"
+        width="200"
+        height="240"
+        class="border-default-200 bg-default-50 aspect-[5/6] h-40 shrink-0 border object-contain sm:h-48"
       >
 
       <div class="flex min-w-0 flex-1 flex-col gap-3">

@@ -243,5 +243,15 @@
   },
   "tag": {
     "seo": "带有 #{tag} 标签的 Galgame 表情包"
+  },
+  "search": {
+    "placeholder": "搜索表情包、人物…",
+    "label": "搜索",
+    "characters": "人物",
+    "packs": "表情包",
+    "empty": "输入关键字搜索表情包与人物",
+    "noResults": "没有找到匹配的结果",
+    "hint": "↑↓ 选择 · ↵ 打开",
+    "seeAll": "查看全部结果"
   }
 }

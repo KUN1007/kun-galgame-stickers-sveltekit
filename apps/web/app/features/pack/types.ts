@@ -38,6 +38,9 @@ export interface CatalogCharacter {
   blood_type?: string
   traits?: CatalogTrait[]
   aliases?: string[]
+  /** Set on search hits: where the character is from and what leads there. */
+  work_name?: MultilingualText
+  sticker_count?: number
 }
 
 export interface CatalogTrait {

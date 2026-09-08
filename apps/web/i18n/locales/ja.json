@@ -243,5 +243,15 @@
   },
   "tag": {
     "seo": "#{tag} タグの Galgame スタンプ"
+  },
+  "search": {
+    "placeholder": "スタンプ・キャラクターを検索…",
+    "label": "検索",
+    "characters": "キャラクター",
+    "packs": "スタンプ",
+    "empty": "キーワードを入力して検索",
+    "noResults": "一致するものがありません",
+    "hint": "↑↓ で選択 · ↵ で開く",
+    "seeAll": "すべての結果を見る"
   }
 }

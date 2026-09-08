@@ -243,5 +243,15 @@
   },
   "tag": {
     "seo": "Galgame sticker packs tagged #{tag}"
+  },
+  "search": {
+    "placeholder": "Search packs and characters…",
+    "label": "Search",
+    "characters": "Characters",
+    "packs": "Sticker packs",
+    "empty": "Type to search packs and characters",
+    "noResults": "No matches",
+    "hint": "↑↓ to select · ↵ to open",
+    "seeAll": "See all results"
   }
 }

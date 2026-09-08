@@ -85,9 +85,9 @@ const onLanguage = async (item: { key: string }) => {
         </KunLink>
       </nav>
 
-      <AppSearchInput class-name="hidden max-w-md flex-1 sm:block" />
+      <AppQuickSearch class-name="ml-auto" />
 
-      <div class="ml-auto flex items-center gap-1">
+      <div class="flex items-center gap-1">
         <KunDropdown :items="themeItems" @select="onTheme">
           <template #trigger>
             <span

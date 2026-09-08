@@ -38,6 +38,17 @@ type CatalogCharacter struct {
 	BloodType  *string          `json:"blood_type,omitempty"`
 	Traits     []CatalogTrait   `json:"traits,omitempty"`
 	Aliases    []string         `json:"aliases,omitempty"`
+	// Set on search hits: the game the character is from, and how many
+	// stickers of them this site has, so a palette row can say where it leads.
+	WorkName     MultilingualText `json:"work_name,omitempty"`
+	StickerCount int              `json:"sticker_count,omitempty"`
+}
+
+// SearchResults is the command palette's payload: two short lanes, each
+// already shaped the way its card renders.
+type SearchResults struct {
+	Packs      []Pack             `json:"packs"`
+	Characters []CatalogCharacter `json:"characters"`
 }
 
 type CatalogTrait struct {

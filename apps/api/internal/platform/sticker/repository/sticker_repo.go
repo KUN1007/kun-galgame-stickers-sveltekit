@@ -72,6 +72,40 @@ func (r *StickerRepo) DistinctWorkNames(packID uuid.UUID) ([]datatypes.JSON, err
 	return out, nil
 }
 
+// CharacterHit is one row of the character search: the identity plus the
+// pack a reader can reach it through.
+type CharacterHit struct {
+	CatalogCharacterID    int64
+	CatalogCharacterName  datatypes.JSON
+	CatalogCharacterImage string
+	CatalogWorkName       datatypes.JSON
+	StickerCount          int
+}
+
+// SearchCharacters looks through the characters this site actually has, not
+// catalog's two hundred thousand: a palette hit must lead somewhere, and a
+// character with no stickers here leads nowhere. Matching is on the whole
+// multilingual document, so 鸣濑 and Naruse both find her.
+func (r *StickerRepo) SearchCharacters(query string, limit int) ([]CharacterHit, error) {
+	var rows []CharacterHit
+	err := r.db.Model(&model.Sticker{}).
+		// Every column is qualified: pack carries catalog_work_name too, and
+		// the join makes the bare name ambiguous.
+		Select(`sticker.catalog_character_id,
+			min(sticker.catalog_character_name::text)::jsonb AS catalog_character_name,
+			min(sticker.catalog_character_image) AS catalog_character_image,
+			min(sticker.catalog_work_name::text)::jsonb AS catalog_work_name,
+			count(*) AS sticker_count`).
+		Joins("JOIN pack ON pack.id = sticker.pack_id AND pack.status = ?", model.PackPublished).
+		Where("sticker.catalog_character_id IS NOT NULL").
+		Where("sticker.catalog_character_name::text ILIKE ?", "%"+escapeLike(query)+"%").
+		Group("sticker.catalog_character_id").
+		Order("count(*) DESC, catalog_character_id ASC").
+		Limit(limit).
+		Scan(&rows).Error
+	return rows, err
+}
+
 func (r *StickerRepo) CountByPack(packID uuid.UUID) (int64, error) {
 	var n int64
 	err := r.db.Model(&model.Sticker{}).Where("pack_id = ?", packID).Count(&n).Error

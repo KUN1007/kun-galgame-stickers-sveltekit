@@ -34,6 +34,16 @@ func (h *Handler) CatalogWorkRoster(c fiber.Ctx) error {
 	return response.OK(c, fiber.Map{"characters": characters})
 }
 
+// Search is public and cacheable-per-query: it reads only published packs.
+func (h *Handler) Search(c fiber.Ctx) error {
+	query := truncate(strings.TrimSpace(c.Query("q")), maxSearchLen)
+	results, appErr := h.svc.QuickSearch(c.Context(), query, viewer(c))
+	if appErr != nil {
+		return response.Error(c, appErr)
+	}
+	return response.OK(c, results)
+}
+
 func (h *Handler) GetCharacter(c fiber.Ctx) error {
 	characterID := catalogID(c.Params("characterId"))
 	if characterID == 0 {

@@ -21,12 +21,12 @@ const name = computed(
       v-if="character.image_url"
       :src="character.image_url"
       :alt="name"
-      width="28"
+      width="24"
       height="28"
       loading="lazy"
-      class="size-7 shrink-0 object-cover"
+      class="aspect-[5/6] h-7 shrink-0 object-cover object-top"
     >
-    <span v-else class="bg-default-100 text-default-400 flex size-7 shrink-0 items-center justify-center">
+    <span v-else class="bg-default-100 text-default-400 flex aspect-[5/6] h-7 shrink-0 items-center justify-center">
       <KunIcon name="lucide:user" class="text-sm" />
     </span>
     <span class="truncate text-xs">{{ name }}</span>
