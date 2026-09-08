@@ -266,6 +266,19 @@
     "edit": "Edit",
     "delete": "Delete",
     "deleteTitle": "Delete this comment?",
-    "deletePrompt": "This cannot be undone."
+    "deletePrompt": "This cannot be undone.",
+    "like": "Like",
+    "reply": "Reply",
+    "replyingTo": "replying to {'@'}{name}",
+    "report": "Report",
+    "reported": "Reported — thank you",
+    "reportTitle": "Report this comment",
+    "reportPrompt": "Pick a reason; it goes to the moderation queue.",
+    "reportNote": "Anything to add (optional)",
+    "reason0": "Spam or advertising",
+    "reason1": "Abuse or harassment",
+    "reason2": "Off topic",
+    "reason4": "Unlabelled adult content",
+    "reason3": "Something else"
   }
 }

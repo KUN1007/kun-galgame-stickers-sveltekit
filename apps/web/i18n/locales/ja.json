@@ -266,6 +266,19 @@
     "edit": "編集",
     "delete": "削除",
     "deleteTitle": "このコメントを削除しますか？",
-    "deletePrompt": "元に戻せません。"
+    "deletePrompt": "元に戻せません。",
+    "like": "いいね",
+    "reply": "返信",
+    "replyingTo": "{'@'}{name} への返信",
+    "report": "通報",
+    "reported": "通報を受け付けました",
+    "reportTitle": "このコメントを通報",
+    "reportPrompt": "理由を選んでください。審査キューに送られます。",
+    "reportNote": "補足（任意）",
+    "reason0": "スパム・宣伝",
+    "reason1": "暴言・嫌がらせ",
+    "reason2": "話題と無関係",
+    "reason4": "アダルト内容の未表示",
+    "reason3": "その他"
   }
 }

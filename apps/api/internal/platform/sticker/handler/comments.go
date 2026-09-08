@@ -66,6 +66,33 @@ func (h *Handler) DeleteComment(c fiber.Ctx) error {
 	return response.OK(c, fiber.Map{"deleted": true})
 }
 
+func (h *Handler) ToggleCommentLike(c fiber.Ctx) error {
+	postID, appErr := commentIDParam(c)
+	if appErr != nil {
+		return response.Error(c, appErr)
+	}
+	result, appErr := h.svc.ToggleCommentLike(c.Context(), postID, viewer(c))
+	if appErr != nil {
+		return response.Error(c, appErr)
+	}
+	return response.OK(c, result)
+}
+
+func (h *Handler) FlagComment(c fiber.Ctx) error {
+	postID, appErr := commentIDParam(c)
+	if appErr != nil {
+		return response.Error(c, appErr)
+	}
+	req, appErr := parseBody[dto.CommentFlagRequest](c)
+	if appErr != nil {
+		return response.Error(c, appErr)
+	}
+	if appErr := h.svc.FlagComment(c.Context(), postID, viewer(c), req.Reason, req.Note); appErr != nil {
+		return response.Error(c, appErr)
+	}
+	return response.OK(c, fiber.Map{"reported": true})
+}
+
 // Comment ids are community's, not this site's: plain positive integers.
 func commentIDParam(c fiber.Ctx) (int64, *errors.AppError) {
 	id, err := strconv.ParseInt(strings.TrimSpace(c.Params("commentId")), 10, 64)

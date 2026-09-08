@@ -158,14 +158,18 @@ type Thread struct {
 }
 
 type Post struct {
-	ID                int64  `json:"id"`
-	ThreadID          int64  `json:"thread_id"`
-	PostNumber        int    `json:"post_number"`
-	AuthorID          int    `json:"author_id"`
-	ContentHTML       string `json:"content_html"`
-	ContentRaw        string `json:"content_raw"`
-	Status            int    `json:"status"`
+	ID          int64  `json:"id"`
+	ThreadID    int64  `json:"thread_id"`
+	PostNumber  int    `json:"post_number"`
+	AuthorID    int    `json:"author_id"`
+	ContentHTML string `json:"content_html"`
+	ContentRaw  string `json:"content_raw"`
+	Status      int    `json:"status"`
+	// The caller sends reply_to_post_id; community derives root_post_id, so a
+	// reply to a reply still groups under the comment that started it.
 	ReplyToPostID     int64  `json:"reply_to_post_id"`
+	RootPostID        int64  `json:"root_post_id"`
+	TargetUserID      int    `json:"target_user_id"`
 	CreatedAt         string `json:"created_at"`
 	EditedAt          string `json:"edited_at"`
 	EditedByModerator bool   `json:"edited_by_moderator"`
@@ -244,6 +248,50 @@ func (c *Client) Edit(ctx context.Context, postID int64, authorID int, body stri
 		return nil, err
 	}
 	return &env.Data.Post, nil
+}
+
+// Reaction kinds and flag reasons, from the service's closed vocabularies.
+const (
+	ReactionLike = 0
+)
+
+const (
+	FlagSpam         = 0
+	FlagAbuse        = 1
+	FlagOffTopic     = 2
+	FlagOther        = 3
+	FlagNSFWMislabel = 4
+)
+
+// ReactionResult is what a toggle answers with. It reports the new state and
+// the post's context, which the reaction flow has resolved anyway -- there are
+// no reaction counts anywhere in this API, so the count is the caller's to keep.
+type ReactionResult struct {
+	Added      bool   `json:"added"`
+	AuthorID   int    `json:"author_id"`
+	ThreadID   int64  `json:"thread_id"`
+	AnchorKind int    `json:"anchor_kind"`
+	AnchorID   string `json:"anchor_id"`
+}
+
+func (c *Client) ToggleReaction(ctx context.Context, postID int64, userID int, kind int) (*ReactionResult, error) {
+	var env envelope[ReactionResult]
+	payload := map[string]any{"user_id": userID, "kind": kind}
+	path := "/posts/" + strconv.FormatInt(postID, 10) + "/reaction"
+	if err := c.do(ctx, http.MethodPost, path, payload, &env); err != nil {
+		return nil, err
+	}
+	return &env.Data, nil
+}
+
+// Flag reports a post. community owns the review queue; nothing about the
+// report is stored on this site.
+func (c *Client) Flag(ctx context.Context, postID int64, flaggerID, reason int, note string) error {
+	payload := map[string]any{"flagger_id": flaggerID, "reason": reason}
+	if note != "" {
+		payload["note"] = note
+	}
+	return c.do(ctx, http.MethodPost, "/posts/"+strconv.FormatInt(postID, 10)+"/flag", payload, nil)
 }
 
 // Delete tombstones a post. author_id is a query param upstream: the request

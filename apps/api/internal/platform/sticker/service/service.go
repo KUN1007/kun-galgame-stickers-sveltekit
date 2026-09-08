@@ -74,6 +74,7 @@ type Service struct {
 	packs     *repository.PackRepo
 	stickers  *repository.StickerRepo
 	tags      *repository.TagRepo
+	likes     *repository.CommentLikeRepo
 	images    *imageclient.Client
 	users     *userclient.Client
 	catalog   *catalogclient.Client
@@ -85,6 +86,7 @@ func New(
 	packs *repository.PackRepo,
 	stickers *repository.StickerRepo,
 	tags *repository.TagRepo,
+	likes *repository.CommentLikeRepo,
 	images *imageclient.Client,
 	users *userclient.Client,
 	catalog *catalogclient.Client,
@@ -94,6 +96,7 @@ func New(
 		packs:     packs,
 		stickers:  stickers,
 		tags:      tags,
+		likes:     likes,
 		images:    images,
 		users:     users,
 		catalog:   catalog,

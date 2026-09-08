@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	stderrors "errors"
+	"log/slog"
 	"strings"
 
 	"kun-galgame-sticker-api/internal/platform/sticker/dto"
@@ -64,10 +65,25 @@ func (s *Service) commentPage(
 	v Viewer,
 ) *dto.CommentPage {
 	authorIDs := make([]int, 0, len(posts))
+	postIDs := make([]int64, 0, len(posts))
 	for _, post := range posts {
 		authorIDs = append(authorIDs, post.AuthorID)
+		postIDs = append(postIDs, post.ID)
 	}
 	authors := s.users.Users(ctx, authorIDs)
+	// community's post projection carries no reaction fields, so the counts
+	// come from this site's mirror -- two queries for the whole page.
+	likeCounts, _ := s.likes.Counts(postIDs)
+	liked, _ := s.likes.LikedSet(v.UID, postIDs)
+
+	// "in reply to X" needs the name of a post that may be on another page, so
+	// the ones on this page are indexed first and anything else stays unnamed.
+	nameByPost := make(map[int64]string, len(posts))
+	for _, post := range posts {
+		if author, ok := authors[post.AuthorID]; ok {
+			nameByPost[post.ID] = author.Name
+		}
+	}
 
 	out := &dto.CommentPage{
 		ThreadID:   thread.ID,
@@ -96,6 +112,11 @@ func (s *Service) commentPage(
 			Author:      dto.Author{ID: author.ID, Name: author.Name, Avatar: author.Avatar},
 			CanEdit:     v.UID > 0 && post.AuthorID == v.UID,
 			CanDelete:   v.UID > 0 && (post.AuthorID == v.UID || perm.Can(v.Roles, perm.PackDeleteAny)),
+			LikeCount:   likeCounts[post.ID],
+			IsLiked:     liked[post.ID],
+			ReplyTo:     post.ReplyToPostID,
+			RootID:      post.RootPostID,
+			ReplyToName: nameByPost[post.ReplyToPostID],
 		})
 	}
 	return out
@@ -195,4 +216,62 @@ func communityError(err error) *errors.AppError {
 	default:
 		return errors.ErrCommunityUnavailable()
 	}
+}
+
+// ToggleCommentLike flips a reaction. community decides the new state -- its
+// toggle is authoritative and feeds the trust engine -- and this site mirrors
+// the outcome so it has something to count. A mirror write that fails leaves
+// the count stale rather than the reaction lost, so it is logged, not raised.
+func (s *Service) ToggleCommentLike(ctx context.Context, postID int64, v Viewer) (*dto.CommentLikeResult, *errors.AppError) {
+	if !s.community.Configured() {
+		return nil, errors.ErrCommunityUnavailable()
+	}
+	result, err := s.community.ToggleReaction(ctx, postID, v.UID, communityclient.ReactionLike)
+	if err != nil {
+		return nil, communityError(err)
+	}
+
+	if result.Added {
+		if mirrorErr := s.likes.Ensure(postID, v.UID); mirrorErr != nil {
+			slog.Warn("comment like mirror insert failed", "post_id", postID, "user_id", v.UID, "error", mirrorErr)
+		}
+	} else if mirrorErr := s.likes.Remove(postID, v.UID); mirrorErr != nil {
+		slog.Warn("comment like mirror delete failed", "post_id", postID, "user_id", v.UID, "error", mirrorErr)
+	}
+
+	counts, err := s.likes.Counts([]int64{postID})
+	if err != nil {
+		return nil, errors.ErrInternal("failed to count likes")
+	}
+	return &dto.CommentLikeResult{Liked: result.Added, LikeCount: counts[postID]}, nil
+}
+
+// FlagComment hands a report to community's review queue. Nothing about it is
+// stored here: the queue, the decision and the audit trail are all upstream.
+func (s *Service) FlagComment(ctx context.Context, postID int64, v Viewer, reason int, note string) *errors.AppError {
+	if !s.community.Configured() {
+		return errors.ErrCommunityUnavailable()
+	}
+	if !validFlagReason(reason) {
+		return errors.ErrInvalidParams("unknown report reason")
+	}
+	note = strings.TrimSpace(note)
+	if len([]rune(note)) > MaxTextRunes {
+		note = string([]rune(note)[:MaxTextRunes])
+	}
+	if err := s.community.Flag(ctx, postID, v.UID, reason, note); err != nil {
+		return communityError(err)
+	}
+	return nil
+}
+
+// The reasons community accepts. Anything else is a client bug, and passing it
+// through would put an unclassifiable report in a moderator's queue.
+func validFlagReason(reason int) bool {
+	switch reason {
+	case communityclient.FlagSpam, communityclient.FlagAbuse, communityclient.FlagOffTopic,
+		communityclient.FlagOther, communityclient.FlagNSFWMislabel:
+		return true
+	}
+	return false
 }

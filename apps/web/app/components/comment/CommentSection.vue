@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import type { Comment } from '~/features/comment/api'
+import type { Comment, FlagReason } from '~/features/comment/api'
 
 const props = defineProps<{ packId: string }>()
 
 const { t } = useI18n()
-const localePath = useLocalePath()
 const route = useRoute()
 const user = useAuthUser()
 const mutate = useMutation()
@@ -18,7 +17,12 @@ const sending = ref(false)
 const editing = ref<Comment | null>(null)
 const editDraft = ref('')
 const removing = ref<Comment | null>(null)
+const replyingTo = ref<Comment | null>(null)
+const reporting = ref<Comment | null>(null)
+const reportReason = ref<FlagReason>(0)
+const reportNote = ref('')
 
+const nodes = computed(() => nestComments(data.value?.comments ?? []))
 const comments = computed(() => data.value?.comments ?? [])
 // A null payload means the request failed, not that there are no comments --
 // showing an input that will fail on submit is worse than showing nothing.
@@ -28,13 +32,42 @@ const submit = async () => {
   const body = draft.value.trim()
   if (!body || sending.value) return
   sending.value = true
-  const created = await mutate(() => addComment(props.packId, body))
+  const created = await mutate(() => addComment(props.packId, body, replyingTo.value?.id))
   sending.value = false
   if (created) {
     draft.value = ''
+    replyingTo.value = null
     await refresh()
   }
 }
+
+const startReply = (comment: Comment) => {
+  replyingTo.value = comment
+  editing.value = null
+  // The composer is one box at the top; jumping to it is how the reader knows
+  // where their reply is going.
+  if (import.meta.client) composer.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+const openReport = (comment: Comment) => {
+  reporting.value = comment
+  reportReason.value = 0
+  reportNote.value = ''
+}
+
+const submitReport = async () => {
+  const target = reporting.value
+  if (!target) return
+  const done = await mutate(() => reportComment(target.id, reportReason.value, reportNote.value))
+  reporting.value = null
+  if (done) useKunMessage(t('comment.reported'), 'success')
+}
+
+const composer = ref<HTMLElement | null>(null)
+
+const reasonOptions = computed(() =>
+  FLAG_REASONS.map((value) => ({ value, label: t(`comment.reason${value}`) }))
+)
 
 const startEdit = (comment: Comment) => {
   editing.value = comment
@@ -62,7 +95,6 @@ const confirmRemove = async () => {
 
 const signIn = () => startOAuthLogin(route.fullPath)
 
-const formatTime = (value: string) => new Date(value).toLocaleString()
 </script>
 
 <template>
@@ -72,7 +104,16 @@ const formatTime = (value: string) => new Date(value).toLocaleString()
       <span v-if="data?.total" class="text-default-500 text-sm font-normal">{{ data.total }}</span>
     </h2>
 
-    <div v-if="user" class="flex flex-col gap-2">
+    <div v-if="user" ref="composer" class="flex flex-col gap-2">
+      <div
+        v-if="replyingTo"
+        class="border-default-200 text-default-500 flex items-center justify-between gap-2 border px-3 py-1.5 text-xs"
+      >
+        <span>{{ t('comment.replyingTo', { name: replyingTo.author.name }) }}</span>
+        <KunButton size="sm" variant="light" @click="replyingTo = null">
+          {{ t('auth.cancel') }}
+        </KunButton>
+      </div>
       <KunTextarea
         v-model="draft"
         :rows="3"
@@ -93,81 +134,81 @@ const formatTime = (value: string) => new Date(value).toLocaleString()
 
     <p v-if="!comments.length" class="text-default-500 text-sm">{{ t('comment.empty') }}</p>
 
-    <ul v-else class="flex flex-col gap-4">
-      <li v-for="comment in comments" :key="comment.id" class="flex gap-3">
-        <NuxtLink :to="localePath(`/u/${comment.author.id}`)" class="shrink-0">
-          <img
-            v-if="comment.author.avatar"
-            :src="comment.author.avatar"
-            :alt="comment.author.name"
-            width="32"
-            height="32"
-            loading="lazy"
-            class="size-8 object-cover"
-          >
-          <span
-            v-else
-            class="bg-default-100 text-default-400 flex size-8 items-center justify-center"
-          >
-            <KunIcon name="lucide:user" class="text-sm" />
-          </span>
-        </NuxtLink>
-
-        <div class="min-w-0 flex-1">
-          <div class="text-default-500 flex flex-wrap items-center gap-2 text-xs">
-            <NuxtLink
-              :to="localePath(`/u/${comment.author.id}`)"
-              class="text-foreground font-medium"
-            >
-              {{ comment.author.name }}
-            </NuxtLink>
-            <time :datetime="comment.created_at">{{ formatTime(comment.created_at) }}</time>
-            <span v-if="comment.edited_at">{{ t('comment.edited') }}</span>
-          </div>
-
-          <div v-if="editing?.id === comment.id" class="mt-2 flex flex-col gap-2">
-            <KunTextarea v-model="editDraft" :rows="3" :maxlength="MAX_COMMENT_LENGTH" />
-            <div class="flex gap-2">
-              <KunButton size="sm" color="primary" @click="saveEdit">{{ t('editor.save') }}</KunButton>
-              <KunButton size="sm" variant="light" @click="editing = null">
-                {{ t('auth.cancel') }}
-              </KunButton>
-            </div>
-          </div>
-
-          <!-- content_html is cooked and sanitized upstream (goldmark + a
-               bluemonday UGC whitelist), which is the whole reason this site
-               does not re-render the markdown itself. -->
-          <div v-else class="prose-sm text-foreground mt-1 max-w-none text-sm break-words">
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <div v-html="comment.content_html" />
-          </div>
-
-          <div
-            v-if="(comment.can_edit || comment.can_delete) && editing?.id !== comment.id"
-            class="mt-1 flex gap-1"
-          >
-            <KunButton
-              v-if="comment.can_edit"
-              size="sm"
-              variant="light"
-              @click="startEdit(comment)"
-            >
-              {{ t('comment.edit') }}
-            </KunButton>
-            <KunButton
-              v-if="comment.can_delete"
-              size="sm"
-              variant="light"
-              color="danger"
-              @click="removing = comment"
-            >
-              {{ t('comment.delete') }}
+    <ul v-else class="flex flex-col gap-5">
+      <li v-for="node in nodes" :key="node.id" class="flex flex-col gap-3">
+        <div v-if="editing?.id === node.id" class="flex flex-col gap-2">
+          <KunTextarea v-model="editDraft" :rows="3" :maxlength="MAX_COMMENT_LENGTH" />
+          <div class="flex gap-2">
+            <KunButton size="sm" color="primary" @click="saveEdit">{{ t('editor.save') }}</KunButton>
+            <KunButton size="sm" variant="light" @click="editing = null">
+              {{ t('auth.cancel') }}
             </KunButton>
           </div>
         </div>
+        <CommentItem
+          v-else
+          :comment="node"
+          @reply="startReply"
+          @edit="startEdit"
+          @remove="removing = $event"
+          @report="openReport"
+        />
+
+        <div
+          v-if="node.replies.length"
+          class="border-default-200 ml-4 flex flex-col gap-3 border-l pl-3"
+        >
+          <template v-for="reply in node.replies" :key="reply.id">
+            <div v-if="editing?.id === reply.id" class="flex flex-col gap-2">
+              <KunTextarea v-model="editDraft" :rows="3" :maxlength="MAX_COMMENT_LENGTH" />
+              <div class="flex gap-2">
+                <KunButton size="sm" color="primary" @click="saveEdit">
+                  {{ t('editor.save') }}
+                </KunButton>
+                <KunButton size="sm" variant="light" @click="editing = null">
+                  {{ t('auth.cancel') }}
+                </KunButton>
+              </div>
+            </div>
+            <CommentItem
+              v-else
+              :comment="reply"
+              nested
+              @reply="startReply"
+              @edit="startEdit"
+              @remove="removing = $event"
+              @report="openReport"
+            />
+          </template>
+        </div>
       </li>
     </ul>
+
+    <KunModal
+      :model-value="!!reporting"
+      :title="t('comment.reportTitle')"
+      @update:model-value="reporting = null"
+    >
+      <div class="flex flex-col gap-3">
+        <p class="text-default-600 text-sm">{{ t('comment.reportPrompt') }}</p>
+        <KunRadioGroup
+          v-model="reportReason"
+          :options="reasonOptions"
+          orientation="vertical"
+          :aria-label="t('comment.reportTitle')"
+        />
+        <KunTextarea
+          v-model="reportNote"
+          :rows="2"
+          :maxlength="200"
+          :placeholder="t('comment.reportNote')"
+        />
+        <div class="flex justify-end gap-2">
+          <KunButton variant="light" @click="reporting = null">{{ t('auth.cancel') }}</KunButton>
+          <KunButton color="danger" @click="submitReport">{{ t('comment.report') }}</KunButton>
+        </div>
+      </div>
+    </KunModal>
 
     <KunModal :model-value="!!removing" :title="t('comment.deleteTitle')" @update:model-value="removing = null">
       <p class="text-default-600 mb-4 text-sm">{{ t('comment.deletePrompt') }}</p>

@@ -266,6 +266,19 @@
     "edit": "编辑",
     "delete": "删除",
     "deleteTitle": "删除这条评论？",
-    "deletePrompt": "删除后无法恢复。"
+    "deletePrompt": "删除后无法恢复。",
+    "like": "赞",
+    "reply": "回复",
+    "replyingTo": "回复 {'@'}{name}",
+    "report": "举报",
+    "reported": "已提交举报，感谢反馈",
+    "reportTitle": "举报这条评论",
+    "reportPrompt": "请选择举报理由，我们会转交审核。",
+    "reportNote": "补充说明（可选）",
+    "reason0": "垃圾信息 / 广告",
+    "reason1": "辱骂或人身攻击",
+    "reason2": "与话题无关",
+    "reason4": "成人内容未标注",
+    "reason3": "其他"
   }
 }

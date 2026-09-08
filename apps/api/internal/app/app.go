@@ -89,6 +89,7 @@ func New(cfg *config.Config) *App {
 		stickerrepo.NewPackRepo(db),
 		stickerrepo.NewStickerRepo(db),
 		stickerrepo.NewTagRepo(db),
+		stickerrepo.NewCommentLikeRepo(db),
 		imgCli,
 		users,
 		catalog,
@@ -152,6 +153,8 @@ func New(cfg *config.Config) *App {
 	api.Post("/packs/:packId/comments", requireAuth, writeLimit, h.AddComment)
 	api.Patch("/comments/:commentId", requireAuth, writeLimit, h.PatchComment)
 	api.Delete("/comments/:commentId", requireAuth, writeLimit, h.DeleteComment)
+	api.Post("/comments/:commentId/like", requireAuth, writeLimit, h.ToggleCommentLike)
+	api.Post("/comments/:commentId/report", requireAuth, writeLimit, h.FlagComment)
 
 	// The catalog pickers sit behind auth: the application key must never
 	// reach a browser, and only an author composing a pack needs them. They

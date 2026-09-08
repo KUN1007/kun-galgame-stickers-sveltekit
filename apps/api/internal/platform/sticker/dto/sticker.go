@@ -153,6 +153,13 @@ type Comment struct {
 	// refuse; the API checks again regardless.
 	CanEdit   bool `json:"can_edit"`
 	CanDelete bool `json:"can_delete"`
+	LikeCount int  `json:"like_count"`
+	IsLiked   bool `json:"is_liked"`
+	// ReplyTo is what the author answered; RootID is the top-level comment the
+	// exchange hangs under, which community derives rather than the caller.
+	ReplyTo     int64  `json:"reply_to,omitempty"`
+	RootID      int64  `json:"root_id,omitempty"`
+	ReplyToName string `json:"reply_to_name,omitempty"`
 }
 
 type CommentPage struct {
@@ -168,4 +175,14 @@ type CommentPage struct {
 type CommentRequest struct {
 	Body    string `json:"body"`
 	ReplyTo int64  `json:"reply_to"`
+}
+
+type CommentFlagRequest struct {
+	Reason int    `json:"reason"`
+	Note   string `json:"note"`
+}
+
+type CommentLikeResult struct {
+	Liked     bool `json:"liked"`
+	LikeCount int  `json:"like_count"`
 }
