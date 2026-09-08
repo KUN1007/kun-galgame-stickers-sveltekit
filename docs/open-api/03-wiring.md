@@ -98,8 +98,9 @@ ForwardAuth 对所有方法生效，浏览器的 `OPTIONS` 预检不带任何认
 - [x] 校验端点上线并验收 — infra 已做，本文 §1 实测
 - [x] 面实现 + OpenAPI 3 契约 — 本站已做
 - [x] 前缀裁决为 `/v2/sticker` — infra PR #167；本仓已全面收敛（§4.1）
-- [ ] **面板点 Deploy**（compose-only 改动不自动部署），Deploy 后确认面板生成的两个 `...-44-websecure` router 还在
-- [ ] 拿一把真 `nmk_live_` key 打 `/v2/sticker/packs`，按 §6 的三条判读确认是本站在应答
+- [x] **面板点 Deploy** — 2026-09-08 完成，两条 face router 已在 Traefik 生效（§7）
+- [x] 冒烟：无 key → 401，真 key → 403 `missing required scope: sticker:read`（§7）
+- [ ] **给某个 client / key 授予 `sticker:read`**，才能拿到 200 —— 全库 50 把 key 目前无一持有该 scope（§7）
 - [ ] moyu 仓照同一配方加标签（`moyu-api`、5214、`face=moyu`）
 - [ ] spec 注册进门户 docs-model + oasdiff 门 + operation-count 守卫（9 op）+ kungal-docs 登记
 - [ ] #167 合并后 oauth 再部署一次，`pathLabel` 记账才是新值（纯计量，端点行为不变）
@@ -121,3 +122,33 @@ infra-v2-pub@docker   priority 44   Host(`api.nextmoe.dev`) && PathPrefix(`/v2`)
    - 正常 JSON（`{"object":"list", …}`）→ 通了
 
 > ⚠️ Traefik router 这一步在生产上被漏过两次（`/v1/store`、`/v1/playtime`）。Deploy 后第一件事就是拿真 key 打一次，按上面三条判读。
+
+## 7. Deploy 后实测（2026-09-08）
+
+Traefik 侧（`dokploy-traefik` 的 `/api/http/routers`）：
+
+```
+enabled 100 sticker-face-pub@docker       Host(`api.nextmoe.dev`) && PathPrefix(`/v2/sticker`)  mw: sticker-face-forwardauth@docker
+enabled 100 sticker-face-pub-http@docker  同上                                                   mw: redirect-to-https@file
+enabled  48 kun-visual-novel-sticker-eaxaym-44-web{,secure}@docker   Host(`sticker.kungal.com`) && PathPrefix(`/api`)
+enabled  26 kun-visual-novel-sticker-eaxaym-12-web{,secure}@docker   Host(`sticker.kungal.com`)
+```
+
+面板生成的四条 router 一条没少，新加的两条优先级 100 稳压 `infra-v2-pub`（44）。
+
+请求侧：
+
+| 探测 | 结果 |
+|---|---|
+| `GET /v2/sticker/packs`（无 key） | `401 {"code":10001,…}` —— ForwardAuth 拦住，不再是 catch-all 的 404 |
+| `GET /v2/sticker/packs`（真 `nmk_live_` key，仅 `catalog:read`） | **`403 {"code":5,"message":"missing required scope: sticker:read"}`** |
+| 同一把 key 打 `/v2/catalog/works` | `200` —— key 本身健康，403 是 scope 判定不是 key 失效 |
+| `http://api.nextmoe.dev/v2/sticker/packs` | `301` → https |
+| 容器内 `sticker-api:9421/v2/sticker/packs` | `200 {"object":"list",…}` —— 镜像带着面 |
+| `sticker.kungal.com` 首页与 `/api/v1/*` | `200`，站内不受影响 |
+
+那句 403 是**整条链路打通的证据**：Traefik 命中了我们的 router → forwardAuth 打到 oauth → oauth 认出 face `sticker`、校验了 key、按注册表比对 scope 后拒绝。
+
+**唯一还差的一步：没有任何 key 持有 `sticker:read`。** 全库 50 把 key 的 scope 只有 `catalog:read` / `store:read` / `galgame:*` / `claim_events:read`；表情包自己那个 client（`c5cd7b07…`，`dev_tier=internal`，`catalog_site=sticker`）的 `allowed_scopes` 里也没有它。要拿到 200，得先在开发者门户给某个 client 勾上 `sticker:read` 并给 key 授予（§16.5 说它在自助集里），或直接改 `oauth_clients.allowed_scopes` + `developer_api_keys.scopes`——两者都受 60s 凭据缓存影响。
+
+生产数据现状：7 个已发布包、498 张贴纸、**0 个标签**（所以 `/v2/sticker/tags` 会诚实地回空列表，不是 bug）。
