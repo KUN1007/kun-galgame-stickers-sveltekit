@@ -6,3 +6,9 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
   vue-demi: false
+
+minimumReleaseAgeExclude:
+  - '@kungal/ui-core@2.32.0'
+  - '@kungal/ui-nuxt@2.32.0'
+  - '@kungal/ui-tokens@2.32.0'
+  - '@kungal/ui-vue@2.32.0'
