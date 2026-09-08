@@ -24,21 +24,15 @@ import (
 // Traefik does not rewrite the path, so the routes must be mounted on the
 // public prefix verbatim.
 
-// facePrefixes are the public path prefixes this face answers on. Two, because
-// the platform charter (§16.2, §16.5) names `/v1/<site>/*` while /v1 was
-// retired wholesale on 2026-08-27 and /v2 is the only live public namespace --
-// which of the two Traefik routes is the platform's call, and answering both
-// costs one loop and keeps that decision from needing a redeploy here.
-var facePrefixes = []string{"/v1/sticker", "/v2/sticker"}
+// facePrefix is that public prefix. §16.2 first charted the downstream faces
+// onto `/v1/<site>/*`, written while /v1 was the live public namespace; wave R3
+// retired /v1 wholesale on 2026-08-27, and infra re-ruled the faces onto /v2 --
+// where every live namespace already sits -- rather than open a new face on a
+// prefix whose every sibling answers 410.
+const facePrefix = "/v2/sticker"
 
 func isFacePath(c fiber.Ctx) bool {
-	path := c.Path()
-	for _, prefix := range facePrefixes {
-		if strings.HasPrefix(path, prefix) {
-			return true
-		}
-	}
-	return false
+	return strings.HasPrefix(c.Path(), facePrefix)
 }
 
 // faceCache matches catalog /v2's public lane verbatim. Every response here is
@@ -70,24 +64,20 @@ func faceHeaders(c fiber.Ctx) error {
 	return c.Next()
 }
 
-// mountFace registers the read face under every public prefix. There is no
-// local rate limiter: the only client address this service would ever see is
-// Traefik's, so an IP limiter would put every application on one budget. The
-// gateway holds the real per-key budget.
+// mountFace registers the read face. There is no local rate limiter: the only
+// client address this service would ever see is Traefik's, so an IP limiter
+// would put every application on one budget. The gateway holds the real
+// per-key budget.
 func mountFace(app *fiber.App, h *stickerhandler.Handler) {
-	cross := faceCORS()
-	tag := etag.New()
-	for _, prefix := range facePrefixes {
-		face := app.Group(prefix, cross, faceHeaders, tag)
+	face := app.Group(facePrefix, faceCORS(), faceHeaders, etag.New())
 
-		face.Get("/packs", h.FaceListPacks)
-		face.Get("/packs/:packId", h.FaceGetPack)
-		face.Get("/stickers/:stickerId", h.FaceGetSticker)
-		face.Get("/characters", h.FaceListCharacters)
-		face.Get("/characters/:characterId", h.FaceGetCharacter)
-		face.Get("/characters/:characterId/stickers", h.FaceCharacterStickers)
-		face.Get("/works", h.FaceListWorks)
-		face.Get("/works/:workId/packs", h.FaceWorkPacks)
-		face.Get("/tags", h.FaceListTags)
-	}
+	face.Get("/packs", h.FaceListPacks)
+	face.Get("/packs/:packId", h.FaceGetPack)
+	face.Get("/stickers/:stickerId", h.FaceGetSticker)
+	face.Get("/characters", h.FaceListCharacters)
+	face.Get("/characters/:characterId", h.FaceGetCharacter)
+	face.Get("/characters/:characterId/stickers", h.FaceCharacterStickers)
+	face.Get("/works", h.FaceListWorks)
+	face.Get("/works/:workId/packs", h.FaceWorkPacks)
+	face.Get("/tags", h.FaceListTags)
 }

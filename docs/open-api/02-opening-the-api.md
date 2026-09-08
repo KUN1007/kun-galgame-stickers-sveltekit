@@ -43,6 +43,8 @@
 **face 名 `sticker`，scope `sticker:read`，路径 `api.nextmoe.dev/v1/sticker/*`。**
 命名沿用 03 §4.2 词表规则（`<face>:read`）；计量 face 字符串 `sticker`，落 `developer_api_usage`。
 
+> 📌 本节的 `/v1/` 是提案当时按 doc 08 §16.2 写的。**已改判为 `/v2/sticker/*`**（infra PR #167，2026-09-08；`/v1` 已于 2026-08-27 整面退役）。下文所有路径按此顺读，实际契约以 [sticker-openapi.yaml](./sticker-openapi.yaml) 与 [03 §4.1](./03-wiring.md) 为准。
+
 ```
 GET /v1/sticker/packs                     ?page&limit&sort=new|hot&q&tag&rating&work
 GET /v1/sticker/packs/{packId}            含 stickers[]、characters[]、works[]

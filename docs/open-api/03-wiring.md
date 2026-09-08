@@ -43,15 +43,15 @@
 面已经写好并跑通了，不是「准备好了可以开始写」。
 
 ```
-GET /v1/sticker/packs                              ?limit&page&sort&q&tag&work&official&linked&nsfw
-GET /v1/sticker/packs/{pack_id}
-GET /v1/sticker/stickers/{sticker_id}
-GET /v1/sticker/characters                         ?limit&page&q&work
-GET /v1/sticker/characters/{character_id}        ★
-GET /v1/sticker/characters/{character_id}/stickers ★ ?limit&page
-GET /v1/sticker/works                              ?limit&page&q
-GET /v1/sticker/works/{work_id}/packs            ★ ?limit&page&sort&nsfw
-GET /v1/sticker/tags                               ?limit
+GET /v2/sticker/packs                              ?limit&page&sort&q&tag&work&official&linked&nsfw
+GET /v2/sticker/packs/{pack_id}
+GET /v2/sticker/stickers/{sticker_id}
+GET /v2/sticker/characters                         ?limit&page&q&work
+GET /v2/sticker/characters/{character_id}        ★
+GET /v2/sticker/characters/{character_id}/stickers ★ ?limit&page
+GET /v2/sticker/works                              ?limit&page&q
+GET /v2/sticker/works/{work_id}/packs            ★ ?limit&page&sort&nsfw
+GET /v2/sticker/tags                               ?limit
 ```
 
 ★ 是这个面存在的理由：以 catalog id 为入口。9 个 operation，全 GET，只暴露 `status = 1` 的包。
@@ -63,41 +63,33 @@ GET /v1/sticker/tags                               ?limit
 - **鉴权**：本服务一行都没写。B 档的全部意义就在这里。三个 `X-NextMoe-*` 头本站不读——这个面对谁都是同一个答案。
 - **限流**：本地不挂。这个服务能看见的唯一 client address 是 Traefik 的，按 IP 限流等于把所有应用塞进一个额度。真正的 per-key 额度在网关。
 
-## 4. 三件要 infra 拍板的事
+## 4. 三件已裁决（infra PR #167，2026-09-08）
 
-### 4.1 ⚠️ 路径：`/v1/sticker` 还是 `/v2/sticker`
+### 4.1 路径：裁决为 `/v2/sticker`
 
-**这是唯一会卡住接线的一件事，而且必须在贴标签之前定。**
-
-08 §16.2 / §16.5 写的是 `api.nextmoe.dev/v1/<site>/*`，注册表里 `pathLabel` 也是 `/v1/sticker/*`。但是：
-
-> 02-public-api.md 第 5 行：🪦 **v1 已于 2026-08-27（wave R3）整面退役。**`/v1/catalog`、`/v1/news`、`/v1/store`、`/v1/playtime`、`/api/v1/catalog`、`/api/v1/user/catalog` 六个前缀现在一律返回 `410 Gone` ……**唯一在产的公开面是 `/v2`**。
-
-实测确认：
+08 §16.2 / §16.5 原本写的是 `api.nextmoe.dev/v1/<site>/*`，写于 2026-07-23——当时 `/v1` 就是平台在产的公开前缀。但 wave R3 于 2026-08-27 把 `/v1` **整面退役**，六个前缀一律回 `410 Gone` 并 `Link: rel="successor-version"` 指向 `/v2`：
 
 ```
-GET https://api.nextmoe.dev/v1/store/prices    → 410, Link: <https://api.nextmoe.dev/v2>; rel="successor-version"
+GET https://api.nextmoe.dev/v1/store/prices     → 410, Link: <https://api.nextmoe.dev/v2>; rel="successor-version"
 GET https://api.nextmoe.dev/v1/playtime/works/1 → 410, 同上
 GET https://api.nextmoe.dev/v2/catalog/works    → 401 application/problem+json（在产）
 ```
 
-也就是说，**§16.5 把两个全新的公开面钉在了一个 12 天前刚整体退役的版本前缀上**，它的每一个邻居都在回 410 并把调用方指向 `/v2`。第三方读完门户上「v1 已整面退役」，很难不认为 `/v1/sticker` 也是死的。
+把两个全新的公开面钉回那个前缀，等于自己打脸门户上「v1 已整面退役」。infra 复核后改判 **`/v2/<site>/*`**，并写进 doc 08 §16.2/§16.5，注册表 `pathLabel`、测试、门户文档、配方一并改到 `/v2`。
 
-技术上不冲突（我查过，没有 `/v1` 的兜底 router，六个退役前缀各有各的 router），所以这纯粹是命名空间语义问题——但它是**公开 URL**，改一次就是一次迁移，正是平台上一波刚花力气做完的事。
+同时查实了唯一的技术疑点：门户 docs-model 的 `FACES` **每项带自己的 spec 文件，oasdiff 也按文件逐个比**——闸门按文档切分，不按前缀，所以两份 spec 同时描述 `/v2/...` 不冲突。
 
-倾向 **`/v2/sticker`**：`/v2` 早就不是 catalog 专属了，spec 里已有 `/v2/catalog`、`/v2/store`、`/v2/news`、`/v2/folders`、`/v2/me`、`/v2/moderation`、`/v2/vocabularies` 七个命名空间，`<face>` 在 `/v2` 下并列正是现成的形状。代价是两份 spec 都会描述 `/v2/...` 路径，需要确认门户 docs-model 与 oasdiff 门是按文档而不是按前缀切分的（§17.3 读起来是按文档，请确认）。
+本仓已收敛到单一前缀：`face.go` 的 `facePrefix = "/v2/sticker"`、compose 里两条 `PathPrefix`、spec 里 9 条路径，全部只剩 `/v2/sticker`。
 
-**本站两边都答**：`apps/api/internal/app/face.go` 里 `facePrefixes = ["/v1/sticker", "/v2/sticker"]`，所以这个决定改的是 Traefik 标签和注册表里的 `pathLabel`，**不需要本站重新部署**。选定后本站再把 spec 里的路径与 `facePrefixes` 收敛到一个。
+### 4.2 preflight 过不了闸 — 采纳
 
-### 4.2 preflight 过不了闸
+ForwardAuth 对所有方法生效，浏览器的 `OPTIONS` 预检不带任何认证头，会被 401。结论是这个面在浏览器里直接 `fetch` 用不了，这是想要的（key 本来就不该进浏览器）。infra 已把这句写进门户 `authentication.md` 的 NOTE 与 doc 08。
 
-ForwardAuth 对所有方法生效，而浏览器的 `OPTIONS` 预检**不带任何认证头**，所以会被 401 掉。结论是这个面在浏览器里直接 `fetch` 用不了——这大概率是**想要的**（key 本来就不该出现在浏览器），但值得写进门户文档一句，否则第三方会花半天查自己的 CORS 配置。若确实要支持，需要在 ForwardAuth 前放行 `OPTIONS`。
+本站的 CORS 已按闸门放行的前提配好（`Access-Control-Allow-Origin: *`、不带 credentials、`expose` 了限额头），真要放行 `OPTIONS` 时浏览器侧即刻可用。
 
-本站已经按可用的前提配好了 CORS（`Access-Control-Allow-Origin: *`、不带 credentials、`expose` 了限额头），闸门放行的话浏览器侧就是通的。
+### 4.3 CDN 命中不计量 — 接受少计
 
-### 4.3 CDN 缓存与计量的取舍
-
-面上给的是 `public, s-maxage=1800`（与 catalog 公开档一致）。Cloudflare 命中的请求不会走到 Traefik，也就**不进 `developer_api_usage`**。少计不多计，对一个免费只读面我认为可以接受，但这是 infra 的账，不是我的——要严格计量就把 `s-maxage` 去掉。
+`public, s-maxage=1800` 意味着 Cloudflare 命中的请求不进 `developer_api_usage`。infra 接受这个少计（与 catalog `/v2` 公开档同一取舍），已记进 §16.5。要严格计量就去掉 `s-maxage`。
 
 ## 5. 上线清单
 
@@ -105,10 +97,27 @@ ForwardAuth 对所有方法生效，而浏览器的 `OPTIONS` 预检**不带任�
 - [x] face 字符串 `sticker` 进注册表 — infra 已做
 - [x] 校验端点上线并验收 — infra 已做，本文 §1 实测
 - [x] 面实现 + OpenAPI 3 契约 — 本站已做
-- [ ] **决定 `/v1/sticker` 还是 `/v2/sticker`**（§4.1，卡住下一步）
-- [ ] Traefik 标签：sticker 已写进本仓 compose，**面板点 Deploy**；moyu 仓照配方加
-- [ ] spec 注册进门户 docs-model + oasdiff 门 + operation-count 守卫（9 op）
-- [ ] 门户文档写明 §4.2 那句「不支持浏览器直连」
-- [ ] 在 kungal-docs 登记为对外契约
+- [x] 前缀裁决为 `/v2/sticker` — infra PR #167；本仓已全面收敛（§4.1）
+- [ ] **面板点 Deploy**（compose-only 改动不自动部署），Deploy 后确认面板生成的两个 `...-44-websecure` router 还在
+- [ ] 拿一把真 `nmk_live_` key 打 `/v2/sticker/packs`，按 §6 的三条判读确认是本站在应答
+- [ ] moyu 仓照同一配方加标签（`moyu-api`、5214、`face=moyu`）
+- [ ] spec 注册进门户 docs-model + oasdiff 门 + operation-count 守卫（9 op）+ kungal-docs 登记
+- [ ] #167 合并后 oauth 再部署一次，`pathLabel` 记账才是新值（纯计量，端点行为不变）
 
-> ⚠️ Traefik router 这一步在生产上被漏过两次（`/v1/store`、`/v1/playtime`），漏了的表现是 Traefik 404 而**不是**应用报错。上线后第一件事是拿一把 `nmk_live_` key 打一次 `/packs`，确认不是 404。
+## 6. Deploy 前查到的一件事：`/v2` 已有 catch-all router
+
+改判到 `/v2` 之后我查了生产 Traefik 的路由表（`dokploy-traefik` 的 `/api/http/routers`，`api.nextmoe.dev` 上共 15 条），发现：
+
+```
+infra-v2-pub@docker   priority 44   Host(`api.nextmoe.dev`) && PathPrefix(`/v2`)
+```
+
+**`/v2/sticker/*` 今天已经能通，由 infra 自己的 `/v2` 服务兜底应答**（实测 `GET https://api.nextmoe.dev/v2/sticker/packs` → `404 application/problem+json`，`type` 是 `problems/platform/not-found`，带 `request_id`，且不需要 key）。两个后果：
+
+1. **优先级**。Traefik 默认优先级就是 rule 字符串长度：我们的 `PathPrefix(/v2/sticker)` 是 52，catch-all 是 44，所以本来就赢——但只赢在「多 8 个字符」上，infra 哪天给 `/v2` 的 rule 加个条件就可能反超并静默吃掉这个面。所以本仓的两条 router 都显式写了 `priority: '100'`。
+2. **冒烟测试的判读**。「router 漏挂」在这里**不表现为裸 Traefik 404**，而是 infra 的 problem 文档。看 `type` 就能三选一：
+   - `problems/platform/not-found`（带 `request_id`）→ 标签没生效，请求还在走 catch-all
+   - ForwardAuth 的 401 → 标签生效了，key/scope 的问题
+   - 正常 JSON（`{"object":"list", …}`）→ 通了
+
+> ⚠️ Traefik router 这一步在生产上被漏过两次（`/v1/store`、`/v1/playtime`）。Deploy 后第一件事就是拿真 key 打一次，按上面三条判读。

@@ -12,8 +12,8 @@ info:
     site is tagged with an infra **catalog** work and character id, so this face
     answers the question "which sticker material exists for this catalog
     identity". A caller already holding catalog ids can join against it directly
-    -- that is what `/v1/sticker/characters/{character_id}/stickers` and
-    `/v1/sticker/works/{work_id}/packs` are for, and the rest is scaffolding
+    -- that is what `/v2/sticker/characters/{character_id}/stickers` and
+    `/v2/sticker/works/{work_id}/packs` are for, and the rest is scaffolding
     around them.
 
     **Authentication happens at the gateway.** Traefik runs ForwardAuth against
@@ -53,7 +53,7 @@ tags:
     description: Tags.
 
 paths:
-  /v1/sticker/packs:
+  /v2/sticker/packs:
     get:
       operationId: listPacks
       summary: List published sticker packs
@@ -72,7 +72,7 @@ paths:
           in: query
           description: >-
             Catalog work id. Keeps packs that declare this game or hold a sticker
-            of it -- the same relation `/v1/sticker/works/{work_id}/packs` uses.
+            of it -- the same relation `/v2/sticker/works/{work_id}/packs` uses.
           schema: { type: integer, format: int64, minimum: 1 }
         - name: official
           in: query
@@ -90,7 +90,7 @@ paths:
         '500':
           $ref: '#/components/responses/Problem'
 
-  /v1/sticker/packs/{pack_id}:
+  /v2/sticker/packs/{pack_id}:
     get:
       operationId: getPack
       summary: One pack, with its stickers
@@ -112,7 +112,7 @@ paths:
         '404':
           $ref: '#/components/responses/Problem'
 
-  /v1/sticker/stickers/{sticker_id}:
+  /v2/sticker/stickers/{sticker_id}:
     get:
       operationId: getSticker
       summary: One sticker
@@ -133,7 +133,7 @@ paths:
         '404':
           $ref: '#/components/responses/Problem'
 
-  /v1/sticker/characters:
+  /v2/sticker/characters:
     get:
       operationId: listCharacters
       summary: Catalog characters this site has stickers of
@@ -166,7 +166,7 @@ paths:
         '400':
           $ref: '#/components/responses/Problem'
 
-  /v1/sticker/characters/{character_id}:
+  /v2/sticker/characters/{character_id}:
     get:
       operationId: getCharacter
       summary: One catalog character, as this site holds it
@@ -189,7 +189,7 @@ paths:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
 
-  /v1/sticker/characters/{character_id}/stickers:
+  /v2/sticker/characters/{character_id}/stickers:
     get:
       operationId: listCharacterStickers
       summary: Every sticker of one catalog character
@@ -218,7 +218,7 @@ paths:
         '400':
           $ref: '#/components/responses/Problem'
 
-  /v1/sticker/works:
+  /v2/sticker/works:
     get:
       operationId: listWorks
       summary: Catalog works this site has material for
@@ -243,7 +243,7 @@ paths:
         '400':
           $ref: '#/components/responses/Problem'
 
-  /v1/sticker/works/{work_id}/packs:
+  /v2/sticker/works/{work_id}/packs:
     get:
       operationId: listWorkPacks
       summary: Packs about one catalog work
@@ -268,7 +268,7 @@ paths:
         '400':
           $ref: '#/components/responses/Problem'
 
-  /v1/sticker/tags:
+  /v2/sticker/tags:
     get:
       operationId: listTags
       summary: Tags, most used first

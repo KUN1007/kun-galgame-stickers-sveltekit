@@ -2,7 +2,7 @@
 //
 // This is the error language of the public developer-platform faces, not of
 // this site's own BFF: /api/v1 keeps the house {code, message, data} envelope,
-// while /v1/sticker answers like catalog's /v2 does. A third party holding one
+// while /v2/sticker answers like catalog's /v2 does. A third party holding one
 // nmk_ key across both faces should not have to decode two error dialects, and
 // the gateway's own refusals (401/403/429 from ForwardAuth) are the only ones
 // this service never gets to shape.

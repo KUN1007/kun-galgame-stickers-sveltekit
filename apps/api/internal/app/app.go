@@ -227,7 +227,7 @@ func publicCache(seconds int) fiber.Handler {
 }
 
 // errorHandler speaks whichever error language the path belongs to. Without
-// the face branch an unrouted /v1/sticker path would answer with the site's
+// the face branch an unrouted /v2/sticker path would answer with the site's
 // house envelope, which is exactly the second error dialect the face exists to
 // avoid.
 func errorHandler(c fiber.Ctx, err error) error {
