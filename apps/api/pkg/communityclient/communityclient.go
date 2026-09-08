@@ -44,13 +44,19 @@ func Missing(err error) bool { return errors.Is(err, ErrNotFound) }
 // Anchor kinds, from the service's closed vocabulary. A sticker pack is a
 // resource this site owns.
 const (
-	AnchorSiteResource = 2
+	AnchorBoard         = 0
+	AnchorSiteGame      = 1
+	AnchorSiteResource  = 2
+	AnchorCatalogWork   = 3
+	AnchorCatalogPerson = 4
 )
 
 // Post statuses. Anything but visible is either awaiting review or gone, and
 // this site shows neither.
 const (
 	StatusVisible = 0
+	StatusHeld    = 1
+	StatusDeleted = 2
 )
 
 type Config struct {
@@ -187,7 +193,14 @@ func (c *Client) Resolve(ctx context.Context, anchorKind int, anchorID string, c
 	return &env.Data, nil
 }
 
-func (c *Client) Posts(ctx context.Context, threadID int64, after string, limit int) (*ThreadWithPosts, error) {
+// PostList is what the posts lane returns: a page of posts, without the
+// thread. resolve is the only lane whose data is a ThreadWithPosts.
+type PostList struct {
+	Posts      []Post `json:"posts"`
+	NextCursor string `json:"next_cursor"`
+}
+
+func (c *Client) Posts(ctx context.Context, threadID int64, after string, limit int) (*PostList, error) {
 	v := url.Values{}
 	if after != "" {
 		v.Set("after", after)
@@ -199,7 +212,7 @@ func (c *Client) Posts(ctx context.Context, threadID int64, after string, limit 
 	if q := v.Encode(); q != "" {
 		path += "?" + q
 	}
-	var env envelope[ThreadWithPosts]
+	var env envelope[PostList]
 	if err := c.do(ctx, http.MethodGet, path, nil, &env); err != nil {
 		return nil, err
 	}
@@ -211,21 +224,26 @@ func (c *Client) Reply(ctx context.Context, threadID int64, authorID int, body s
 	if replyTo > 0 {
 		payload["reply_to_post_id"] = replyTo
 	}
-	var env envelope[Post]
+	// The write lanes wrap the post: data is {"post": …}, not the post itself.
+	var env envelope[postWrapper]
 	path := "/threads/" + strconv.FormatInt(threadID, 10) + "/posts"
 	if err := c.do(ctx, http.MethodPost, path, payload, &env); err != nil {
 		return nil, err
 	}
-	return &env.Data, nil
+	return &env.Data.Post, nil
+}
+
+type postWrapper struct {
+	Post Post `json:"post"`
 }
 
 func (c *Client) Edit(ctx context.Context, postID int64, authorID int, body string) (*Post, error) {
-	var env envelope[Post]
+	var env envelope[postWrapper]
 	payload := map[string]any{"author_id": authorID, "body": body}
 	if err := c.do(ctx, http.MethodPatch, "/posts/"+strconv.FormatInt(postID, 10), payload, &env); err != nil {
 		return nil, err
 	}
-	return &env.Data, nil
+	return &env.Data.Post, nil
 }
 
 // Delete tombstones a post. author_id is a query param upstream: the request
