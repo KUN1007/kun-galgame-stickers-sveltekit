@@ -18,6 +18,14 @@
 # Set in this app's Dokploy Environment:
 #   POSTGRES_PASSWORD          — must match infra Postgres
 #   KUN_OAUTH_CLIENT_SECRET    — the 鲲 Galgame 表情包 confidential client secret
+#   KUN_CATALOG_API_KEY        — application key (nmk_live_…) scoped catalog:read,
+#                                minted in the NextMoe developer portal
+# A Dokploy variable only reaches a container if this file names it, which is
+# why the key is written out in x-api-env below rather than merely existing in
+# the panel. It is required (:?) rather than optional on purpose: an absent key
+# does not break the site -- game and character linking simply turns itself off
+# and logs a warning -- and a feature that silently disables itself on deploy is
+# worth failing loudly for instead.
 name: kun-galgame-sticker
 
 x-svc-health: &svc-health
@@ -38,6 +46,11 @@ x-api-env: &api-env
   KUN_OAUTH_REDIRECT_URI: https://sticker.kungal.com/auth/callback
   KUN_IMAGE_CLIENT_BASE_URL: http://image:9278
   KUN_IMAGE_CDN_BASE: https://image.kungal.iloveren.link
+  # catalog over the shared network, like oauth and image above: no public DNS,
+  # no TLS handshake and no Traefik hop on a call that happens per picker
+  # keystroke. Only the secret comes from Dokploy.
+  KUN_CATALOG_BASE_URL: http://catalog:9281
+  KUN_CATALOG_API_KEY: ${KUN_CATALOG_API_KEY:?set KUN_CATALOG_API_KEY}
 
 services:
   # Unique name on dokploy-network (same reason kungal-api / moyu-api are not
