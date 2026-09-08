@@ -6,6 +6,9 @@ Disallow: /ja/auth
 Disallow: /me
 Disallow: /en/me
 Disallow: /ja/me
+Disallow: /settings
+Disallow: /en/settings
+Disallow: /ja/settings
 Disallow: /api
 
 Sitemap: https://sticker.kungal.com/sitemap_index.xml

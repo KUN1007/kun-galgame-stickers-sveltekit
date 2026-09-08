@@ -41,9 +41,12 @@ export default defineCachedEventHandler(
     const urls: SitemapEntry[] = [entry('/', 1), entry('/about', 0.6)]
     const apiBase = useRuntimeConfig().apiBaseUrl
 
-    // Individual sticker pages are deliberately absent: they are linked from
-    // every pack page, so crawlers still reach them, and listing them here grew
-    // the file by one URL per sticker per locale with no ceiling.
+    // Individual sticker pages and character pages are deliberately absent.
+    // Both are linked from every pack page, so crawlers still reach them, and
+    // neither can be enumerated cheaply: stickers grow the file by one URL per
+    // sticker per locale with no ceiling, and the distinct characters are only
+    // discoverable by walking every pack's detail. Add a listing endpoint first
+    // if character pages ever need to be in here.
     try {
       const authors = new Set<number>()
 
