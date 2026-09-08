@@ -26,6 +26,11 @@ const navItems = computed(() => {
       icon: 'lucide:folder-heart'
     })
   }
+  items.push({
+    to: localePath('/settings'),
+    label: t('header.settings'),
+    icon: 'lucide:settings'
+  })
   return items
 })
 

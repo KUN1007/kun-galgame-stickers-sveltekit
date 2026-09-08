@@ -10,10 +10,16 @@ const localePath = useLocalePath()
 const lightboxOpen = ref(false)
 const lightboxIndex = ref(0)
 
+// The catalog link wins over the free-text name: it is the one that can be
+// clicked through to a character page, and the seeded packs carry both.
+const nameOf = (sticker: Sticker) =>
+  resolveMultilingual(sticker.catalog_character?.name, locale.value) ||
+  resolveMultilingual(sticker.character_name, locale.value)
+
 const images = computed(() =>
   props.stickers.map((sticker) => ({
     src: sticker.image_url,
-    alt: resolveMultilingual(sticker.character_name, locale.value)
+    alt: nameOf(sticker)
   }))
 )
 
@@ -29,12 +35,12 @@ const open = (index: number) => {
       <button
         type="button"
         class="border-default-200 bg-content1 hover:border-primary aspect-square overflow-hidden border transition-colors"
-        :aria-label="resolveMultilingual(sticker.character_name, locale) || String(sticker.position)"
+        :aria-label="nameOf(sticker) || String(sticker.position)"
         @click="open(index)"
       >
         <img
           :src="sticker.thumb_url"
-          :alt="resolveMultilingual(sticker.character_name, locale)"
+          :alt="nameOf(sticker)"
           width="320"
           height="320"
           loading="lazy"
@@ -42,8 +48,19 @@ const open = (index: number) => {
         >
       </button>
       <figcaption class="text-default-500 truncate text-xs">
-        <NuxtLink :to="localePath(`/pack/${packId}/${sticker.id}`)">
-          {{ resolveMultilingual(sticker.character_name, locale) || '—' }}
+        <NuxtLink
+          v-if="sticker.catalog_character"
+          :to="localePath(`/character/${sticker.catalog_character.id}`)"
+          class="hover:text-primary transition-colors"
+        >
+          {{ nameOf(sticker) }}
+        </NuxtLink>
+        <NuxtLink
+          v-else
+          :to="localePath(`/pack/${packId}/${sticker.id}`)"
+          class="hover:text-foreground transition-colors"
+        >
+          {{ nameOf(sticker) || '—' }}
         </NuxtLink>
       </figcaption>
     </figure>

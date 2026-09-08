@@ -15,7 +15,8 @@
     "language": "Language",
     "light": "Light",
     "dark": "Dark",
-    "system": "System"
+    "system": "System",
+    "settings": "Settings"
   },
   "discovery": {
     "title": "Discover sticker packs",
@@ -25,7 +26,9 @@
     "hot": "Popular",
     "official": "Official",
     "empty": "No packs match these filters",
-    "resultCount": "{count} packs"
+    "resultCount": "no packs | 1 pack | {count} packs",
+    "linkedOnly": "Linked to a game",
+    "clearGame": "Clear game filter"
   },
   "pack": {
     "untitled": "Untitled pack",
@@ -33,8 +36,8 @@
     "draft": "Draft",
     "hidden": "Hidden",
     "published": "Published",
-    "stickerCount": "{count} stickers",
-    "downloadCount": "{count} downloads",
+    "stickerCount": "no stickers | 1 sticker | {count} stickers",
+    "downloadCount": "no downloads | 1 download | {count} downloads",
     "downloadAll": "Download pack",
     "seoFallback": "{name} — a visual novel sticker pack"
   },
@@ -92,7 +95,10 @@
     "removePrompt": "It will be taken out of the pack. This cannot be undone.",
     "deletePack": "Delete pack",
     "deleteTitle": "Delete the whole pack?",
-    "deletePrompt": "The pack and every sticker in it will be deleted. This cannot be undone."
+    "deletePrompt": "The pack and every sticker in it will be deleted. This cannot be undone.",
+    "bulkCharacter": "Set one character for every sticker",
+    "applyToAll": "Apply to all",
+    "appliedToAll": "Applied to every sticker"
   },
   "auth": {
     "login": "Sign in",
@@ -190,5 +196,48 @@
     "genericTitle": "Something went wrong",
     "genericBody": "The service is unavailable right now, try again shortly.",
     "backHome": "Back to home"
+  },
+  "catalog": {
+    "gameLabel": "Linked game",
+    "gameHint": "Search for the visual novel this pack comes from. Optional — linking one adds game and character info to the pack page.",
+    "gamePlaceholder": "Search by title…",
+    "typeToSearch": "Type a title to search",
+    "searching": "Searching…",
+    "noWorks": "No matching games",
+    "unlink": "Unlink",
+    "untitledWork": "Untitled game",
+    "unnamedCharacter": "Unnamed character",
+    "noCharacter": "No character",
+    "characterLabel": "Character",
+    "fromGame": "From",
+    "characters": "Characters",
+    "showAllGames": "Show all {count} games",
+    "showLess": "Show less",
+    "stickersHere": "Stickers of this character",
+    "appearsIn": "Appears in",
+    "stickerCount": "no stickers of this character here | 1 sticker of this character here | {count} stickers of this character here",
+    "characterSeo": "Galgame stickers of {name}",
+    "gender": "Gender",
+    "birthday": "Birthday",
+    "bloodType": "Blood type",
+    "profileOffline": "The catalog is unreachable; the details below come from this site’s saved snapshot.",
+    "traits": "Traits",
+    "gender_male": "Male",
+    "gender_female": "Female",
+    "gender_other": "Other"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Appearance and content preferences, stored in this browser.",
+    "appearance": "Appearance",
+    "content": "Content",
+    "themeLabel": "Theme",
+    "themeHint": "Light or dark colours",
+    "languageLabel": "Language",
+    "languageHint": "Interface language",
+    "ratingLabel": "Adult content",
+    "ratingHint": "Whether R18 packs appear in listings and search",
+    "contentSafe": "All ages only",
+    "contentAll": "Show R18"
   }
 }

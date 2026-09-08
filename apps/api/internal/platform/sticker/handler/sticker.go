@@ -80,7 +80,7 @@ func (h *Handler) AddSticker(c fiber.Ctx) error {
 	if appErr != nil {
 		return response.Error(c, appErr)
 	}
-	sticker, appErr := h.svc.AddSticker(packID, viewer(c), req)
+	sticker, appErr := h.svc.AddSticker(c.Context(), packID, viewer(c), req)
 	if appErr != nil {
 		return response.Error(c, appErr)
 	}
@@ -100,7 +100,7 @@ func (h *Handler) PatchSticker(c fiber.Ctx) error {
 	if appErr != nil {
 		return response.Error(c, appErr)
 	}
-	sticker, appErr := h.svc.PatchSticker(packID, stickerID, viewer(c), req)
+	sticker, appErr := h.svc.PatchSticker(c.Context(), packID, stickerID, viewer(c), req)
 	if appErr != nil {
 		return response.Error(c, appErr)
 	}

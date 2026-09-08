@@ -15,7 +15,8 @@
     "language": "语言",
     "light": "白天",
     "dark": "黑夜",
-    "system": "跟随系统"
+    "system": "跟随系统",
+    "settings": "设置"
   },
   "discovery": {
     "title": "发现表情包",
@@ -25,7 +26,9 @@
     "hot": "热门",
     "official": "官方",
     "empty": "没有找到符合条件的表情包",
-    "resultCount": "共 {count} 套"
+    "resultCount": "共 {count} 套",
+    "linkedOnly": "已关联作品",
+    "clearGame": "清除作品筛选"
   },
   "pack": {
     "untitled": "未命名表情包",
@@ -92,7 +95,10 @@
     "removePrompt": "删掉之后这张表情就不在套装里了，这个操作无法撤销。",
     "deletePack": "删除套装",
     "deleteTitle": "删除整套表情包？",
-    "deletePrompt": "整套表情包和里面所有表情都会被删除，这个操作无法撤销。"
+    "deletePrompt": "整套表情包和里面所有表情都会被删除，这个操作无法撤销。",
+    "bulkCharacter": "为所有贴纸设置同一人物",
+    "applyToAll": "全部应用",
+    "appliedToAll": "已应用到全部贴纸"
   },
   "auth": {
     "login": "登录",
@@ -190,5 +196,48 @@
     "genericTitle": "出了点问题",
     "genericBody": "服务暂时不可用，稍后再试。",
     "backHome": "回到首页"
+  },
+  "catalog": {
+    "gameLabel": "关联作品",
+    "gameHint": "搜索并选择这套表情包出自哪部 Galgame。可以不填，填了之后详情页会显示作品与人物信息。",
+    "gamePlaceholder": "输入作品名搜索…",
+    "typeToSearch": "输入作品名开始搜索",
+    "searching": "搜索中…",
+    "noWorks": "没有找到匹配的作品",
+    "unlink": "取消关联",
+    "untitledWork": "未命名作品",
+    "unnamedCharacter": "未命名人物",
+    "noCharacter": "未关联人物",
+    "characterLabel": "人物",
+    "fromGame": "出自作品",
+    "characters": "人物",
+    "showAllGames": "展开全部 {count} 部作品",
+    "showLess": "收起",
+    "stickersHere": "本站的该人物贴纸",
+    "appearsIn": "出演作品",
+    "stickerCount": "本站共 {count} 张该人物的贴纸",
+    "characterSeo": "{name} 的 Galgame 表情包与贴纸",
+    "gender": "性别",
+    "birthday": "生日",
+    "bloodType": "血型",
+    "profileOffline": "暂时无法连接资料库，以下信息来自本站已保存的快照。",
+    "traits": "特征",
+    "gender_male": "男",
+    "gender_female": "女",
+    "gender_other": "其他"
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "管理界面外观与内容偏好，设置保存在本浏览器。",
+    "appearance": "外观",
+    "content": "内容",
+    "themeLabel": "主题",
+    "themeHint": "网站的明暗配色",
+    "languageLabel": "语言",
+    "languageHint": "站内界面语言",
+    "ratingLabel": "成人内容",
+    "ratingHint": "是否在列表与搜索结果中显示 R18 表情包",
+    "contentSafe": "仅全年龄",
+    "contentAll": "显示 R18"
   }
 }

@@ -13,6 +13,7 @@ import (
 	"kun-galgame-sticker-api/pkg/userclient"
 
 	"github.com/google/uuid"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -29,6 +30,8 @@ func (s *Service) List(ctx context.Context, q dto.ListQuery, v Viewer) (*dto.Pac
 		SFWOnly:      q.Rating == dto.RatingFilterSFW,
 		Search:       q.Search,
 		TagSlug:      q.Tag,
+		LinkedOnly:   q.LinkedOnly,
+		CatalogWork:  q.CatalogWorkID,
 		Order:        orderFor(q.Sort),
 		Offset:       (q.Page - 1) * q.Limit,
 		Limit:        q.Limit,
@@ -127,7 +130,35 @@ func (s *Service) Get(ctx context.Context, id uuid.UUID, v Viewer) (*dto.PackDet
 	if pack.Status == model.PackPublished {
 		_ = s.packs.BumpView(pack.ID)
 	}
-	return &dto.PackDetail{Pack: packs[0], Stickers: stickers}, nil
+	works, characters := distinctCatalog(stickers)
+	return &dto.PackDetail{
+		Pack:       packs[0],
+		Stickers:   stickers,
+		Works:      works,
+		Characters: characters,
+	}, nil
+}
+
+// distinctCatalog collects the games and characters a pack's stickers point
+// at, first-appearance order. The seven official packs each span dozens of
+// games, so the detail page shows what is actually inside rather than the one
+// game the pack may have declared.
+func distinctCatalog(stickers []dto.Sticker) ([]dto.CatalogWork, []dto.CatalogCharacter) {
+	works := make([]dto.CatalogWork, 0, 4)
+	characters := make([]dto.CatalogCharacter, 0, 8)
+	seenWork := map[int64]bool{}
+	seenCharacter := map[int64]bool{}
+	for _, sticker := range stickers {
+		if w := sticker.CatalogWork; w != nil && !seenWork[w.ID] {
+			seenWork[w.ID] = true
+			works = append(works, *w)
+		}
+		if ch := sticker.CatalogCharacter; ch != nil && !seenCharacter[ch.ID] {
+			seenCharacter[ch.ID] = true
+			characters = append(characters, *ch)
+		}
+	}
+	return works, characters
 }
 
 func (s *Service) visiblePack(id uuid.UUID, v Viewer) (*model.Pack, *errors.AppError) {
@@ -180,13 +211,21 @@ func (s *Service) CreatePack(ctx context.Context, v Viewer, req dto.CreatePackRe
 	}
 	description := sanitizeML(req.Description)
 
+	workID, workName, workCover, appErr := s.resolveWork(ctx, req.CatalogWorkID)
+	if appErr != nil {
+		return nil, appErr
+	}
+
 	pack := &model.Pack{
-		OwnerUID:      v.UID,
-		Status:        model.PackDraft,
-		ContentRating: rating(req.ContentRating),
-		Title:         title,
-		Description:   description,
-		SearchText:    searchText(title, description),
+		OwnerUID:         v.UID,
+		Status:           model.PackDraft,
+		ContentRating:    rating(req.ContentRating),
+		Title:            title,
+		Description:      description,
+		CatalogWorkID:    workID,
+		CatalogWorkName:  workName,
+		CatalogWorkCover: workCover,
+		SearchText:       searchText(title, description, workName),
 	}
 	if err := s.packs.Create(pack); err != nil {
 		return nil, errors.ErrInternal("failed to create pack")
@@ -227,7 +266,16 @@ func (s *Service) PatchPack(ctx context.Context, id uuid.UUID, v Viewer, req dto
 		}
 		pack.CoverStickerID = &coverID
 	}
-	pack.SearchText = searchText(pack.Title, pack.Description)
+	if req.CatalogWorkID != nil {
+		workID, workName, workCover, appErr := s.resolveWork(ctx, req.CatalogWorkID)
+		if appErr != nil {
+			return nil, appErr
+		}
+		pack.CatalogWorkID = workID
+		pack.CatalogWorkName = workName
+		pack.CatalogWorkCover = workCover
+	}
+	pack.SearchText = s.searchTextFor(pack)
 
 	if err := s.packs.Save(pack); err != nil {
 		return nil, errors.ErrInternal("failed to save pack")
@@ -327,6 +375,28 @@ func (s *Service) single(ctx context.Context, pack *model.Pack) (*dto.Pack, *err
 		return nil, appErr
 	}
 	return &packs[0], nil
+}
+
+// searchTextFor rebuilds a pack's search column from the pack itself plus the
+// games its stickers point at. A mixed pack is findable by every game inside
+// it, not only by the one it declared.
+func (s *Service) searchTextFor(pack *model.Pack) string {
+	fields := []datatypes.JSON{pack.Title, pack.Description, pack.CatalogWorkName}
+	if names, err := s.stickers.DistinctWorkNames(pack.ID); err == nil {
+		fields = append(fields, names...)
+	}
+	return searchText(fields...)
+}
+
+// SyncPackSearchText is called after a sticker's game link changes: the pack's
+// search column includes its stickers' games, so it goes stale otherwise.
+func (s *Service) syncPackSearchText(packID uuid.UUID) {
+	pack, err := s.packs.Get(packID)
+	if err != nil {
+		return
+	}
+	pack.SearchText = s.searchTextFor(pack)
+	_ = s.packs.Save(pack)
 }
 
 func rating(in *int16) int16 {

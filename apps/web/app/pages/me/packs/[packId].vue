@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CatalogWork } from '~/features/pack/types'
 import { PACK_PUBLISHED, resolveMultilingual } from '~/features/pack/types'
 
 definePageMeta({ middleware: 'auth' })
@@ -21,6 +22,15 @@ const title = computed(
   () => resolveMultilingual(pack.value?.title, locale.value) || t('pack.untitled')
 )
 const published = computed(() => pack.value?.status === PACK_PUBLISHED)
+
+// The meta form owns the game pick; the sticker list needs it to load the
+// character roster, so it is held here rather than read back off the saved
+// pack -- an author should be able to pick a game and tag characters without
+// saving in between.
+const game = ref<CatalogWork | null>(pack.value?.catalog_work ?? null)
+watch(pack, (next) => {
+  if (next && next.catalog_work?.id !== game.value?.id) game.value = next.catalog_work ?? null
+})
 const busy = ref(false)
 const showDelete = ref(false)
 
@@ -48,7 +58,7 @@ useSeoMeta({ title: () => t('editor.editing', { name: title.value }) })
   <section v-if="pack" class="flex flex-col gap-6">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex min-w-0 flex-col gap-1">
-        <KunLink :to="localePath('/me/packs')" class="text-sm">
+        <KunLink :to="localePath('/me/packs')" color="default" class-name="text-sm">
           {{ t('editor.backToPacks') }}
         </KunLink>
         <h1 class="truncate text-2xl font-bold">{{ title }}</h1>
@@ -82,8 +92,8 @@ useSeoMeta({ title: () => t('editor.editing', { name: title.value }) })
       {{ t('editor.needSticker') }}
     </p>
 
-    <EditorPackMetaForm :pack="pack" @saved="() => refresh()" />
-    <EditorStickerEditor :pack="pack" @changed="() => refresh()" />
+    <EditorPackMetaForm :pack="pack" @saved="() => refresh()" @game="game = $event" />
+    <EditorStickerEditor :pack="pack" :game="game" @changed="() => refresh()" />
 
     <KunModal v-model="showDelete" :title="t('editor.deleteTitle')">
       <p class="text-default-600 mb-4 text-sm">{{ t('editor.deletePrompt') }}</p>

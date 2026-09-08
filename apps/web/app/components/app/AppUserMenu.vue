@@ -41,13 +41,13 @@ const logoutEverywhere = async () => {
 
 <template>
   <div v-if="!user">
-    <KunButton color="primary" variant="light" @click="login">
+    <KunButton color="default" variant="light" @click="login">
       {{ t('auth.login') }}
     </KunButton>
   </div>
   <KunPopover v-else>
     <template #trigger>
-      <KunButton variant="light" class="gap-2">
+      <KunButton variant="light" color="default" class="gap-2">
         <KunAvatar v-if="kunUser" :user="kunUser" :is-navigation="false" size="sm" />
         <span class="hidden max-w-32 truncate sm:inline">{{ displayName }}</span>
       </KunButton>
@@ -67,6 +67,13 @@ const logoutEverywhere = async () => {
         :href="localePath('/me/packs')"
       >
         {{ t('header.myPacks') }}
+      </KunButton>
+      <KunButton
+        variant="light"
+        class="justify-start"
+        :href="localePath('/settings')"
+      >
+        {{ t('header.settings') }}
       </KunButton>
       <KunButton variant="light" class="justify-start" @click="showLogout = true">
         {{ t('auth.logout') }}

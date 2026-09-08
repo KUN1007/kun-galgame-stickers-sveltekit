@@ -6,6 +6,7 @@ import (
 	"kun-galgame-sticker-api/internal/platform/sticker/model"
 
 	"github.com/google/uuid"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -40,6 +41,33 @@ func (r *StickerRepo) ByIDs(ids []uuid.UUID) (map[uuid.UUID]model.Sticker, error
 	}
 	for _, row := range rows {
 		out[row.ID] = row
+	}
+	return out, nil
+}
+
+// ByCatalogCharacter backs the character page. Newest first, because a
+// character with many stickers should lead with what was added last.
+func (r *StickerRepo) ByCatalogCharacter(characterID int64, limit int) ([]model.Sticker, error) {
+	var rows []model.Sticker
+	err := r.db.Where("catalog_character_id = ?", characterID).
+		Order("created_at DESC, id DESC").Limit(limit).Find(&rows).Error
+	return rows, err
+}
+
+// DistinctWorkNames returns the catalog game names a pack's stickers carry,
+// one row per distinct game, for the pack's search column.
+func (r *StickerRepo) DistinctWorkNames(packID uuid.UUID) ([]datatypes.JSON, error) {
+	var raw []string
+	err := r.db.Model(&model.Sticker{}).
+		Distinct("catalog_work_name::text").
+		Where("pack_id = ? AND catalog_work_id IS NOT NULL", packID).
+		Pluck("catalog_work_name::text", &raw).Error
+	if err != nil {
+		return nil, err
+	}
+	out := make([]datatypes.JSON, 0, len(raw))
+	for _, value := range raw {
+		out = append(out, datatypes.JSON(value))
 	}
 	return out, nil
 }

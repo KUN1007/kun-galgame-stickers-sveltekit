@@ -18,6 +18,22 @@ const description = computed(() => resolveMultilingual(pack.value?.description, 
 const tagLabel = (name: Record<string, string | undefined>, slug: string) =>
   resolveMultilingual(name, locale.value) || slug
 
+const gameLimit = 6
+const showAllGames = ref(false)
+
+// The pack's declared game leads; the games its stickers point at follow,
+// deduplicated against it. A mixed pack has no declared game and just lists
+// what is inside.
+const games = computed(() => {
+  const declared = pack.value?.catalog_work
+  const fromStickers = (pack.value?.works ?? []).filter((work) => work.id !== declared?.id)
+  return declared ? [declared, ...fromStickers] : fromStickers
+})
+
+const shownGames = computed(() =>
+  showAllGames.value ? games.value : games.value.slice(0, gameLimit)
+)
+
 useSeoMeta({
   title: () => title.value,
   description: () => description.value || t('pack.seoFallback', { name: title.value }),
@@ -40,7 +56,7 @@ useSeoMeta({
 
       <div class="flex min-w-0 flex-1 flex-col gap-3">
         <div class="flex flex-wrap items-center gap-2">
-          <KunChip v-if="pack.is_official" size="sm" color="primary" variant="solid">
+          <KunChip v-if="pack.is_official" size="sm" color="default" variant="solid">
             {{ t('pack.official') }}
           </KunChip>
           <KunChip v-if="pack.content_rating === RATING_NSFW" size="sm" color="danger" variant="solid">
@@ -55,7 +71,12 @@ useSeoMeta({
         <p v-if="description" class="text-default-600 text-sm">{{ description }}</p>
 
         <div class="text-default-500 flex flex-wrap items-center gap-4 text-sm">
-          <KunLink :to="localePath(`/u/${pack.author.id}`)" class="flex items-center gap-2">
+          <KunLink
+            :to="localePath(`/u/${pack.author.id}`)"
+            color="default"
+            underline="none"
+            class-name="hover:text-primary flex items-center gap-2 transition-colors"
+          >
             <img
               v-if="pack.author.avatar"
               :src="pack.author.avatar"
@@ -66,12 +87,18 @@ useSeoMeta({
             >
             <span>{{ pack.author.name }}</span>
           </KunLink>
-          <span>{{ t('pack.stickerCount', { count: pack.sticker_count }) }}</span>
-          <span>{{ t('pack.downloadCount', { count: pack.download_count }) }}</span>
+          <span>{{ t('pack.stickerCount', pack.sticker_count) }}</span>
+          <span>{{ t('pack.downloadCount', pack.download_count) }}</span>
         </div>
 
         <div v-if="pack.tags.length" class="flex flex-wrap gap-2">
-          <KunLink v-for="item in pack.tags" :key="item.id" :to="localePath(`/tag/${item.slug}`)">
+          <KunLink
+            v-for="item in pack.tags"
+            :key="item.id"
+            :to="localePath(`/tag/${item.slug}`)"
+            color="default"
+            underline="none"
+          >
             <KunChip size="sm" variant="flat">#{{ tagLabel(item.name, item.slug) }}</KunChip>
           </KunLink>
         </div>
@@ -84,6 +111,44 @@ useSeoMeta({
         </div>
       </div>
     </header>
+
+    <!-- The game a pack declares, plus whatever else its stickers point at.
+         A single-game pack shows one card; the seeded official packs span
+         dozens, so those collapse behind a disclosure instead of pushing the
+         stickers off the screen. -->
+    <section v-if="games.length || pack.characters.length" class="flex flex-col gap-4">
+      <div v-if="games.length" class="flex flex-col gap-2">
+        <h2 class="text-sm font-medium">{{ t('catalog.fromGame') }}</h2>
+        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <CatalogWorkCard
+            v-for="work in shownGames"
+            :key="work.id"
+            :work="work"
+            :compact="games.length > 1"
+          />
+        </div>
+        <KunButton
+          v-if="games.length > gameLimit"
+          variant="light"
+          size="sm"
+          class-name="self-start"
+          @click="showAllGames = !showAllGames"
+        >
+          {{ showAllGames ? t('catalog.showLess') : t('catalog.showAllGames', { count: games.length }) }}
+        </KunButton>
+      </div>
+
+      <div v-if="pack.characters.length" class="flex flex-col gap-2">
+        <h2 class="text-sm font-medium">{{ t('catalog.characters') }}</h2>
+        <div class="flex flex-wrap gap-2">
+          <CatalogCharacterChip
+            v-for="character in pack.characters"
+            :key="character.id"
+            :character="character"
+          />
+        </div>
+      </div>
+    </section>
 
     <StickerGrid :stickers="pack.stickers" :pack-id="pack.id" />
   </article>

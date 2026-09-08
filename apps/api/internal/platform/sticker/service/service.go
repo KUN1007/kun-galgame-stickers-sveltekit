@@ -9,6 +9,7 @@ import (
 	"kun-galgame-sticker-api/internal/platform/sticker/dto"
 	"kun-galgame-sticker-api/internal/platform/sticker/model"
 	"kun-galgame-sticker-api/internal/platform/sticker/repository"
+	"kun-galgame-sticker-api/pkg/catalogclient"
 	"kun-galgame-sticker-api/pkg/imageclient"
 	"kun-galgame-sticker-api/pkg/perm"
 	"kun-galgame-sticker-api/pkg/userclient"
@@ -24,6 +25,11 @@ const (
 	MaxUploadBytes     = 10 << 20
 	MaxTagsPerPack     = 10
 	MaxTextRunes       = 200
+
+	// characterStickerLimit caps the character page. A popular character can
+	// appear in far more stickers than one page should render, and the page
+	// leads with the newest.
+	characterStickerLimit = 120
 
 	imagePreset  = "sticker"
 	thumbVariant = "320"
@@ -69,6 +75,7 @@ type Service struct {
 	tags     *repository.TagRepo
 	images   *imageclient.Client
 	users    *userclient.Client
+	catalog  *catalogclient.Client
 	http     *http.Client
 }
 
@@ -78,6 +85,7 @@ func New(
 	tags *repository.TagRepo,
 	images *imageclient.Client,
 	users *userclient.Client,
+	catalog *catalogclient.Client,
 ) *Service {
 	return &Service{
 		packs:    packs,
@@ -85,6 +93,7 @@ func New(
 		tags:     tags,
 		images:   images,
 		users:    users,
+		catalog:  catalog,
 		http:     &http.Client{Timeout: downloadTimeout},
 	}
 }
@@ -110,6 +119,10 @@ func (s *Service) stickerDTO(row model.Sticker) dto.Sticker {
 		Note:          row.Note,
 		ImageURL:      main,
 		ThumbURL:      thumb,
+		CatalogWork:   workDTO(row.CatalogWorkID, row.CatalogWorkName, ""),
+		CatalogCharacter: characterDTO(
+			row.CatalogCharacterID, row.CatalogCharacterName, row.CatalogCharacterImage,
+		),
 	}
 }
 
@@ -133,6 +146,7 @@ func (s *Service) packDTO(
 		Tags:          tagDTOs(tags),
 		CreatedAt:     row.CreatedAt.UTC().Format(time.RFC3339),
 		UpdatedAt:     row.UpdatedAt.UTC().Format(time.RFC3339),
+		CatalogWork:   workDTO(row.CatalogWorkID, row.CatalogWorkName, row.CatalogWorkCover),
 	}
 	if cover != nil {
 		out.CoverURL, out.CoverThumbURL = s.urls(cover.ImageHash)
@@ -198,16 +212,23 @@ func sanitizeML(in dto.MultilingualText) datatypes.JSON {
 
 func hasText(raw datatypes.JSON) bool { return len(decodeML(raw)) > 0 }
 
-// searchText flattens every language of the title and description into the one
+// searchText flattens every language of every searchable field into the one
 // column the trigram index sits on, so a Japanese query finds a pack whose
-// Japanese title matches even when the UI is Chinese.
-func searchText(title, description datatypes.JSON) string {
-	parts := make([]string, 0, 8)
-	for _, value := range decodeML(title) {
-		parts = append(parts, value)
-	}
-	for _, value := range decodeML(description) {
-		parts = append(parts, value)
+// Japanese title matches even when the UI is Chinese. Callers pass the title,
+// the description, and the names of the games involved -- a pack made from a
+// game should be findable by that game's name even when its own title never
+// mentions it.
+func searchText(fields ...datatypes.JSON) string {
+	parts := make([]string, 0, 12)
+	seen := map[string]bool{}
+	for _, field := range fields {
+		for _, value := range decodeML(field) {
+			if seen[value] {
+				continue
+			}
+			seen[value] = true
+			parts = append(parts, value)
+		}
 	}
 	return strings.Join(parts, " ")
 }

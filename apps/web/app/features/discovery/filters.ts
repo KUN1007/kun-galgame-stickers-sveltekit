@@ -10,6 +10,7 @@ export type PackScope = 'all' | 'hot' | 'official'
 export const useDiscoveryFilters = () => {
   const route = useRoute()
   const router = useRouter()
+  const showAdult = useShowAdultContent()
 
   const readString = (key: string, fallback = ''): string => {
     const raw = route.query[key]
@@ -22,6 +23,12 @@ export const useDiscoveryFilters = () => {
   })
   const search = computed(() => readString('q'))
   const tag = computed(() => readString('tag'))
+  // linked=1 keeps only packs that declare a game; work=<id> narrows to one.
+  const linked = computed(() => readString('linked') === '1')
+  const work = computed(() => {
+    const parsed = Number.parseInt(readString('work'), 10)
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+  })
   const page = computed(() => {
     const parsed = Number.parseInt(readString('page', '1'), 10)
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 1
@@ -32,7 +39,11 @@ export const useDiscoveryFilters = () => {
     sort: scope.value === 'hot' ? 'hot' : 'new',
     official: scope.value === 'official',
     q: search.value || undefined,
-    tag: tag.value || undefined
+    tag: tag.value || undefined,
+    linked: linked.value || undefined,
+    work: work.value,
+    // The API hides R18 unless asked; the viewer asks once in settings.
+    rating: showAdult.value ? 'all' : 'sfw'
   }))
 
   const update = (patch: Record<string, string | number | undefined>) => {
@@ -47,5 +58,5 @@ export const useDiscoveryFilters = () => {
     router.push({ query: next })
   }
 
-  return { scope, search, tag, page, query, update }
+  return { scope, search, tag, linked, work, page, query, update }
 }

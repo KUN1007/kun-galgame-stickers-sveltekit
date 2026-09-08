@@ -20,3 +20,6 @@ kun-love-ren
 .vercel
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Playwright MCP scratch output (screenshots, snapshots, console logs)
+.playwright-mcp

@@ -30,7 +30,7 @@ const to = computed(() => localePath(`/pack/${props.pack.id}`))
       </span>
 
       <span class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <KunChip v-if="pack.is_official" size="sm" color="primary" variant="solid">
+        <KunChip v-if="pack.is_official" size="sm" color="default" variant="solid">
           {{ t('pack.official') }}
         </KunChip>
         <KunChip v-if="pack.content_rating === RATING_NSFW" size="sm" color="danger" variant="solid">
@@ -48,12 +48,21 @@ const to = computed(() => localePath(`/pack/${props.pack.id}`))
     </KunLink>
 
     <div class="flex flex-1 flex-col gap-2 p-3">
-      <KunLink :to="to" class="line-clamp-2 text-sm font-medium">{{ title }}</KunLink>
+      <KunLink
+        :to="to"
+        color="default"
+        underline="none"
+        class-name="hover:text-primary line-clamp-2 text-sm font-medium transition-colors"
+      >
+        {{ title }}
+      </KunLink>
 
       <div class="text-default-500 mt-auto flex items-center justify-between gap-2 text-xs">
         <KunLink
           :to="localePath(`/u/${pack.author.id}`)"
-          class="flex min-w-0 items-center gap-1.5"
+          color="default"
+          underline="none"
+          class-name="hover:text-primary flex min-w-0 items-center gap-1.5 transition-colors"
         >
           <img
             v-if="pack.author.avatar"

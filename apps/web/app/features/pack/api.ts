@@ -8,6 +8,10 @@ export interface PackQuery {
   tag?: string
   rating?: 'all' | 'sfw'
   official?: boolean
+  /** Keep only packs that declare a catalog game. */
+  linked?: boolean
+  /** List the packs made from one game. */
+  work?: number
 }
 
 const toParams = (query: PackQuery): Record<string, string> => {
@@ -19,6 +23,8 @@ const toParams = (query: PackQuery): Record<string, string> => {
   if (query.tag) params.tag = query.tag
   if (query.rating) params.rating = query.rating
   if (query.official) params.official = '1'
+  if (query.linked) params.linked = '1'
+  if (query.work) params.work = String(query.work)
   return params
 }
 
@@ -44,6 +50,7 @@ export interface CreatePackBody {
   description?: MultilingualText
   content_rating?: number
   tags?: string[]
+  catalog_work_id?: number
 }
 
 export const createPack = (body: CreatePackBody): Promise<Pack> =>
@@ -55,6 +62,8 @@ export interface PatchPackBody {
   content_rating?: number
   cover_sticker_id?: string
   tags?: string[]
+  /** 0 clears the link -- an omitted field means "leave it alone". */
+  catalog_work_id?: number
 }
 
 export const patchPack = (packId: string, body: PatchPackBody): Promise<Pack> =>

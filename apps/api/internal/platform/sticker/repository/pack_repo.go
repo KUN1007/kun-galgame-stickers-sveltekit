@@ -16,6 +16,8 @@ type ListParams struct {
 	SFWOnly      bool
 	Search       string
 	TagSlug      string
+	LinkedOnly   bool
+	CatalogWork  int64
 	Order        string
 	Offset       int
 	Limit        int
@@ -43,6 +45,12 @@ func (r *PackRepo) filtered(p ListParams) *gorm.DB {
 	}
 	if p.Search != "" {
 		q = q.Where("search_text ILIKE ?", "%"+escapeLike(p.Search)+"%")
+	}
+	if p.LinkedOnly {
+		q = q.Where("catalog_work_id IS NOT NULL")
+	}
+	if p.CatalogWork > 0 {
+		q = q.Where("catalog_work_id = ?", p.CatalogWork)
 	}
 	if p.TagSlug != "" {
 		q = q.Where(
@@ -72,6 +80,17 @@ func (r *PackRepo) Get(id uuid.UUID) (*model.Pack, error) {
 		return nil, err
 	}
 	return &row, nil
+}
+
+// ByIDs loads a set of packs in one query. Callers that start from stickers
+// (the character page) need this to avoid a query per sticker.
+func (r *PackRepo) ByIDs(ids []string) ([]model.Pack, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	var rows []model.Pack
+	err := r.db.Where("id IN ?", ids).Find(&rows).Error
+	return rows, err
 }
 
 func (r *PackRepo) CountByOwner(uid int) (int64, error) {

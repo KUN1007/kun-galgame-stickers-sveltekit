@@ -4,3 +4,15 @@
 
 @source '../../../node_modules/@kungal/ui-vue';
 @source '../../../node_modules/@kungal/ui-core';
+
+/* Square corners everywhere.
+ *
+ * A sticker is a square image with a hard edge, and KunUI's HeroUI-style 12px
+ * default rounds every control and card around it into a different visual
+ * language. --kun-radius-scale is the token package's own consumer-owned knob:
+ * the scalable buckets (sm / md / lg) multiply their base by it, so one
+ * declaration squares off every KunUI corner without touching the library.
+ * none and full deliberately do not scale, so pills stay pills. */
+:root {
+  --kun-radius-scale: 0;
+}

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { MultilingualText, Pack } from '~/features/pack/types'
+import type { CatalogWork, MultilingualText, Pack } from '~/features/pack/types'
 import { EDITABLE_LOCALES, RATING_NSFW, RATING_SFW } from '~/features/pack/types'
 
 const props = defineProps<{ pack: Pack }>()
-const emit = defineEmits<{ saved: [pack: Pack] }>()
+const emit = defineEmits<{ saved: [pack: Pack]; game: [work: CatalogWork | null] }>()
 
 const { t } = useI18n()
 const mutate = useMutation()
@@ -12,7 +12,12 @@ const title = ref<MultilingualText>({ ...props.pack.title })
 const description = ref<MultilingualText>({ ...props.pack.description })
 const rating = ref(props.pack.content_rating)
 const tags = ref<string[]>(props.pack.tags.map((item) => item.slug))
+const game = ref<CatalogWork | null>(props.pack.catalog_work ?? null)
 const saving = ref(false)
+
+// The sticker list needs the chosen game to load its character roster, so the
+// pick is announced as it happens rather than only on save.
+watch(game, (work) => emit('game', work))
 
 // Editing was single-language before: whichever locale the UI happened to be
 // in was the only field an author could see or change, so the other two silently
@@ -33,7 +38,10 @@ const save = async () => {
       title: title.value,
       description: description.value,
       content_rating: rating.value,
-      tags: tags.value
+      tags: tags.value,
+      // 0 unlinks: an omitted field would read as "leave it alone", which
+      // makes clearing the game impossible.
+      catalog_work_id: game.value?.id ?? 0
     })
   )
   saving.value = false
@@ -63,6 +71,8 @@ const save = async () => {
       :placeholder="t('editor.packDescriptionPlaceholder')"
       :rows="3"
     />
+
+    <CatalogWorkPicker v-model="game" />
 
     <KunSelect v-model="rating" :options="ratingOptions" :label="t('editor.rating')" />
 

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-const { t } = useI18n()
-const { scope, search, tag, page, query, update } = useDiscoveryFilters()
+import { resolveMultilingual } from '~/features/pack/types'
+
+const { t, locale } = useI18n()
+const { scope, search, tag, linked, work, page, query, update } = useDiscoveryFilters()
 
 const { data: tags } = await useAsyncData('discovery-tags', () => fetchTags())
 const { data, status } = await useAsyncData(
@@ -13,6 +15,15 @@ const packs = computed(() => data.value?.packs ?? [])
 const total = computed(() => data.value?.total ?? 0)
 const limit = 24
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / limit)))
+
+// The game filter names itself from the packs that came back rather than
+// calling catalog again -- every one of them carries the snapshot.
+const workLabel = computed(() => {
+  if (!work.value) return ''
+  const match = packs.value.find((pack) => pack.catalog_work?.id === work.value)
+  const name = resolveMultilingual(match?.catalog_work?.name, locale.value)
+  return name || t('catalog.untitledWork')
+})
 
 const currentPage = computed({
   get: () => page.value,
@@ -38,11 +49,23 @@ useSeoMeta({
       :scope="scope"
       :tag="tag"
       :tags="tags ?? []"
+      :linked="linked"
       @update="update"
     />
 
-    <p v-if="search || tag" class="text-default-500 text-sm">
-      {{ t('discovery.resultCount', { count: total }) }}
+    <!-- Arriving from a game card filters to that game; say so and offer a way
+         back, or the empty-looking grid reads as a bug. -->
+    <div v-if="work" class="flex flex-wrap items-center gap-2">
+      <KunChip size="sm" variant="flat">
+        {{ workLabel }}
+      </KunChip>
+      <KunButton size="sm" variant="light" @click="update({ work: undefined })">
+        {{ t('discovery.clearGame') }}
+      </KunButton>
+    </div>
+
+    <p v-if="search || tag || linked || work" class="text-default-500 text-sm">
+      {{ t('discovery.resultCount', total) }}
     </p>
 
     <PackGrid :packs="packs" :pending="status === 'pending'" />

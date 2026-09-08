@@ -80,7 +80,7 @@ func (s *Service) UploadImage(
 	}, nil
 }
 
-func (s *Service) AddSticker(packID uuid.UUID, v Viewer, req dto.CreateStickerRequest) (*dto.Sticker, *errors.AppError) {
+func (s *Service) AddSticker(ctx context.Context, packID uuid.UUID, v Viewer, req dto.CreateStickerRequest) (*dto.Sticker, *errors.AppError) {
 	if _, appErr := s.editablePack(packID, v); appErr != nil {
 		return nil, appErr
 	}
@@ -89,13 +89,27 @@ func (s *Service) AddSticker(packID uuid.UUID, v Viewer, req dto.CreateStickerRe
 		return nil, errors.ErrInvalidParams("image_hash must be a 64 character hex digest")
 	}
 
+	workID, workName, _, appErr := s.resolveWork(ctx, req.CatalogWorkID)
+	if appErr != nil {
+		return nil, appErr
+	}
+	characterID, characterName, characterImage, appErr := s.resolveCharacter(ctx, req.CatalogCharacterID)
+	if appErr != nil {
+		return nil, appErr
+	}
+
 	row := &model.Sticker{
-		ImageHash:     hash,
-		Width:         req.Width,
-		Height:        req.Height,
-		Game:          sanitizeML(req.Game),
-		CharacterName: sanitizeML(req.CharacterName),
-		VndbID:        positive(req.VndbID),
+		ImageHash:             hash,
+		Width:                 req.Width,
+		Height:                req.Height,
+		Game:                  sanitizeML(req.Game),
+		CharacterName:         sanitizeML(req.CharacterName),
+		VndbID:                positive(req.VndbID),
+		CatalogWorkID:         workID,
+		CatalogWorkName:       workName,
+		CatalogCharacterID:    characterID,
+		CatalogCharacterName:  characterName,
+		CatalogCharacterImage: characterImage,
 	}
 	if req.Note != nil {
 		row.Note = truncateRunes(strings.TrimSpace(*req.Note), MaxTextRunes)
@@ -114,11 +128,15 @@ func (s *Service) AddSticker(packID uuid.UUID, v Viewer, req dto.CreateStickerRe
 		_ = s.packs.Save(pack)
 	}
 
+	if workID != nil {
+		s.syncPackSearchText(packID)
+	}
 	out := s.stickerDTO(*row)
 	return &out, nil
 }
 
 func (s *Service) PatchSticker(
+	ctx context.Context,
 	packID, stickerID uuid.UUID,
 	v Viewer,
 	req dto.PatchStickerRequest,
@@ -143,8 +161,30 @@ func (s *Service) PatchSticker(
 	if req.Note != nil {
 		row.Note = truncateRunes(strings.TrimSpace(*req.Note), MaxTextRunes)
 	}
+	gameChanged := false
+	if req.CatalogWorkID != nil {
+		workID, workName, _, appErr := s.resolveWork(ctx, req.CatalogWorkID)
+		if appErr != nil {
+			return nil, appErr
+		}
+		row.CatalogWorkID = workID
+		row.CatalogWorkName = workName
+		gameChanged = true
+	}
+	if req.CatalogCharacterID != nil {
+		characterID, characterName, characterImage, appErr := s.resolveCharacter(ctx, req.CatalogCharacterID)
+		if appErr != nil {
+			return nil, appErr
+		}
+		row.CatalogCharacterID = characterID
+		row.CatalogCharacterName = characterName
+		row.CatalogCharacterImage = characterImage
+	}
 	if err := s.stickers.Save(row); err != nil {
 		return nil, errors.ErrInternal("failed to save sticker")
+	}
+	if gameChanged {
+		s.syncPackSearchText(packID)
 	}
 	out := s.stickerDTO(*row)
 	return &out, nil
@@ -161,6 +201,8 @@ func (s *Service) DeleteSticker(packID, stickerID uuid.UUID, v Viewer) *errors.A
 		}
 		return errors.ErrInternal("failed to delete sticker")
 	}
+
+	s.syncPackSearchText(packID)
 
 	if pack.CoverStickerID != nil && *pack.CoverStickerID == stickerID {
 		fresh, err := s.stickers.ListByPack(packID)

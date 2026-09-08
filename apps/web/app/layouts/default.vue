@@ -24,9 +24,30 @@ const containerClass = computed(() =>
       >
         <p>{{ t('footer.tagline') }}</p>
         <nav class="flex flex-wrap items-center justify-center gap-4">
-          <KunLink :to="localePath('/about')">{{ t('header.about') }}</KunLink>
-          <KunLink :href="STICKER_GITHUB_REPO" target="_blank">GitHub</KunLink>
-          <KunLink href="https://www.kungal.com" target="_blank">
+          <KunLink
+            :to="localePath('/about')"
+            color="default"
+            underline="hover"
+            class-name="hover:text-foreground transition-colors"
+          >
+            {{ t('header.about') }}
+          </KunLink>
+          <KunLink
+            :href="STICKER_GITHUB_REPO"
+            target="_blank"
+            color="default"
+            underline="hover"
+            class-name="hover:text-foreground transition-colors"
+          >
+            GitHub
+          </KunLink>
+          <KunLink
+            href="https://www.kungal.com"
+            target="_blank"
+            color="default"
+            underline="hover"
+            class-name="hover:text-foreground transition-colors"
+          >
             {{ t('footer.forumName') }}
           </KunLink>
         </nav>

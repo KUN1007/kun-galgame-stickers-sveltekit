@@ -16,6 +16,7 @@ import (
 	stickerhandler "kun-galgame-sticker-api/internal/platform/sticker/handler"
 	stickerrepo "kun-galgame-sticker-api/internal/platform/sticker/repository"
 	stickerservice "kun-galgame-sticker-api/internal/platform/sticker/service"
+	"kun-galgame-sticker-api/pkg/catalogclient"
 	"kun-galgame-sticker-api/pkg/config"
 	"kun-galgame-sticker-api/pkg/errors"
 	"kun-galgame-sticker-api/pkg/imageclient"
@@ -62,12 +63,23 @@ func New(cfg *config.Config) *App {
 		ImageCDNBase: cfg.Image.CDNBase,
 	})
 
+	// catalog is optional: with no key the pickers answer 503 and every page
+	// falls back to the free-text game and character names already stored.
+	catalog := catalogclient.New(catalogclient.Config{
+		BaseURL: cfg.Catalog.BaseURL,
+		APIKey:  cfg.Catalog.APIKey,
+	})
+	if !catalog.Configured() {
+		slog.Warn("catalog not configured: game and character linking is disabled")
+	}
+
 	stickerSvc := stickerservice.New(
 		stickerrepo.NewPackRepo(db),
 		stickerrepo.NewStickerRepo(db),
 		stickerrepo.NewTagRepo(db),
 		imgCli,
 		users,
+		catalog,
 	)
 	ctx, stop := context.WithCancel(context.Background())
 	stickerSvc.StartRefPing(ctx)
@@ -118,6 +130,13 @@ func New(cfg *config.Config) *App {
 	api.Get("/stickers/:stickerId", readLimit, optionalAuth, h.GetSticker)
 	api.Get("/stickers/:stickerId/download", readLimit, optionalAuth, h.DownloadSticker)
 	api.Get("/users/:uid/packs", readLimit, optionalAuth, h.ListUserPacks)
+	api.Get("/characters/:characterId", readLimit, optionalAuth, h.GetCharacter)
+
+	// The catalog pickers sit behind auth: the application key must never
+	// reach a browser, and only an author composing a pack needs them. They
+	// carry the upload limiter because each call is an upstream request.
+	api.Get("/catalog/works", requireAuth, uploadLimit, h.SearchCatalogWorks)
+	api.Get("/catalog/works/:workId/characters", requireAuth, uploadLimit, h.CatalogWorkRoster)
 
 	api.Post("/auth/oauth/callback", writeLimit, authHandler.Callback)
 	api.Post("/auth/logout", authHandler.Logout)

@@ -7,6 +7,8 @@ import (
 	"kun-galgame-sticker-api/internal/platform/sticker/dto"
 	"kun-galgame-sticker-api/internal/platform/sticker/model"
 	"kun-galgame-sticker-api/pkg/perm"
+
+	"gorm.io/datatypes"
 )
 
 func TestViewerVisibility(t *testing.T) {
@@ -131,3 +133,9 @@ func TestOrderAlwaysHasATiebreaker(t *testing.T) {
 		}
 	}
 }
+
+func jsonML(raw string) datatypes.JSON { return datatypes.JSON(raw) }
+
+func contains(haystack, needle string) bool { return strings.Contains(haystack, needle) }
+
+func count(haystack, needle string) int { return strings.Count(haystack, needle) }

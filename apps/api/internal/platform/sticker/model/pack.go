@@ -33,9 +33,16 @@ type Pack struct {
 	ViewCount      int64          `gorm:"column:view_count"`
 	DownloadCount  int64          `gorm:"column:download_count"`
 	SearchText     string         `gorm:"column:search_text"`
-	CreatedAt      time.Time      `gorm:"column:created_at"`
-	UpdatedAt      time.Time      `gorm:"column:updated_at"`
-	PublishedAt    *time.Time     `gorm:"column:published_at"`
+	// CatalogWorkID is the infra catalog id of the game this pack is about,
+	// when its author declared one. The name and cover beside it are a display
+	// snapshot so a list page never calls catalog; catalog stays the source of
+	// truth for the identity itself.
+	CatalogWorkID    *int64         `gorm:"column:catalog_work_id"`
+	CatalogWorkName  datatypes.JSON `gorm:"column:catalog_work_name;type:jsonb"`
+	CatalogWorkCover string         `gorm:"column:catalog_work_cover"`
+	CreatedAt        time.Time      `gorm:"column:created_at"`
+	UpdatedAt        time.Time      `gorm:"column:updated_at"`
+	PublishedAt      *time.Time     `gorm:"column:published_at"`
 }
 
 func (Pack) TableName() string { return "pack" }
@@ -46,6 +53,7 @@ func (Pack) TableName() string { return "pack" }
 func (p *Pack) BeforeSave(*gorm.DB) error {
 	p.Title = orEmptyJSON(p.Title)
 	p.Description = orEmptyJSON(p.Description)
+	p.CatalogWorkName = orEmptyJSON(p.CatalogWorkName)
 	return nil
 }
 

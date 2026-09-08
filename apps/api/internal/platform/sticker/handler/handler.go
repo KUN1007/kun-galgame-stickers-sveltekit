@@ -57,13 +57,15 @@ func parseBody[T any](c fiber.Ctx) (T, *errors.AppError) {
 // gets the biggest page it is allowed, not a 400 it cannot act on.
 func listQuery(c fiber.Ctx) dto.ListQuery {
 	return dto.ListQuery{
-		Page:         clamp(c.Query("page"), 1, 1, 10000),
-		Limit:        clamp(c.Query("limit"), defaultLimit, 1, maxLimit),
-		Sort:         sortOf(c.Query("sort")),
-		Search:       truncate(strings.TrimSpace(c.Query("q")), maxSearchLen),
-		Tag:          repository.Slugify(c.Query("tag")),
-		Rating:       ratingOf(c.Query("rating")),
-		OfficialOnly: isTrue(c.Query("official")),
+		Page:          clamp(c.Query("page"), 1, 1, 10000),
+		Limit:         clamp(c.Query("limit"), defaultLimit, 1, maxLimit),
+		Sort:          sortOf(c.Query("sort")),
+		Search:        truncate(strings.TrimSpace(c.Query("q")), maxSearchLen),
+		Tag:           repository.Slugify(c.Query("tag")),
+		Rating:        ratingOf(c.Query("rating")),
+		OfficialOnly:  isTrue(c.Query("official")),
+		LinkedOnly:    isTrue(c.Query("linked")),
+		CatalogWorkID: catalogID(c.Query("work")),
 	}
 }
 
@@ -82,6 +84,16 @@ func ratingOf(raw string) string {
 }
 
 func isTrue(raw string) bool { return raw == "1" || raw == "true" }
+
+// catalogID parses a catalog identifier. They are decimal and positive; zero
+// is the documented "no link", so it never reaches a query as a filter.
+func catalogID(raw string) int64 {
+	id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
+	if err != nil || id <= 0 {
+		return 0
+	}
+	return id
+}
 
 func clamp(raw string, fallback, low, high int) int {
 	n, err := strconv.Atoi(raw)

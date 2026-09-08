@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { PackDetail, Sticker } from '~/features/pack/types'
+import type { CatalogCharacter, CatalogWork, PackDetail, Sticker } from '~/features/pack/types'
 import { EDITABLE_LOCALES, MAX_STICKERS_PER_PACK, resolveMultilingual } from '~/features/pack/types'
 
-const props = defineProps<{ pack: PackDetail }>()
+const props = defineProps<{ pack: PackDetail; game: CatalogWork | null }>()
 const emit = defineEmits<{ changed: [] }>()
 
 const { t, locale } = useI18n()
@@ -20,6 +20,55 @@ const activeLocale = ref<string>(EDITABLE_LOCALES[0])
 const localeItems = EDITABLE_LOCALES.map((code) => ({ value: code, textValue: code }))
 
 const remaining = computed(() => MAX_STICKERS_PER_PACK - stickers.value.length)
+
+// The roster is fetched once per game and shared by every sticker: a pack of
+// eighty stickers must not mean eighty upstream calls.
+const roster = ref<CatalogCharacter[]>([])
+const rosterLoading = ref(false)
+
+watch(
+  () => props.game?.id,
+  async (workId) => {
+    if (!workId) {
+      roster.value = []
+      return
+    }
+    rosterLoading.value = true
+    try {
+      roster.value = await fetchWorkRoster(workId)
+    } finally {
+      rosterLoading.value = false
+    }
+  },
+  { immediate: true }
+)
+
+// A sticker's game follows the pack's: the character was picked out of that
+// game's roster, so storing anything else would contradict the pick.
+const setCharacter = async (sticker: Sticker, characterId: number | undefined) => {
+  const updated = await mutate(() =>
+    patchSticker(props.pack.id, sticker.id, {
+      catalog_character_id: characterId ?? 0,
+      catalog_work_id: characterId ? (props.game?.id ?? 0) : 0
+    })
+  )
+  if (updated) emit('changed')
+}
+
+const applyToAll = async (characterId: number) => {
+  for (const sticker of stickers.value) {
+    await mutate(() =>
+      patchSticker(props.pack.id, sticker.id, {
+        catalog_character_id: characterId,
+        catalog_work_id: props.game?.id ?? 0
+      })
+    )
+  }
+  useKunMessage(t('editor.appliedToAll'), 'success')
+  emit('changed')
+}
+
+const bulkCharacter = ref<number | undefined>(undefined)
 
 // Three at a time: enough to hide the round trip, few enough that a slow
 // connection does not stall every request at once.
@@ -140,6 +189,25 @@ const onDrop = async (index: number) => {
       color="primary"
     />
 
+    <!-- Most packs are one character, so setting it once beats setting it
+         eighty times. -->
+    <div
+      v-if="game && stickers.length > 1 && roster.length"
+      class="border-default-200 flex flex-wrap items-end gap-2 border p-3"
+    >
+      <div class="min-w-48 flex-1">
+        <p class="mb-1 text-sm font-medium">{{ t('editor.bulkCharacter') }}</p>
+        <CatalogCharacterPicker
+          v-model="bulkCharacter"
+          :roster="roster"
+          :loading="rosterLoading"
+        />
+      </div>
+      <KunButton size="sm" :disabled="!bulkCharacter" @click="bulkCharacter && applyToAll(bulkCharacter)">
+        {{ t('editor.applyToAll') }}
+      </KunButton>
+    </div>
+
     <p v-if="!stickers.length" class="text-default-500 text-sm">{{ t('editor.noStickers') }}</p>
 
     <ul v-else class="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -166,18 +234,30 @@ const onDrop = async (index: number) => {
         >
 
         <div class="flex min-w-0 flex-1 flex-col gap-2">
-          <KunInput
-            size="sm"
-            :model-value="sticker.character_name[activeLocale] ?? ''"
-            :placeholder="t('editor.characterName')"
-            @change="saveField(sticker, 'character_name', ($event.target as HTMLInputElement).value)"
+          <!-- With a game linked the character comes from its roster, so the
+               free-text pair would be a second, contradictory answer to the
+               same question. Without one they are all an author has. -->
+          <CatalogCharacterPicker
+            v-if="game"
+            :roster="roster"
+            :loading="rosterLoading"
+            :model-value="sticker.catalog_character?.id"
+            @update:model-value="setCharacter(sticker, $event)"
           />
-          <KunInput
-            size="sm"
-            :model-value="sticker.game[activeLocale] ?? ''"
-            :placeholder="t('editor.gameName')"
-            @change="saveField(sticker, 'game', ($event.target as HTMLInputElement).value)"
-          />
+          <template v-else>
+            <KunInput
+              size="sm"
+              :model-value="sticker.character_name[activeLocale] ?? ''"
+              :placeholder="t('editor.characterName')"
+              @change="saveField(sticker, 'character_name', ($event.target as HTMLInputElement).value)"
+            />
+            <KunInput
+              size="sm"
+              :model-value="sticker.game[activeLocale] ?? ''"
+              :placeholder="t('editor.gameName')"
+              @change="saveField(sticker, 'game', ($event.target as HTMLInputElement).value)"
+            />
+          </template>
 
           <div class="flex flex-wrap items-center gap-1">
             <KunButton

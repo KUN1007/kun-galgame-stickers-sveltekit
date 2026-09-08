@@ -18,9 +18,17 @@ type Sticker struct {
 	Game          datatypes.JSON `gorm:"column:game;type:jsonb"`
 	CharacterName datatypes.JSON `gorm:"column:character_name;type:jsonb"`
 	VndbID        *int           `gorm:"column:vndb_id"`
-	Note          string         `gorm:"column:note"`
-	CreatedAt     time.Time      `gorm:"column:created_at"`
-	UpdatedAt     time.Time      `gorm:"column:updated_at"`
+	// Catalog identities, set when the uploader picked a game and a character.
+	// Game and CharacterName above stay as the free-text fallback the seeded
+	// official packs were annotated with before catalog existed.
+	CatalogWorkID         *int64         `gorm:"column:catalog_work_id"`
+	CatalogWorkName       datatypes.JSON `gorm:"column:catalog_work_name;type:jsonb"`
+	CatalogCharacterID    *int64         `gorm:"column:catalog_character_id"`
+	CatalogCharacterName  datatypes.JSON `gorm:"column:catalog_character_name;type:jsonb"`
+	CatalogCharacterImage string         `gorm:"column:catalog_character_image"`
+	Note                  string         `gorm:"column:note"`
+	CreatedAt             time.Time      `gorm:"column:created_at"`
+	UpdatedAt             time.Time      `gorm:"column:updated_at"`
 }
 
 func (Sticker) TableName() string { return "sticker" }
@@ -28,5 +36,7 @@ func (Sticker) TableName() string { return "sticker" }
 func (s *Sticker) BeforeSave(*gorm.DB) error {
 	s.Game = orEmptyJSON(s.Game)
 	s.CharacterName = orEmptyJSON(s.CharacterName)
+	s.CatalogWorkName = orEmptyJSON(s.CatalogWorkName)
+	s.CatalogCharacterName = orEmptyJSON(s.CatalogCharacterName)
 	return nil
 }

@@ -40,6 +40,11 @@ const (
 	CodeImageUnavailable = 90011
 	CodeInvalidParams    = 90012
 	CodeTagLimit         = 90013
+	// The catalog codes are separate from the image ones so a client can tell
+	// "the identity registry is down" (the pack still saves, just unlinked)
+	// from "the image service is down" (the upload cannot proceed at all).
+	CodeCatalogUnavailable = 90014
+	CodeCharacterNotFound  = 90015
 )
 
 func ErrUnauthorized(msg string) *AppError { return New(CodeAuth, msg, 401) }
@@ -81,6 +86,14 @@ func ErrModeration() *AppError { return New(CodeModeration, "image rejected by m
 
 func ErrImageUnavailable() *AppError {
 	return New(CodeImageUnavailable, "image service unavailable", 503)
+}
+
+func ErrCatalogUnavailable() *AppError {
+	return New(CodeCatalogUnavailable, "catalog is unavailable", 503)
+}
+
+func ErrCharacterNotFound() *AppError {
+	return New(CodeCharacterNotFound, "character not found", 404)
 }
 
 func ErrTagLimit(max int) *AppError {

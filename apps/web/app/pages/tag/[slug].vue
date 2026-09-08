@@ -31,7 +31,7 @@ useSeoMeta({ title: () => `#${slug.value}` })
   <section class="flex flex-col gap-6">
     <header class="flex flex-col gap-1">
       <h1 class="text-2xl font-bold">#{{ slug }}</h1>
-      <p class="text-default-500 text-sm">{{ t('discovery.resultCount', { count: total }) }}</p>
+      <p class="text-default-500 text-sm">{{ t('discovery.resultCount', total) }}</p>
     </header>
 
     <PackGrid :packs="data?.packs ?? []" :pending="status === 'pending'" />

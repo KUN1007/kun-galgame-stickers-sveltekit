@@ -72,7 +72,7 @@ const toggle = async (packId: string, published: boolean) => {
             {{ resolveMultilingual(pack.title, locale) || t('pack.untitled') }}
           </KunLink>
           <span class="text-default-500 text-xs">
-            {{ statusLabel(pack.status) }} · {{ t('pack.stickerCount', { count: pack.sticker_count }) }}
+            {{ statusLabel(pack.status) }} · {{ t('pack.stickerCount', pack.sticker_count) }}
           </span>
         </div>
         <KunButton

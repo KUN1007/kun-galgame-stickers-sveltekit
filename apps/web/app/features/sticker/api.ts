@@ -14,6 +14,8 @@ export interface AddStickerBody {
   character_name?: MultilingualText
   vndb_id?: number
   note?: string
+  catalog_work_id?: number
+  catalog_character_id?: number
 }
 
 export const addSticker = (packId: string, body: AddStickerBody): Promise<Sticker> =>
@@ -24,6 +26,9 @@ export interface PatchStickerBody {
   character_name?: MultilingualText
   vndb_id?: number
   note?: string
+  /** 0 clears the link -- an omitted field means "leave it alone". */
+  catalog_work_id?: number
+  catalog_character_id?: number
 }
 
 export const patchSticker = (

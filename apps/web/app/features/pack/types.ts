@@ -13,6 +13,36 @@ export interface Tag {
   pack_count: number
 }
 
+/**
+ * A catalog identity as this site stores it: infra's id plus the display
+ * snapshot taken when the link was made. `und` in a name is the canonical
+ * display name catalog returns, used when no translation fits the UI locale.
+ */
+export interface CatalogWork {
+  id: number
+  name: MultilingualText
+  cover_url: string
+  release_date?: string
+  medium?: string
+}
+
+export interface CatalogCharacter {
+  id: number
+  name: MultilingualText
+  image_url: string
+  roster_role?: string
+  gender?: string
+  birthday?: string
+  blood_type?: string
+  traits?: CatalogTrait[]
+  aliases?: string[]
+}
+
+export interface CatalogTrait {
+  name: MultilingualText
+  group: MultilingualText
+}
+
 export interface Sticker {
   id: string
   pack_id: string
@@ -25,6 +55,8 @@ export interface Sticker {
   note: string
   image_url: string
   thumb_url: string
+  catalog_work?: CatalogWork
+  catalog_character?: CatalogCharacter
 }
 
 export interface Pack {
@@ -44,10 +76,32 @@ export interface Pack {
   created_at: string
   updated_at: string
   published_at?: string
+  catalog_work?: CatalogWork
 }
 
 export interface PackDetail extends Pack {
   stickers: Sticker[]
+  /** The distinct games and characters across this pack's stickers. */
+  works: CatalogWork[]
+  characters: CatalogCharacter[]
+}
+
+export interface CharacterSticker {
+  id: string
+  pack_id: string
+  image_url: string
+  thumb_url: string
+  width: number
+  height: number
+}
+
+export interface CharacterPage {
+  character: CatalogCharacter
+  stickers: CharacterSticker[]
+  packs: Record<string, Pack>
+  appearances: CatalogWork[]
+  /** False when catalog was unreachable and the page is rendering snapshots. */
+  profile: boolean
 }
 
 export interface PackListPage {
@@ -79,9 +133,9 @@ export const MAX_TAGS_PER_PACK = 10
  * then falls back to whatever language the row actually has.
  */
 const localeOrder: Record<string, string[]> = {
-  'zh-cn': ['zh-cn', 'zh-tw', 'ja-jp', 'en-us'],
-  en: ['en-us', 'en', 'ja-jp', 'zh-tw', 'zh-cn'],
-  ja: ['ja-jp', 'ja', 'en-us', 'zh-tw', 'zh-cn']
+  'zh-cn': ['zh-cn', 'zh-tw', 'und', 'ja-jp', 'en-us'],
+  en: ['en-us', 'en', 'und', 'ja-jp', 'zh-tw', 'zh-cn'],
+  ja: ['ja-jp', 'ja', 'und', 'en-us', 'zh-tw', 'zh-cn']
 }
 
 export const resolveMultilingual = (
@@ -89,7 +143,7 @@ export const resolveMultilingual = (
   locale: string
 ): string => {
   if (!value) return ''
-  const order = localeOrder[locale] ?? ['zh-cn', 'zh-tw', 'ja-jp', 'en-us']
+  const order = localeOrder[locale] ?? ['zh-cn', 'zh-tw', 'und', 'ja-jp', 'en-us']
   for (const key of order) {
     const v = value[key]
     if (v) return v

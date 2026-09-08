@@ -15,7 +15,8 @@
     "language": "言語",
     "light": "ライト",
     "dark": "ダーク",
-    "system": "システム"
+    "system": "システム",
+    "settings": "設定"
   },
   "discovery": {
     "title": "スタンプをさがす",
@@ -25,7 +26,9 @@
     "hot": "人気",
     "official": "公式",
     "empty": "条件に合うセットはありません",
-    "resultCount": "全 {count} セット"
+    "resultCount": "全 {count} セット",
+    "linkedOnly": "作品が紐付いたもの",
+    "clearGame": "作品の絞り込みを解除"
   },
   "pack": {
     "untitled": "無題のセット",
@@ -92,7 +95,10 @@
     "removePrompt": "セットから外れます。元に戻せません。",
     "deletePack": "セットを削除",
     "deleteTitle": "セットごと削除？",
-    "deletePrompt": "セットと中のスタンプがすべて削除されます。元に戻せません。"
+    "deletePrompt": "セットと中のスタンプがすべて削除されます。元に戻せません。",
+    "bulkCharacter": "すべてのスタンプに同じキャラクターを設定",
+    "applyToAll": "すべてに適用",
+    "appliedToAll": "すべてのスタンプに適用しました"
   },
   "auth": {
     "login": "ログイン",
@@ -190,5 +196,48 @@
     "genericTitle": "問題が発生しました",
     "genericBody": "現在ご利用いただけません。しばらくしてからお試しください。",
     "backHome": "ホームへ戻る"
+  },
+  "catalog": {
+    "gameLabel": "関連作品",
+    "gameHint": "このスタンプがどの Galgame のものか検索して選びます。任意です。設定すると詳細ページに作品とキャラクターの情報が表示されます。",
+    "gamePlaceholder": "タイトルで検索…",
+    "typeToSearch": "タイトルを入力して検索",
+    "searching": "検索中…",
+    "noWorks": "該当する作品がありません",
+    "unlink": "関連付けを解除",
+    "untitledWork": "タイトル不明の作品",
+    "unnamedCharacter": "名前のないキャラクター",
+    "noCharacter": "キャラクターなし",
+    "characterLabel": "キャラクター",
+    "fromGame": "出典作品",
+    "characters": "キャラクター",
+    "showAllGames": "{count} 作品をすべて表示",
+    "showLess": "折りたたむ",
+    "stickersHere": "このキャラクターのスタンプ",
+    "appearsIn": "出演作品",
+    "stickerCount": "サイト内に {count} 枚",
+    "characterSeo": "{name} の Galgame スタンプ",
+    "gender": "性別",
+    "birthday": "誕生日",
+    "bloodType": "血液型",
+    "profileOffline": "カタログに接続できないため、以下はサイトに保存された情報です。",
+    "traits": "特徴",
+    "gender_male": "男性",
+    "gender_female": "女性",
+    "gender_other": "その他"
+  },
+  "settings": {
+    "title": "設定",
+    "subtitle": "外観とコンテンツの設定です。このブラウザに保存されます。",
+    "appearance": "外観",
+    "content": "コンテンツ",
+    "themeLabel": "テーマ",
+    "themeHint": "サイトの明暗配色",
+    "languageLabel": "言語",
+    "languageHint": "サイトの表示言語",
+    "ratingLabel": "アダルトコンテンツ",
+    "ratingHint": "一覧や検索結果に R18 のスタンプを表示するか",
+    "contentSafe": "全年齢のみ",
+    "contentAll": "R18 を表示"
   }
 }

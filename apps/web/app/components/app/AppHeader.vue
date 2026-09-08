@@ -57,7 +57,12 @@ const onLanguage = async (item: { key: string }) => {
         <KunIcon name="lucide:menu" class="text-xl" />
       </KunButton>
 
-      <KunLink :to="localePath('/')" class="flex shrink-0 items-center gap-2">
+      <KunLink
+        :to="localePath('/')"
+        color="default"
+        underline="none"
+        class-name="flex shrink-0 items-center gap-2"
+      >
         <img src="/favicon.webp" alt="" class="h-9 w-9" >
         <span class="hidden text-base font-medium sm:block">{{ t('header.title') }}</span>
       </KunLink>
@@ -67,7 +72,14 @@ const onLanguage = async (item: { key: string }) => {
           v-for="item in navItems"
           :key="item.to"
           :to="item.to"
-          :class="cn('text-sm', isActive(item.to) ? 'text-primary' : 'text-default-600')"
+          color="default"
+          underline="none"
+          :class-name="
+            cn(
+              'text-sm transition-colors hover:text-foreground',
+              isActive(item.to) ? 'text-foreground font-medium' : 'text-default-500'
+            )
+          "
         >
           {{ item.label }}
         </KunLink>

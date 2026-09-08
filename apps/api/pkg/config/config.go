@@ -13,6 +13,16 @@ type Config struct {
 	OAuth    OAuthConfig
 	CORS     CORSConfig
 	Image    ImageConfig
+	Catalog  CatalogConfig
+}
+
+// CatalogConfig points at the nextmoe-infra catalog read face. APIKey is an
+// application key minted in the developer portal (nmk_live_ / nmk_test_); with
+// it empty every catalog lookup is skipped and the site renders the free-text
+// game and character names it already stores.
+type CatalogConfig struct {
+	BaseURL string
+	APIKey  string
 }
 
 type ImageConfig struct {
@@ -67,6 +77,10 @@ func Load() (*Config, error) {
 		},
 		CORS: CORSConfig{
 			AllowOrigins: env("CORS_ALLOW_ORIGINS", "http://127.0.0.1:5173"),
+		},
+		Catalog: CatalogConfig{
+			BaseURL: strings.TrimRight(os.Getenv("KUN_CATALOG_BASE_URL"), "/"),
+			APIKey:  strings.TrimSpace(os.Getenv("KUN_CATALOG_API_KEY")),
 		},
 		Image: ImageConfig{
 			BaseURL: strings.TrimRight(os.Getenv("KUN_IMAGE_CLIENT_BASE_URL"), "/"),
