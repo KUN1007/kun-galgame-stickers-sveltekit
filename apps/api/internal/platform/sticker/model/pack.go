@@ -37,12 +37,13 @@ type Pack struct {
 	// when its author declared one. The name and cover beside it are a display
 	// snapshot so a list page never calls catalog; catalog stays the source of
 	// truth for the identity itself.
-	CatalogWorkID    *int64         `gorm:"column:catalog_work_id"`
-	CatalogWorkName  datatypes.JSON `gorm:"column:catalog_work_name;type:jsonb"`
-	CatalogWorkCover string         `gorm:"column:catalog_work_cover"`
-	CreatedAt        time.Time      `gorm:"column:created_at"`
-	UpdatedAt        time.Time      `gorm:"column:updated_at"`
-	PublishedAt      *time.Time     `gorm:"column:published_at"`
+	CatalogWorkID     *int64         `gorm:"column:catalog_work_id"`
+	CatalogWorkName   datatypes.JSON `gorm:"column:catalog_work_name;type:jsonb"`
+	CatalogWorkCover  string         `gorm:"column:catalog_work_cover"`
+	CatalogWorkRating string         `gorm:"column:catalog_work_rating"`
+	CreatedAt         time.Time      `gorm:"column:created_at"`
+	UpdatedAt         time.Time      `gorm:"column:updated_at"`
+	PublishedAt       *time.Time     `gorm:"column:published_at"`
 }
 
 func (Pack) TableName() string { return "pack" }

@@ -23,6 +23,7 @@ type Sticker struct {
 	// official packs were annotated with before catalog existed.
 	CatalogWorkID         *int64         `gorm:"column:catalog_work_id"`
 	CatalogWorkName       datatypes.JSON `gorm:"column:catalog_work_name;type:jsonb"`
+	CatalogWorkRating     string         `gorm:"column:catalog_work_rating"`
 	CatalogCharacterID    *int64         `gorm:"column:catalog_character_id"`
 	CatalogCharacterName  datatypes.JSON `gorm:"column:catalog_character_name;type:jsonb"`
 	CatalogCharacterImage string         `gorm:"column:catalog_character_image"`

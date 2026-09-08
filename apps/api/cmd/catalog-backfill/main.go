@@ -40,6 +40,7 @@ import (
 
 func main() {
 	apply := flag.Bool("apply", false, "write the resolved links (default: dry run)")
+	refresh := flag.Bool("refresh", false, "also re-resolve stickers that already carry a link")
 	packLimit := flag.Int("packs", 0, "only touch this many packs (0 = all)")
 	flag.Parse()
 
@@ -58,7 +59,7 @@ func main() {
 	}
 
 	db := database.NewPostgres(cfg.Database, "prod")
-	run := &backfill{db: db, catalog: catalog, apply: *apply, works: map[string]*match{}}
+	run := &backfill{db: db, catalog: catalog, apply: *apply, refresh: *refresh, works: map[string]*match{}}
 	if err := run.do(context.Background(), *packLimit); err != nil {
 		log.Fatalf("backfill: %v", err)
 	}
@@ -94,6 +95,10 @@ type backfill struct {
 	db      *gorm.DB
 	catalog *catalogclient.Client
 	apply   bool
+	// refresh re-resolves rows that already carry a link, for when the snapshot
+	// gains a field or catalog renames something. Off by default: the ordinary
+	// run should only ever add.
+	refresh bool
 
 	works map[string]*match // keyed by the sticker's romaji game name
 
@@ -110,7 +115,10 @@ func (b *backfill) do(ctx context.Context, packLimit int) error {
 	b.touchedPackIDs = map[string]bool{}
 
 	var rows []model.Sticker
-	q := b.db.Where("catalog_work_id IS NULL AND game::text <> '{}'").Order("pack_id, position")
+	q := b.db.Where("game::text <> '{}'").Order("pack_id, position")
+	if !b.refresh {
+		q = q.Where("catalog_work_id IS NULL")
+	}
 	if packLimit > 0 {
 		var packIDs []string
 		if err := b.db.Model(&model.Pack{}).Order("created_at").Limit(packLimit).
@@ -192,6 +200,7 @@ func (b *backfill) one(ctx context.Context, row *model.Sticker) error {
 	return b.db.Model(&model.Sticker{}).Where("id = ?", row.ID).Updates(map[string]any{
 		"catalog_work_id":         workID,
 		"catalog_work_name":       encode(workName),
+		"catalog_work_rating":     found.work.ContentRating,
 		"catalog_character_id":    charID,
 		"catalog_character_name":  encode(charName),
 		"catalog_character_image": charImage,

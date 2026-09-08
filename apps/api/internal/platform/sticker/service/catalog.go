@@ -53,14 +53,28 @@ func parseCatalogID(raw string) *int64 {
 
 // workDTO and characterDTO render the snapshot the database holds. They never
 // reach for catalog: a list page must stay renderable while it is down.
-func workDTO(id *int64, name datatypes.JSON, cover string) *dto.CatalogWork {
+// workSnapshot is what a row stores about a catalog work. It travels as one
+// value because the caller writes all of it or none of it.
+type workSnapshot struct {
+	ID     *int64
+	Name   datatypes.JSON
+	Cover  string
+	Rating string
+}
+
+func emptyWorkSnapshot() workSnapshot {
+	return workSnapshot{Name: datatypes.JSON("{}")}
+}
+
+func workDTO(id *int64, name datatypes.JSON, cover, rating string) *dto.CatalogWork {
 	if id == nil {
 		return nil
 	}
 	return &dto.CatalogWork{
-		ID:       *id,
-		Name:     decodeML(name),
-		CoverURL: cover,
+		ID:            *id,
+		Name:          decodeML(name),
+		CoverURL:      cover,
+		ContentRating: rating,
 	}
 }
 
@@ -78,22 +92,27 @@ func characterDTO(id *int64, name datatypes.JSON, image string) *dto.CatalogChar
 // resolveWork turns a catalog work id into the snapshot stored on a row. A nil
 // or zero id clears the link; an id catalog does not know is a client error,
 // not a silently dropped field.
-func (s *Service) resolveWork(ctx context.Context, id *int64) (*int64, datatypes.JSON, string, *errors.AppError) {
+func (s *Service) resolveWork(ctx context.Context, id *int64) (workSnapshot, *errors.AppError) {
 	if id == nil || *id <= 0 {
-		return nil, datatypes.JSON("{}"), "", nil
+		return emptyWorkSnapshot(), nil
 	}
 	if !s.catalog.Configured() {
-		return nil, nil, "", errors.ErrCatalogUnavailable()
+		return workSnapshot{}, errors.ErrCatalogUnavailable()
 	}
 	work, err := s.catalog.Work(ctx, *id)
 	if err != nil {
 		if catalogclient.Missing(err) {
-			return nil, nil, "", errors.ErrInvalidParams("no such catalog work")
+			return workSnapshot{}, errors.ErrInvalidParams("no such catalog work")
 		}
-		return nil, nil, "", errors.ErrCatalogUnavailable()
+		return workSnapshot{}, errors.ErrCatalogUnavailable()
 	}
 	name := catalogName(work.DisplayName, work.Localized, work.Latin)
-	return id, encodeML(name), imageURL(work.Cover), nil
+	return workSnapshot{
+		ID:     id,
+		Name:   encodeML(name),
+		Cover:  imageURL(work.Cover),
+		Rating: work.ContentRating,
+	}, nil
 }
 
 func (s *Service) resolveCharacter(ctx context.Context, id *int64) (*int64, datatypes.JSON, string, *errors.AppError) {

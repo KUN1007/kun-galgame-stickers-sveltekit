@@ -89,7 +89,7 @@ func (s *Service) AddSticker(ctx context.Context, packID uuid.UUID, v Viewer, re
 		return nil, errors.ErrInvalidParams("image_hash must be a 64 character hex digest")
 	}
 
-	workID, workName, _, appErr := s.resolveWork(ctx, req.CatalogWorkID)
+	work, appErr := s.resolveWork(ctx, req.CatalogWorkID)
 	if appErr != nil {
 		return nil, appErr
 	}
@@ -105,8 +105,9 @@ func (s *Service) AddSticker(ctx context.Context, packID uuid.UUID, v Viewer, re
 		Game:                  sanitizeML(req.Game),
 		CharacterName:         sanitizeML(req.CharacterName),
 		VndbID:                positive(req.VndbID),
-		CatalogWorkID:         workID,
-		CatalogWorkName:       workName,
+		CatalogWorkID:         work.ID,
+		CatalogWorkName:       work.Name,
+		CatalogWorkRating:     work.Rating,
 		CatalogCharacterID:    characterID,
 		CatalogCharacterName:  characterName,
 		CatalogCharacterImage: characterImage,
@@ -128,7 +129,7 @@ func (s *Service) AddSticker(ctx context.Context, packID uuid.UUID, v Viewer, re
 		_ = s.packs.Save(pack)
 	}
 
-	if workID != nil {
+	if work.ID != nil {
 		s.syncPackSearchText(packID)
 	}
 	out := s.stickerDTO(*row)
@@ -163,12 +164,13 @@ func (s *Service) PatchSticker(
 	}
 	gameChanged := false
 	if req.CatalogWorkID != nil {
-		workID, workName, _, appErr := s.resolveWork(ctx, req.CatalogWorkID)
+		work, appErr := s.resolveWork(ctx, req.CatalogWorkID)
 		if appErr != nil {
 			return nil, appErr
 		}
-		row.CatalogWorkID = workID
-		row.CatalogWorkName = workName
+		row.CatalogWorkID = work.ID
+		row.CatalogWorkName = work.Name
+		row.CatalogWorkRating = work.Rating
 		gameChanged = true
 	}
 	if req.CatalogCharacterID != nil {

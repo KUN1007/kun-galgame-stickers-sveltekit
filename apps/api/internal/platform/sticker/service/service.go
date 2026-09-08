@@ -119,7 +119,7 @@ func (s *Service) stickerDTO(row model.Sticker) dto.Sticker {
 		Note:          row.Note,
 		ImageURL:      main,
 		ThumbURL:      thumb,
-		CatalogWork:   workDTO(row.CatalogWorkID, row.CatalogWorkName, ""),
+		CatalogWork:   workDTO(row.CatalogWorkID, row.CatalogWorkName, "", row.CatalogWorkRating),
 		CatalogCharacter: characterDTO(
 			row.CatalogCharacterID, row.CatalogCharacterName, row.CatalogCharacterImage,
 		),
@@ -146,7 +146,7 @@ func (s *Service) packDTO(
 		Tags:          tagDTOs(tags),
 		CreatedAt:     row.CreatedAt.UTC().Format(time.RFC3339),
 		UpdatedAt:     row.UpdatedAt.UTC().Format(time.RFC3339),
-		CatalogWork:   workDTO(row.CatalogWorkID, row.CatalogWorkName, row.CatalogWorkCover),
+		CatalogWork:   workDTO(row.CatalogWorkID, row.CatalogWorkName, row.CatalogWorkCover, row.CatalogWorkRating),
 	}
 	if cover != nil {
 		out.CoverURL, out.CoverThumbURL = s.urls(cover.ImageHash)

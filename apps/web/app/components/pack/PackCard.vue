@@ -33,7 +33,12 @@ const to = computed(() => localePath(`/pack/${props.pack.id}`))
         <KunChip v-if="pack.is_official" size="sm" color="default" variant="solid">
           {{ t('pack.official') }}
         </KunChip>
-        <KunChip v-if="pack.content_rating === RATING_NSFW" size="sm" color="danger" variant="solid">
+        <KunChip
+          v-if="pack.content_rating === RATING_NSFW || pack.catalog_work?.content_rating === 'r18'"
+          size="sm"
+          color="danger"
+          variant="solid"
+        >
           R18
         </KunChip>
         <KunChip

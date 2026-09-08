@@ -211,21 +211,22 @@ func (s *Service) CreatePack(ctx context.Context, v Viewer, req dto.CreatePackRe
 	}
 	description := sanitizeML(req.Description)
 
-	workID, workName, workCover, appErr := s.resolveWork(ctx, req.CatalogWorkID)
+	work, appErr := s.resolveWork(ctx, req.CatalogWorkID)
 	if appErr != nil {
 		return nil, appErr
 	}
 
 	pack := &model.Pack{
-		OwnerUID:         v.UID,
-		Status:           model.PackDraft,
-		ContentRating:    rating(req.ContentRating),
-		Title:            title,
-		Description:      description,
-		CatalogWorkID:    workID,
-		CatalogWorkName:  workName,
-		CatalogWorkCover: workCover,
-		SearchText:       searchText(title, description, workName),
+		OwnerUID:          v.UID,
+		Status:            model.PackDraft,
+		ContentRating:     rating(req.ContentRating),
+		Title:             title,
+		Description:       description,
+		CatalogWorkID:     work.ID,
+		CatalogWorkName:   work.Name,
+		CatalogWorkCover:  work.Cover,
+		CatalogWorkRating: work.Rating,
+		SearchText:        searchText(title, description, work.Name),
 	}
 	if err := s.packs.Create(pack); err != nil {
 		return nil, errors.ErrInternal("failed to create pack")
@@ -267,13 +268,14 @@ func (s *Service) PatchPack(ctx context.Context, id uuid.UUID, v Viewer, req dto
 		pack.CoverStickerID = &coverID
 	}
 	if req.CatalogWorkID != nil {
-		workID, workName, workCover, appErr := s.resolveWork(ctx, req.CatalogWorkID)
+		work, appErr := s.resolveWork(ctx, req.CatalogWorkID)
 		if appErr != nil {
 			return nil, appErr
 		}
-		pack.CatalogWorkID = workID
-		pack.CatalogWorkName = workName
-		pack.CatalogWorkCover = workCover
+		pack.CatalogWorkID = work.ID
+		pack.CatalogWorkName = work.Name
+		pack.CatalogWorkCover = work.Cover
+		pack.CatalogWorkRating = work.Rating
 	}
 	pack.SearchText = s.searchTextFor(pack)
 
